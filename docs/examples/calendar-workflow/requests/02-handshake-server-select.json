@@ -1,0 +1,37 @@
+{
+  "type": "ai-alpn-select",
+  "selected": {
+    "protocol": "mcp/1.1",
+    "mpl_version": "0.1",
+    "stypes": ["org.calendar.Event.v1", "org.calendar.Query.v1"],
+    "tools": ["calendar.create.v1", "calendar.read.v1"],
+    "policies": ["policy.ref#consent-basic-v1"],
+    "profile": "qom-strict-argcheck",
+    "features": []
+  },
+  "downgrades": [
+    {
+      "capability": "ext.qom.determinism@v1",
+      "reason": "Feature not supported by server.",
+      "severity": "info"
+    },
+    {
+      "capability": "ext.provenance.signatures@v1",
+      "reason": "Signature verification not enabled.",
+      "severity": "warning",
+      "recommendation": "Enable for production deployments requiring non-repudiation."
+    },
+    {
+      "capability": "agent.TaskPlan.v1",
+      "reason": "SType not registered in this server's namespace.",
+      "severity": "info"
+    }
+  ],
+  "server_info": {
+    "name": "mpl-server-calendar",
+    "version": "1.2.0",
+    "registry": "https://registry.mpl.dev"
+  },
+  "session_id": "sess-xyz789",
+  "timestamp": "2025-11-05T14:00:00.123Z"
+}

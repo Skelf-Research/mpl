@@ -1,0 +1,85 @@
+{
+  "name": "qom-strict-argcheck",
+  "version": "1.0.0",
+  "description": "Strict QoM profile for high-reliability workflows. Requires perfect schema fidelity and high instruction compliance.",
+  "metrics": {
+    "schema_fidelity": {
+      "min": 1.0,
+      "description": "Payloads must perfectly conform to declared SType schema."
+    },
+    "instruction_compliance": {
+      "min": 0.97,
+      "description": "At least 97% of assertions must pass.",
+      "sample_rate": 1.0
+    },
+    "groundedness": {
+      "min": 0.95,
+      "description": "95% of claims must be supported by citations.",
+      "sample_rate": 0.5,
+      "enabled": false,
+      "note": "Optional for structured data workflows; enable for LLM-generated responses."
+    },
+    "determinism_jitter": {
+      "min": 0.95,
+      "description": "Output must be 95% semantically stable under perturbations.",
+      "sample_rate": 0.2,
+      "enabled": false,
+      "note": "Optional for deterministic APIs; enable for LLM workflows."
+    },
+    "ontology_adherence": {
+      "min": 0.98,
+      "description": "98% of ontology constraints must be satisfied.",
+      "sample_rate": 1.0,
+      "enabled": true
+    },
+    "tool_outcome_correctness": {
+      "min": 1.0,
+      "description": "Post-check verification must pass.",
+      "sample_rate": 1.0,
+      "enabled": true
+    }
+  },
+  "retry_policy": {
+    "max_retries": 1,
+    "degrade_to": "qom-basic",
+    "on_failure": "escalate",
+    "backoff_ms": 1000
+  },
+  "assertions": [
+    {
+      "id": "event-chronological",
+      "description": "Event end time must be after start time.",
+      "rule": {
+        "type": "jsonlogic",
+        "expression": {"<": [{"var": "start"}, {"var": "end"}]}
+      }
+    },
+    {
+      "id": "event-duration-reasonable",
+      "description": "Event duration must be between 1 minute and 24 hours.",
+      "rule": {
+        "type": "custom",
+        "script": "duration_between(payload.start, payload.end, min='1m', max='24h')"
+      }
+    },
+    {
+      "id": "attendees-not-empty-if-present",
+      "description": "If attendees field exists, it must not be empty.",
+      "rule": {
+        "type": "jsonlogic",
+        "expression": {
+          "if": [
+            {"!!": {"var": "attendees"}},
+            {">": [{"length": {"var": "attendees"}}, 0]},
+            true
+          ]
+        }
+      }
+    }
+  ],
+  "telemetry": {
+    "log_all_evaluations": true,
+    "emit_metrics": true,
+    "store_artifacts": true
+  }
+}

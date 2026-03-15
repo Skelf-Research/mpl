@@ -1,0 +1,30 @@
+{
+  "type": "ai-alpn-hello",
+  "protocols": ["mcp/1.1", "mpl/0.1"],
+  "models": ["claude-3.5-sonnet"],
+  "stypes": [
+    "org.calendar.Event.v1",
+    "org.calendar.Query.v1",
+    "agent.TaskPlan.v1"
+  ],
+  "tools": [
+    {
+      "id": "calendar.create.v1",
+      "args_stype": "org.calendar.Event.v1",
+      "returns_stype": "org.calendar.Event.v1"
+    },
+    {
+      "id": "calendar.read.v1",
+      "args_stype": "org.calendar.Query.v1",
+      "returns_stype": "org.calendar.EventList.v1"
+    }
+  ],
+  "policies": ["policy.ref#consent-basic-v1"],
+  "profiles": ["qom-strict-argcheck", "qom-basic"],
+  "features": ["ext.qom.determinism@v1", "ext.provenance.signatures@v1"],
+  "client_info": {
+    "name": "mpl-client-python",
+    "version": "0.1.0",
+    "agent_id": "agent://orchestrator"
+  }
+}

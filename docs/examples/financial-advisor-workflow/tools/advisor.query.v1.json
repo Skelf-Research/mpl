@@ -1,0 +1,70 @@
+{
+  "id": "advisor.query.v1",
+  "name": "advisor.query",
+  "version": "1.0.0",
+  "description": "Query investment recommendations by various parameters.",
+  "args_stype": "org.finance.Query.v1",
+  "returns_stype": "org.finance.RecommendationList.v1",
+  "policies": ["policy.ref#consent-basic-v1"],
+  "profiles": ["qom-basic"],
+  "features": [],
+  "idempotent": true,
+  "side_effects": ["read"],
+  "impl": {
+    "type": "http",
+    "url": "https://api.example.com/v1/advisor/recommendations",
+    "method": "GET",
+    "auth": "bearer",
+    "timeout_ms": 5000
+  },
+  "examples": [
+    {
+      "description": "Query recommendations by ID",
+      "input": {
+        "recommendationId": "rec_001"
+      },
+      "output": {
+        "recommendations": [
+          {
+            "recommendationId": "rec_001",
+            "clientId": "client_abc123",
+            "symbol": "VOO",
+            "assetClass": "etf",
+            "action": "buy",
+            "riskLevel": "moderate",
+            "generatedAt": "2025-11-08T14:30:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "description": "Query recommendations by client",
+      "input": {
+        "clientId": "client_abc123",
+        "limit": 5
+      },
+      "output": {
+        "recommendations": [
+          {
+            "recommendationId": "rec_001",
+            "clientId": "client_abc123",
+            "symbol": "VOO",
+            "assetClass": "etf",
+            "action": "buy",
+            "riskLevel": "moderate",
+            "generatedAt": "2025-11-08T14:30:00Z"
+          },
+          {
+            "recommendationId": "rec_002",
+            "clientId": "client_abc123",
+            "symbol": "BND",
+            "assetClass": "etf",
+            "action": "buy",
+            "riskLevel": "conservative",
+            "generatedAt": "2025-11-08T14:35:00Z"
+          }
+        ]
+      }
+    }
+  ]
+}

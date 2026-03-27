@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.finance.InvestmentRecommendation.v1",
+  "title": "Investment Recommendation",
+  "description": "A financial advisor's recommendation for a specific investment action.",
+  "type": "object",
+  "properties": {
+    "recommendationId": {
+      "type": "string",
+      "description": "Unique identifier for the recommendation.",
+      "pattern": "^rec_[a-zA-Z0-9]+$",
+      "examples": ["rec_001", "rec_abc123"]
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Client identifier for whom the recommendation is made.",
+      "pattern": "^client_[a-zA-Z0-9]+$",
+      "examples": ["client_001", "client_xyz789"]
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Investment symbol or ticker.",
+      "pattern": "^[A-Z]{1,5}$",
+      "examples": ["AAPL", "MSFT", "VOO", "BND"]
+    },
+    "assetClass": {
+      "type": "string",
+      "enum": ["stocks", "bonds", "etf", "mutual_fund", "alternative", "cash"],
+      "description": "Type of investment asset."
+    },
+    "action": {
+      "type": "string",
+      "enum": ["buy", "sell", "hold", "rebalance"],
+      "description": "Recommended action for the investment."
+    },
+    "amount": {
+      "type": "number",
+      "description": "Recommended investment amount in USD.",
+      "minimum": 0,
+      "examples": [5000.00, 10000.00, 25000.00]
+    },
+    "allocationPercentage": {
+      "type": "number",
+      "description": "Recommended allocation as percentage of portfolio.",
+      "minimum": 0,
+      "maximum": 100,
+      "examples": [10.5, 25.0, 35.0]
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Detailed explanation for the recommendation.",
+      "minLength": 10,
+      "maxLength": 2000,
+      "examples": ["Based on client's moderate risk tolerance and 10-year time horizon, diversified equity exposure through a broad market ETF aligns with long-term growth objectives while managing volatility."]
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["conservative", "moderate", "aggressive"],
+      "description": "Risk level of the recommended investment."
+    },
+    "timeHorizon": {
+      "type": "string",
+      "description": "Recommended holding period.",
+      "examples": ["short_term", "medium_term", "long_term"]
+    },
+    "targetPrice": {
+      "type": "number",
+      "description": "Target price for the investment (if applicable).",
+      "minimum": 0,
+      "examples": [150.00, 225.50, 85.75]
+    },
+    "confidenceScore": {
+      "type": "number",
+      "description": "Advisor confidence in the recommendation (0-1).",
+      "minimum": 0,
+      "maximum": 1,
+      "examples": [0.85, 0.92, 0.78]
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when recommendation was generated (ISO 8601 UTC).",
+      "examples": ["2025-11-08T14:30:00Z", "2025-11-05T09:15:00Z"]
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when recommendation expires (ISO 8601 UTC).",
+      "examples": ["2025-11-15T14:30:00Z", "2025-11-12T09:15:00Z"]
+    },
+    "disclaimer": {
+      "type": "string",
+      "description": "Legal disclaimer and risk disclosure.",
+      "maxLength": 1000,
+      "examples": ["This recommendation is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Please consult with a licensed financial advisor before making investment decisions."]
+    }
+  },
+  "required": ["recommendationId", "clientId", "symbol", "assetClass", "action", "rationale", "riskLevel", "generatedAt"],
+  "additionalProperties": false,
+  "version": "1.0.0",
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-08",
+      "changes": "Initial release with core investment recommendation fields."
+    }
+  ]
+}

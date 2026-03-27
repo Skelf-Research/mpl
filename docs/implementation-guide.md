@@ -15,7 +15,7 @@ The sections below provide technical details applicable across all integration m
 
 ## 1. Prepare the Semantic Registry
 
-- **Namespace and semver rules:** adopt URNs such as `urn:stype:org.calendar.Event.v1`; only the major version appears in the wire name, while minor/patch revisions live in schema metadata.
+- **Namespace and semver rules:** adopt URNs such as `urn:stype:org.finance.InvestmentRecommendation.v1`; only the major version appears in the wire name, while minor/patch revisions live in schema metadata.
 - **Repository layout:** store schemas under `/stypes/{org}/{domain}/{Name}/v{MAJOR}/schema.json` with examples, negative test vectors, semantic notes, and changelogs.
 - **Governance automation:** enforce lint checks for duplicate IDs, unresolved `$ref`, missing examples, and unbounded `additionalProperties`. Require CODEOWNERS approval per namespace.
 - **Deprecation workflow:** mark STypes as deprecated with sunset dates and upgrade maps; surface flags in the handshake so clients can plan migrations.
@@ -34,14 +34,14 @@ Minimum fields:
 ```json
 {
   "id": "uuid",
-  "stype": "org.calendar.Event.v1",
+  "stype": "org.finance.InvestmentRecommendation.v1",
   "payload": { "...": "..." },
-  "args_stype": "org.calendar.Event.v1",
+  "args_stype": "org.finance.InvestmentRecommendation.v1",
   "profile": "qom-strict-argcheck",
   "sem_hash": "b3:...",
   "provenance": {
-    "intent": "calendar.create.v1",
-    "inputs_ref": ["ctx:plan.step#2"]
+    "intent": "advisor.recommend.v1",
+    "inputs_ref": ["ctx:risk-assessment.step#3"]
   }
 }
 ```
@@ -137,8 +137,8 @@ Treat each as a shippable milestone to de-risk adoption and gather feedback from
 - **CLI tooling:** ship an `mpl-registry` CLI (or scripts) to scaffold and validate STypes, tools, and profiles.
 
 ```bash
-$ mpl-registry init my-org.calendar
-$ mpl-registry add-stype org.calendar.Event.v1 schema.json --examples examples/*.json
+$ mpl-registry init my-org.finance
+$ mpl-registry add-stype org.finance.InvestmentRecommendation.v1 schema.json --examples examples/*.json
 $ mpl-registry lint
 $ mpl-registry publish --registry=https://registry.mpl.dev
 ```
@@ -154,12 +154,12 @@ $ mpl-registry publish --registry=https://registry.mpl.dev
 - Developers author `tool.{name}.v{major}.json` manifests via CLI scaffolding:
 
 ```bash
-$ mpl-registry add-tool calendar.create.v1 \
-    --args-stype=org.calendar.Event.v1 \
-    --returns-stype=org.calendar.Event.v1 \
-    --policy=policy.ref#consent-basic-v1 \
+$ mpl-registry add-tool advisor.recommend.v1 \
+    --args-stype=org.finance.InvestmentRecommendation.v1 \
+    --returns-stype=org.finance.InvestmentRecommendation.v1 \
+    --policy=policy.ref#fiduciary-duty-v1 \
     --profile=qom-strict-argcheck \
-    --impl-url=https://api.example.com/v1/calendar/event
+    --impl-url=https://api.example.com/v1/advisor/recommendations
 ```
 
 - CLI validates references to registered STypes, policies, and QoM profiles.
@@ -184,15 +184,15 @@ $ mpl-registry lint-profile qom-strict-argcheck
 from mpl.sdk import Session
 
 session = Session.connect(
-    transport="wss://mcp.example.com",
-    stypes=["org.calendar.Event.v1"],
-    tools=["calendar.create.v1"],
+    transport="wss://advisor.example.com",
+    stypes=["org.finance.InvestmentRecommendation.v1"],
+    tools=["advisor.recommend.v1"],
     profile="qom-strict-argcheck"
 )
 
 resp = session.call(
-    tool="calendar.create.v1",
-    payload={"title": "Design Review", "start": "...", "end": "..."}
+    tool="advisor.recommend.v1",
+    payload={"symbol": "VOO", "action": "buy", "riskLevel": "moderate", "rationale": "..."}
 )
 
 resp.assert_schema()
@@ -204,13 +204,13 @@ resp.assert_qom()
 ```typescript
 import { defineTool } from "@mpl/sdk";
 
-export const createEvent = defineTool({
-  id: "calendar.create.v1",
-  argsStype: "org.calendar.Event.v1",
-  returnsStype: "org.calendar.Event.v1",
+export const generateRecommendation = defineTool({
+  id: "advisor.recommend.v1",
+  argsStype: "org.finance.InvestmentRecommendation.v1",
+  returnsStype: "org.finance.InvestmentRecommendation.v1",
   handler: async ({ payload }) => {
-    const event = await calendarAPI.create(payload);
-    return event;
+    const recommendation = await advisorAPI.generateRecommendation(payload);
+    return recommendation;
   },
 });
 ```
@@ -241,7 +241,7 @@ observability:
 1. Scaffold new SType/tool/profile with CLI.
 2. Write examples and negative vectors; run `mpl-registry lint`.
 3. Implement tool handler or agent logic using SDK helpers.
-4. Run local conformance suite (`mpl test --tool calendar.create.v1`).
+4. Run local conformance suite (`mpl test --tool advisor.recommend.v1`).
 5. Launch MPL proxy/SDK in dev mode (`mpl proxy --mock-qom`).
 6. Iterate until QoM and schema checks pass; then submit registry + code changes together.
 

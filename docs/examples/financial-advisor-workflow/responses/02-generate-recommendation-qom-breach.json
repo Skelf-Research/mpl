@@ -1,0 +1,95 @@
+{
+  "id": "msg-43",
+  "type": "error",
+  "error": {
+    "code": "E-QOM-BREACH",
+    "message": "QoM profile 'qom-strict-argcheck' requirements not met.",
+    "details": {
+      "profile": "qom-strict-argcheck",
+      "meets_profile": false,
+      "failed_metrics": [
+        {
+          "metric": "instruction_compliance",
+          "actual": 0.60,
+          "required": 0.97,
+          "description": "Only 3 of 5 assertions passed."
+        }
+      ],
+      "assertions_failed": [
+        {
+          "id": "risk-alignment",
+          "passed": false,
+          "details": "Recommendation risk level (aggressive) does not match client risk tolerance (conservative). Fiduciary duty violation."
+        },
+        {
+          "id": "fiduciary-compliance",
+          "passed": false,
+          "details": "Recommendation fails suitability requirements for client risk profile."
+        }
+      ],
+      "assertions_passed": [
+        {
+          "id": "allocation-bounds",
+          "passed": true,
+          "details": "Allocation percentage (30%) within acceptable range (0-100%)"
+        },
+        {
+          "id": "rationale-present",
+          "passed": true,
+          "details": "Rationale provided with 187 characters"
+        },
+        {
+          "id": "valid-symbol",
+          "passed": true,
+          "details": "Symbol 'ARKK' verified as valid ticker"
+        }
+      ],
+      "artifacts": [
+        {
+          "type": "validation-report",
+          "ref": "cas://mpl/qom/msg-43/breach-report",
+          "description": "Detailed QoM evaluation results with regulatory compliance checks."
+        },
+        {
+          "type": "audit-log",
+          "ref": "cas://mpl/audit/msg-43/compliance-failure",
+          "description": "Compliance violation logged for regulatory review."
+        }
+      ],
+      "evaluated_at": "2025-11-08T14:35:22.789Z"
+    },
+    "hints": [
+      "Verify that recommendation risk level aligns with client's risk tolerance profile.",
+      "Review fiduciary duty requirements for investment suitability.",
+      "Ensure recommendation meets regulatory compliance standards (SEC, FINRA).",
+      "Consider using 'qom-basic' profile only if compliance requirements explicitly allow."
+    ],
+    "remediation": [
+      {
+        "action": "fix_payload",
+        "description": "Adjust recommendation to match client's conservative risk tolerance.",
+        "example": {
+          "symbol": "BND",
+          "assetClass": "etf",
+          "riskLevel": "conservative",
+          "rationale": "Bond ETF suitable for conservative investor seeking capital preservation with modest income."
+        }
+      },
+      {
+        "action": "retry",
+        "description": "Retry the request with risk-appropriate recommendation.",
+        "max_retries": 1
+      },
+      {
+        "action": "escalate",
+        "description": "If aggressive recommendation is intentional, obtain explicit client acknowledgment and override approval from compliance officer.",
+        "required_approval": "compliance-officer"
+      }
+    ]
+  },
+  "provenance": {
+    "intent": "advisor.recommend.v1",
+    "failed_at": "2025-11-08T14:35:22.789Z",
+    "server_id": "mpl-server-advisor"
+  }
+}

@@ -4,7 +4,7 @@ MPL layers semantic guarantees on top of existing MCP/A2A transports. This docum
 
 ## 1. Semantic Grounding Layer
 
-- **Semantic Types (STypes):** globally unique, versioned identifiers (`namespace.domain.Intent.vMajor`) that describe meaning, where only the major version appears in the identifier (e.g., `org.calendar.Event.v1`). Minor and patch versions are tracked in schema metadata. Each SType links to a canonical schema (JSON Schema or Protobuf) and optional ontology references (RDF/OWL/SHACL).
+- **Semantic Types (STypes):** globally unique, versioned identifiers (`namespace.domain.Intent.vMajor`) that describe meaning, where only the major version appears in the identifier (e.g., `org.finance.InvestmentRecommendation.v1`). Minor and patch versions are tracked in schema metadata. Each SType links to a canonical schema (JSON Schema or Protobuf) and optional ontology references (RDF/OWL/SHACL).
 - **Dual typing:** transports keep `Content-Type` for syntax; MPL adds `Semantic-Type` metadata plus an `stype` field in the payload.
 - **Registry governance:** namespaces, semver rules, deprecation policies, and change logs live in the public MPL registry. Clients can fetch and cache schema definitions via immutable URIs.
 - **Canonicalisation:** payloads can be normalised into a deterministic form for hashing, diffing, and schema validation.

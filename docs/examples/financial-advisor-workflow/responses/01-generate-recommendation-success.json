@@ -1,0 +1,85 @@
+{
+  "id": "msg-42",
+  "type": "response",
+  "role": "tool",
+  "content": [
+    {
+      "stype": "org.finance.InvestmentRecommendation.v1",
+      "payload": {
+        "recommendationId": "rec_001",
+        "clientId": "client_abc123",
+        "symbol": "VOO",
+        "assetClass": "etf",
+        "action": "buy",
+        "amount": 10000.00,
+        "allocationPercentage": 25.0,
+        "rationale": "Based on client's moderate risk tolerance and 10-year time horizon, diversified equity exposure through a broad market ETF aligns with long-term growth objectives while managing volatility. The Vanguard S&P 500 ETF provides low-cost exposure to large-cap US equities.",
+        "riskLevel": "moderate",
+        "timeHorizon": "long_term",
+        "targetPrice": 450.00,
+        "confidenceScore": 0.89,
+        "generatedAt": "2025-11-08T14:30:00Z",
+        "expiresAt": "2025-11-15T14:30:00Z",
+        "disclaimer": "This recommendation is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Please consult with a licensed financial advisor before making investment decisions."
+      },
+      "sem_hash": "b3:c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7",
+      "qom_report": {
+        "profile": "qom-strict-argcheck",
+        "meets_profile": true,
+        "metrics": {
+          "schema_fidelity": 1.0,
+          "instruction_compliance": 1.0,
+          "ontology_adherence": 1.0,
+          "tool_outcome_correctness": 1.0
+        },
+        "assertions_passed": [
+          {
+            "id": "risk-alignment",
+            "passed": true,
+            "details": "Recommendation risk level (moderate) matches client risk tolerance"
+          },
+          {
+            "id": "allocation-bounds",
+            "passed": true,
+            "details": "Allocation percentage (25%) within acceptable range (0-100%)"
+          },
+          {
+            "id": "rationale-present",
+            "passed": true,
+            "details": "Rationale provided with 243 characters"
+          },
+          {
+            "id": "valid-symbol",
+            "passed": true,
+            "details": "Symbol 'VOO' verified as valid ticker"
+          },
+          {
+            "id": "fiduciary-compliance",
+            "passed": true,
+            "details": "Recommendation adheres to fiduciary duty standards"
+          }
+        ],
+        "artifacts": [
+          {
+            "type": "post-check",
+            "ref": "cas://mpl/qom/rec_001/verification",
+            "description": "Regulatory compliance verification passed."
+          },
+          {
+            "type": "audit-log",
+            "ref": "cas://mpl/audit/rec_001/trail",
+            "description": "Complete audit trail for recommendation generation."
+          }
+        ],
+        "evaluated_at": "2025-11-08T14:30:16.123Z",
+        "evaluation_duration_ms": 67
+      },
+      "provenance": {
+        "intent": "advisor.recommend.v1",
+        "tool_id": "advisor.recommend.v1",
+        "executed_at": "2025-11-08T14:30:16.000Z",
+        "server_id": "mpl-server-advisor"
+      }
+    }
+  ]
+}

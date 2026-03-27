@@ -1,0 +1,33 @@
+{
+  "id": "msg-42",
+  "type": "call",
+  "tool": "advisor.recommend",
+  "args": {
+    "stype": "org.finance.InvestmentRecommendation.v1",
+    "payload": {
+      "recommendationId": "rec_001",
+      "clientId": "client_abc123",
+      "symbol": "VOO",
+      "assetClass": "etf",
+      "action": "buy",
+      "amount": 10000.00,
+      "allocationPercentage": 25.0,
+      "rationale": "Based on client's moderate risk tolerance and 10-year time horizon, diversified equity exposure through a broad market ETF aligns with long-term growth objectives while managing volatility. The Vanguard S&P 500 ETF provides low-cost exposure to large-cap US equities.",
+      "riskLevel": "moderate",
+      "timeHorizon": "long_term",
+      "confidenceScore": 0.89,
+      "generatedAt": "2025-11-08T14:30:00Z"
+    },
+    "profile": "qom-strict-argcheck",
+    "sem_hash": "b3:d8f7e6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7",
+    "provenance": {
+      "intent": "advisor.recommend.v1",
+      "inputs_ref": ["ctx:risk-assessment.step#3", "ctx:portfolio-analysis.step#7"],
+      "consent_ref": "consent://client_abc123/v2025-11-01",
+      "policy_ref": "policy.ref#fiduciary-duty-v1",
+      "agent_id": "agent://financial-advisor",
+      "session_id": "sess-xyz789",
+      "timestamp": "2025-11-08T14:30:15.456Z"
+    }
+  }
+}

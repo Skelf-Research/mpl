@@ -26,12 +26,12 @@ LLM Runtime (MCP client) ──▶ MPL wrapper ──▶ MCP Server ──▶ To
 {
   "protocols": ["mcp/1.1", "mpl/0.1"],
   "models": ["gpt-x-2025.08"],
-  "stypes": ["org.calendar.Event.v1", "agent.TaskPlan.v1"],
+  "stypes": ["org.finance.InvestmentRecommendation.v1", "agent.TaskPlan.v1"],
   "tools": [
-    {"id":"calendar.read.v1","args_stype":"org.calendar.Query.v1"},
-    {"id":"calendar.create.v1","args_stype":"org.calendar.Event.v1"}
+    {"id":"advisor.query.v1","args_stype":"org.finance.Query.v1"},
+    {"id":"advisor.recommend.v1","args_stype":"org.finance.InvestmentRecommendation.v1"}
   ],
-  "policies": ["policy.ref#consent-basic-v1"],
+  "policies": ["policy.ref#fiduciary-duty-v1"],
   "profiles": ["qom-strict-argcheck"],
   "features": ["ext.qom.determinism@v1"]
 }
@@ -44,9 +44,9 @@ LLM Runtime (MCP client) ──▶ MPL wrapper ──▶ MCP Server ──▶ To
   "selected": {
     "protocol": "mcp/1.1",
     "mpl_version": "0.1",
-    "stypes": ["org.calendar.Event.v1"],
-    "tools": ["calendar.read.v1","calendar.create.v1"],
-    "policies": ["policy.ref#consent-basic-v1"],
+    "stypes": ["org.finance.InvestmentRecommendation.v1"],
+    "tools": ["advisor.query.v1","advisor.recommend.v1"],
+    "policies": ["policy.ref#fiduciary-duty-v1"],
     "profile": "qom-strict-argcheck"
   },
   "downgrades": [
@@ -68,20 +68,22 @@ Wrap standard MCP tool calls with MPL metadata while preserving the original `ca
 {
   "id": "uuid-1",
   "type": "call",
-  "tool": "calendar.create",
+  "tool": "advisor.recommend",
   "args": {
-    "stype": "org.calendar.Event.v1",
+    "stype": "org.finance.InvestmentRecommendation.v1",
     "payload": {
-      "title": "Design Review",
-      "start": "2025-10-27T13:00:00Z",
-      "end": "2025-10-27T13:30:00Z"
+      "symbol": "VOO",
+      "assetClass": "etf",
+      "action": "buy",
+      "riskLevel": "moderate",
+      "rationale": "Based on client's risk tolerance and time horizon..."
     },
     "profile": "qom-strict-argcheck",
     "sem_hash": "b3:c912...",
     "provenance": {
-      "intent": "calendar.create.v1",
-      "inputs_ref": ["ctx:plan.step#2"],
-      "consent_ref": "consent://user123/v2025-06-01"
+      "intent": "advisor.recommend.v1",
+      "inputs_ref": ["ctx:risk-assessment.step#3"],
+      "consent_ref": "consent://client_abc123/v2025-11-01"
     }
   }
 }
@@ -99,12 +101,13 @@ Wrap standard MCP tool calls with MPL metadata while preserving the original `ca
   "role": "tool",
   "content": [
     {
-      "stype": "org.calendar.Event.v1",
+      "stype": "org.finance.InvestmentRecommendation.v1",
       "payload": {
-        "eventId": "evt_123",
-        "title": "Design Review",
-        "start": "2025-10-27T13:00:00Z",
-        "end": "2025-10-27T13:30:00Z"
+        "recommendationId": "rec_123",
+        "symbol": "VOO",
+        "action": "buy",
+        "riskLevel": "moderate",
+        "confidenceScore": 0.89
       },
       "sem_hash": "b3:f481...",
       "qom_report": {
@@ -141,24 +144,24 @@ MCP servers publish tool descriptors. MPL extends them with semantic metadata:
 
 ```json
 {
-  "name": "calendar.create",
-  "description": "Create a calendar event.",
-  "input_schema": { "$ref": "https://registry.mpl.dev/stypes/org/calendar/Event/v1" },
-  "output_schema": { "$ref": "https://registry.mpl.dev/stypes/org/calendar/Event/v1" },
+  "name": "advisor.recommend",
+  "description": "Generate a personalized investment recommendation.",
+  "input_schema": { "$ref": "https://registry.mpl.dev/stypes/org/finance/InvestmentRecommendation/v1" },
+  "output_schema": { "$ref": "https://registry.mpl.dev/stypes/org/finance/InvestmentRecommendation/v1" },
   "mpl": {
-    "id": "calendar.create.v1",
-    "args_stype": "org.calendar.Event.v1",
-    "returns_stype": "org.calendar.Event.v1",
-    "policies": ["policy.ref#consent-basic-v1"],
+    "id": "advisor.recommend.v1",
+    "args_stype": "org.finance.InvestmentRecommendation.v1",
+    "returns_stype": "org.finance.InvestmentRecommendation.v1",
+    "policies": ["policy.ref#fiduciary-duty-v1"],
     "profiles": ["qom-strict-argcheck"],
-    "features": ["recurrence"],
-    "impl": {"url": "https://api.example.com/v1/calendar/event", "type": "http"}
+    "features": ["risk_analysis", "tax_optimization"],
+    "impl": {"url": "https://api.example.com/v1/advisor/recommendations", "type": "http"}
   }
 }
 ```
 
 - Registrations in the MPL schema registry ensure consistent SType definitions.
-- Handshake can advertise tool IDs and negotiated feature subsets (`recurrence`, `attendee_roles`, etc.).
+- Handshake can advertise tool IDs and negotiated feature subsets (`risk_analysis`, `tax_optimization`, etc.).
 
 ## 5. Adoption Paths
 

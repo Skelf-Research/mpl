@@ -1,0 +1,77 @@
+{
+  "id": "advisor.recommend.v1",
+  "name": "advisor.recommend",
+  "version": "1.0.0",
+  "description": "Generate a personalized investment recommendation for a client.",
+  "args_stype": "org.finance.InvestmentRecommendation.v1",
+  "returns_stype": "org.finance.InvestmentRecommendation.v1",
+  "policies": ["policy.ref#consent-basic-v1", "policy.ref#fiduciary-duty-v1"],
+  "profiles": ["qom-strict-argcheck", "qom-basic"],
+  "features": ["risk_analysis", "tax_optimization", "esg_screening"],
+  "idempotent": true,
+  "side_effects": ["write", "audit_log"],
+  "impl": {
+    "type": "http",
+    "url": "https://api.example.com/v1/advisor/recommendations",
+    "method": "POST",
+    "auth": "bearer",
+    "timeout_ms": 10000
+  },
+  "examples": [
+    {
+      "description": "Generate ETF recommendation for moderate-risk client",
+      "input": {
+        "recommendationId": "rec_001",
+        "clientId": "client_abc123",
+        "symbol": "VOO",
+        "assetClass": "etf",
+        "action": "buy",
+        "amount": 10000.00,
+        "allocationPercentage": 25.0,
+        "rationale": "Based on client's moderate risk tolerance and 10-year time horizon, diversified equity exposure through a broad market ETF aligns with long-term growth objectives while managing volatility.",
+        "riskLevel": "moderate",
+        "timeHorizon": "long_term",
+        "confidenceScore": 0.89,
+        "generatedAt": "2025-11-08T14:30:00Z"
+      },
+      "output": {
+        "recommendationId": "rec_001",
+        "clientId": "client_abc123",
+        "symbol": "VOO",
+        "assetClass": "etf",
+        "action": "buy",
+        "amount": 10000.00,
+        "allocationPercentage": 25.0,
+        "rationale": "Based on client's moderate risk tolerance and 10-year time horizon, diversified equity exposure through a broad market ETF aligns with long-term growth objectives while managing volatility.",
+        "riskLevel": "moderate",
+        "timeHorizon": "long_term",
+        "confidenceScore": 0.89,
+        "generatedAt": "2025-11-08T14:30:00Z",
+        "expiresAt": "2025-11-15T14:30:00Z",
+        "disclaimer": "This recommendation is for informational purposes only and does not constitute financial advice. Past performance does not guarantee future results. Please consult with a licensed financial advisor before making investment decisions."
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": "E-INSUFFICIENT-DATA",
+      "description": "Insufficient client risk profile or financial data to generate recommendation.",
+      "remediation": "Complete client risk assessment questionnaire and update financial profile."
+    },
+    {
+      "code": "E-INVALID-SYMBOL",
+      "description": "Investment symbol not found or not supported.",
+      "remediation": "Verify the ticker symbol and ensure it is a supported investment."
+    },
+    {
+      "code": "E-RISK-MISMATCH",
+      "description": "Recommended investment risk level does not align with client's risk tolerance.",
+      "remediation": "Adjust recommendation to match client risk profile or update client risk assessment."
+    },
+    {
+      "code": "E-REGULATORY-RESTRICTION",
+      "description": "Recommendation violates regulatory constraints or client-specific restrictions.",
+      "remediation": "Review compliance rules and client investment policy statement."
+    }
+  ]
+}

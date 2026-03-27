@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.finance.Query.v1",
+  "title": "Financial Advisor Query",
+  "description": "Query parameters for searching investment recommendations and portfolio analyses.",
+  "type": "object",
+  "properties": {
+    "recommendationId": {
+      "type": "string",
+      "description": "Unique recommendation identifier for direct lookup.",
+      "pattern": "^rec_[a-zA-Z0-9]+$"
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Filter recommendations by client identifier.",
+      "pattern": "^client_[a-zA-Z0-9]+$"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Filter by investment symbol or ticker.",
+      "pattern": "^[A-Z]{1,5}$"
+    },
+    "assetClass": {
+      "type": "string",
+      "enum": ["stocks", "bonds", "etf", "mutual_fund", "alternative", "cash"],
+      "description": "Filter by asset class."
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["conservative", "moderate", "aggressive"],
+      "description": "Filter by risk level."
+    },
+    "generatedAfter": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Return recommendations generated after this timestamp."
+    },
+    "generatedBefore": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Return recommendations generated before this timestamp."
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 10,
+      "description": "Maximum number of results to return."
+    }
+  },
+  "additionalProperties": false,
+  "version": "1.0.0"
+}

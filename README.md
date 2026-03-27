@@ -34,7 +34,7 @@ The core technical specification is distributed across `docs/protocol-architectu
 - `docs/mpl-vs-evolving-protocols.md` — why MPL remains a distinct semantic layer even as MCP/A2A evolve, with autonomy and regulatory focus.
 
 ### Examples
-- `docs/examples/calendar-workflow/` — complete reference implementation with STypes, tools, profiles, and requests/responses.
+- `docs/examples/financial-advisor-workflow/` — complete reference implementation demonstrating investment recommendations with STypes, tools, QoM profiles, regulatory compliance, and fiduciary duty enforcement.
 
 ### Stakeholder Value Propositions
 - `docs/regulated-enterprise-value.md` — **How MVP delivers compliance value** (SOX, GDPR, HIPAA, EU AI Act, UK FCA/PRA mappings, adversarial defenses)

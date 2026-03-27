@@ -25,14 +25,14 @@ Agent A (with MPL) ⇄ Agent B (with MPL) ⇄ Agent C (with MPL)
   "roles": ["planner", "executor"],
   "stypes": [
     "agent.TaskPlan.v1",
-    "org.calendar.Event.v1",
+    "org.finance.InvestmentRecommendation.v1",
     "eval.RAGQuery.v1"
   ],
   "tools": [
-    {"id":"calendar.read.v1","args_stype":"org.calendar.Query.v1"},
+    {"id":"advisor.query.v1","args_stype":"org.finance.Query.v1"},
     {"id":"kb.search.v1","args_stype":"eval.RAGQuery.v1"}
   ],
-  "policies": ["policy.ref#consent-basic-v1"],
+  "policies": ["policy.ref#fiduciary-duty-v1"],
   "profiles": ["qom-basic", "qom-strict-argcheck"],
   "features": ["ext.profile.degradation@v1"]
 }
@@ -45,10 +45,10 @@ Agent A (with MPL) ⇄ Agent B (with MPL) ⇄ Agent C (with MPL)
   "selected": {
     "protocol": "a2a/0.3",
     "mpl_version": "0.1",
-    "stypes": ["agent.TaskPlan.v1", "org.calendar.Event.v1"],
-    "tools": ["calendar.read.v1"],
+    "stypes": ["agent.TaskPlan.v1", "org.finance.InvestmentRecommendation.v1"],
+    "tools": ["advisor.query.v1"],
     "profile": "qom-basic",
-    "policy": "policy.ref#consent-basic-v1"
+    "policy": "policy.ref#fiduciary-duty-v1"
   },
   "downgrades": [
     {"capability": "kb.search.v1", "reason": "tool unavailable"}
@@ -73,10 +73,10 @@ Agent A (with MPL) ⇄ Agent B (with MPL) ⇄ Agent C (with MPL)
   "payload": {
     "steps": [
       {
-        "tool_id": "calendar.read.v1",
-        "input_stype": "org.calendar.Query.v1",
-        "output_stype": "org.calendar.Event.v1",
-        "args": {"eventId": "evt_123"}
+        "tool_id": "advisor.query.v1",
+        "input_stype": "org.finance.Query.v1",
+        "output_stype": "org.finance.InvestmentRecommendation.v1",
+        "args": {"clientId": "client_abc123"}
       }
     ]
   },
@@ -84,7 +84,7 @@ Agent A (with MPL) ⇄ Agent B (with MPL) ⇄ Agent C (with MPL)
   "provenance": {
     "intent": "task.plan.v1",
     "inputs_ref": ["ctx:discovery#1"],
-    "policy_ref": "policy.ref#consent-basic-v1"
+    "policy_ref": "policy.ref#fiduciary-duty-v1"
   }
 }
 ```
@@ -96,12 +96,13 @@ Agent A (with MPL) ⇄ Agent B (with MPL) ⇄ Agent C (with MPL)
   "id": "msg-42",
   "from": "agent://executor",
   "to": "agent://planner",
-  "stype": "org.calendar.Event.v1",
+  "stype": "org.finance.InvestmentRecommendation.v1",
   "payload": {
-    "eventId": "evt_123",
-    "title": "Design Review",
-    "start": "2025-10-27T13:00:00Z",
-    "end": "2025-10-27T13:30:00Z"
+    "recommendationId": "rec_123",
+    "clientId": "client_abc123",
+    "symbol": "VOO",
+    "action": "buy",
+    "riskLevel": "moderate"
   },
   "sem_hash": "b3:fa13...",
   "qom_report": {

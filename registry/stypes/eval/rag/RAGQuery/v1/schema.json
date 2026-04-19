@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:eval.rag.RAGQuery.v1",
+  "title": "RAG Query",
+  "description": "A retrieval-augmented generation query with context requirements",
+  "type": "object",
+  "properties": {
+    "queryId": {
+      "type": "string",
+      "description": "Unique query identifier"
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The natural language query"
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "maxDocuments": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 5
+        },
+        "minRelevanceScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.7
+        },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed source collections"
+        },
+        "timeRange": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Key-value filters to apply"
+    },
+    "responseFormat": {
+      "type": "string",
+      "enum": ["text", "json", "markdown"],
+      "default": "text"
+    }
+  },
+  "required": ["query"]
+}

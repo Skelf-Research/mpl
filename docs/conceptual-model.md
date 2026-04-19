@@ -27,11 +27,11 @@ MPL is orthogonal: it augments the client/server or peer models rather than repl
 
 | Mode | Description | Integration effort |
 | ---- | ----------- | ------------------ |
-| Passive gateway | Sidecar proxy wraps an existing MCP/A2A session, adding handshake, SType validation, and QoM checks transparently. | Minimal; no LLM changes. |
-| Augmented SDK | Client library performs handshake, schema validation, QoM reporting, and provenance logging around model/tool calls. | Low; drop-in for orchestrators. |
-| Native integration | LLM runtime or provider natively emits/consumes MPL envelopes. | Higher; requires provider collaboration but unlocks richer telemetry. |
+| Sidecar proxy (#1, recommended) | Proxy wraps an existing MCP/A2A session, adding handshake, SType validation, and QoM checks transparently. | Minimal; no code changes. |
+| Native integration (#2, vendors) | LLM runtime or MCP/A2A provider natively emits/consumes MPL envelopes. | Higher; requires provider collaboration but benefits all clients. |
+| SDK (#3, power users) | Client library performs handshake, schema validation, QoM reporting, and provenance logging around model/tool calls. | Medium; for stateful assertions or custom telemetry. |
 
-Teams can start with a proxy and migrate to SDK/native as adoption matures.
+Teams should start with proxy. Native integration by vendors eliminates the need for SDK in most cases. See `docs/integration-modes.md` for detailed guidance.
 
 ## 5. Message Flow at a Glance
 

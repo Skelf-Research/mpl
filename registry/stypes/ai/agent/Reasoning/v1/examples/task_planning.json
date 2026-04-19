@@ -1,0 +1,43 @@
+{
+  "reasoningId": "reason-001",
+  "taskId": "task-book-meeting",
+  "chain": [
+    {
+      "step": 1,
+      "thought": "The user wants to schedule a meeting with the team. I need to find available times.",
+      "action": "Check calendar for team availability",
+      "observation": "Team members are available on Tuesday 2-3pm and Thursday 10-11am",
+      "confidence": 0.95
+    },
+    {
+      "step": 2,
+      "thought": "I have two options. Tuesday is sooner but Thursday gives more prep time.",
+      "action": "Evaluate meeting urgency from context",
+      "observation": "This is a routine weekly sync, not urgent",
+      "confidence": 0.9
+    },
+    {
+      "step": 3,
+      "thought": "Thursday allows more prep time and is better for routine syncs.",
+      "action": "Propose Thursday slot",
+      "confidence": 0.85
+    }
+  ],
+  "conclusion": {
+    "decision": "Schedule meeting for Thursday 10-11am",
+    "confidence": 0.88,
+    "alternatives": [
+      {"option": "Tuesday 2-3pm", "reason": "Earlier slot", "score": 0.7}
+    ]
+  },
+  "context": {
+    "goal": "Schedule a team meeting",
+    "constraints": ["Must fit all team members", "During business hours"],
+    "assumptions": ["Team members work standard hours"]
+  },
+  "metadata": {
+    "model": "claude-3-opus",
+    "strategy": "chain-of-thought",
+    "durationMs": 2500
+  }
+}

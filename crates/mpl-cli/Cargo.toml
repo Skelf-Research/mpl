@@ -1,0 +1,49 @@
+[package]
+name = "mpl-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "MPL CLI tools for registry management and validation"
+
+[[bin]]
+name = "mpl"
+path = "src/main.rs"
+
+[dependencies]
+mpl-core = { path = "../mpl-core" }
+
+# CLI
+clap.workspace = true
+
+# Async
+tokio.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# HTTP
+reqwest.workspace = true
+
+# Error handling
+anyhow.workspace = true
+thiserror.workspace = true
+
+# Logging
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# Time
+chrono.workspace = true
+
+# File system
+walkdir = "2.5"
+
+# Colors/formatting
+colored = "2.1"
+indicatif = "0.17"
+
+[dev-dependencies]
+pretty_assertions.workspace = true

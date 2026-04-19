@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.permission.AccessControl.v1",
+  "title": "Access Control Entry",
+  "description": "An access control list entry for permission management",
+  "type": "object",
+  "properties": {
+    "aclId": {
+      "type": "string"
+    },
+    "resourceType": {
+      "type": "string",
+      "description": "Type of resource being controlled"
+    },
+    "resourceId": {
+      "type": "string",
+      "description": "ID of the specific resource"
+    },
+    "principal": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["user", "group", "role", "service", "anonymous"] },
+        "id": { "type": "string" }
+      },
+      "required": ["type", "id"]
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["read", "write", "delete", "admin", "execute", "share"]
+      },
+      "minItems": 1
+    },
+    "conditions": {
+      "type": "object",
+      "properties": {
+        "ipRange": { "type": "array", "items": { "type": "string" } },
+        "timeWindow": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "string" },
+            "end": { "type": "string" },
+            "timezone": { "type": "string" }
+          }
+        },
+        "mfa": { "type": "boolean" }
+      }
+    },
+    "effect": {
+      "type": "string",
+      "enum": ["allow", "deny"],
+      "default": "allow"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["resourceType", "resourceId", "principal", "permissions"]
+}

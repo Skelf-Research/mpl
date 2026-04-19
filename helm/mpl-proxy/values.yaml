@@ -1,0 +1,154 @@
+# MPL Proxy Helm Chart Values
+
+# Image configuration
+image:
+  repository: ghcr.io/anthropics/mpl-proxy
+  tag: ""  # Defaults to Chart appVersion
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Number of replicas
+replicaCount: 1
+
+# Service account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9100"
+  prometheus.io/path: "/metrics"
+
+# Pod security context
+podSecurityContext:
+  fsGroup: 1000
+
+# Container security context
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# MPL Proxy configuration
+mpl:
+  # Proxy mode: transparent or strict
+  mode: transparent
+
+  # Registry URL or path
+  registry: "https://github.com/anthropics/mpl/raw/main/registry"
+
+  # Required QoM profile
+  requiredProfile: qom-basic
+
+  # Enforce schema validation
+  enforceSchema: true
+
+  # Enforce assertion checks
+  enforceAssertions: true
+
+  # Enable policy engine
+  policyEngine: false
+
+# Transport configuration
+transport:
+  # Listen port
+  port: 9443
+
+  # Upstream server address
+  upstream: ""
+
+  # Protocol: http, websocket, grpc
+  protocol: http
+
+# Observability
+observability:
+  # Metrics port
+  metricsPort: 9100
+
+  # Log level: trace, debug, info, warn, error
+  logLevel: info
+
+  # Log format: json, text
+  logFormat: json
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 9443
+  metricsPort: 9100
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: mpl-proxy.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# Resource limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Health probes
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# ServiceMonitor for Prometheus Operator
+serviceMonitor:
+  enabled: false
+  namespace: ""
+  interval: 30s
+  scrapeTimeout: 10s
+  labels: {}
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []

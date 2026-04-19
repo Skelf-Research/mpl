@@ -1,0 +1,70 @@
+[package]
+name = "mpl-proxy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "MPL sidecar proxy for MCP/A2A traffic"
+
+[lib]
+name = "mpl_proxy"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mpl-proxy"
+path = "src/main.rs"
+
+[dependencies]
+mpl-core = { path = "../mpl-core" }
+
+# Async runtime
+tokio.workspace = true
+
+# HTTP/WebSocket
+axum.workspace = true
+tokio-tungstenite.workspace = true
+reqwest.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Config
+config.workspace = true
+
+# Logging
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# Error handling
+thiserror.workspace = true
+anyhow.workspace = true
+
+# Metrics
+prometheus.workspace = true
+
+# UUID
+uuid.workspace = true
+
+# CLI args (for proxy binary)
+clap.workspace = true
+
+# YAML parsing
+serde_yaml = "0.9"
+
+# Hyper for low-level HTTP
+hyper = { version = "1.4", features = ["full"] }
+hyper-util = { version = "0.1", features = ["full"] }
+http-body-util = "0.1"
+tower = { version = "0.4", features = ["full"] }
+
+# Futures utilities for WebSocket
+futures-util = "0.3"
+
+[dev-dependencies]
+pretty_assertions.workspace = true
+rmcp.workspace = true
+schemars.workspace = true
+hyper-util.workspace = true
+a2a-rs.workspace = true

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.finance.InvestmentRecommendation.v1",
+  "title": "Investment Recommendation",
+  "description": "A structured investment recommendation with fiduciary context",
+  "type": "object",
+  "properties": {
+    "recommendationId": {
+      "type": "string",
+      "description": "Unique identifier"
+    },
+    "clientId": {
+      "type": "string",
+      "description": "Client identifier"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Security symbol (e.g., VOO, AAPL)"
+    },
+    "assetClass": {
+      "type": "string",
+      "enum": ["equity", "bond", "etf", "mutual_fund", "crypto", "commodity", "real_estate", "cash"]
+    },
+    "action": {
+      "type": "string",
+      "enum": ["buy", "sell", "hold", "rebalance"]
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Recommended amount in base currency"
+    },
+    "allocationPercentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Target portfolio allocation percentage"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Explanation supporting the recommendation"
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["conservative", "moderate", "aggressive", "speculative"]
+    },
+    "timeHorizon": {
+      "type": "string",
+      "enum": ["short_term", "medium_term", "long_term"]
+    },
+    "confidenceScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Model confidence in recommendation"
+    },
+    "riskDisclosure": {
+      "type": "string",
+      "description": "Risk disclosure statement"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["symbol", "action", "rationale", "riskLevel"],
+  "additionalProperties": false
+}

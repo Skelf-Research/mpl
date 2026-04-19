@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.healthcare.PatientSummary.v1",
+  "title": "Patient Summary",
+  "description": "A structured summary of patient health information",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "type": "string",
+      "description": "De-identified patient identifier"
+    },
+    "summary_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the summary"
+    },
+    "demographics": {
+      "type": "object",
+      "description": "Patient demographics",
+      "properties": {
+        "age_range": { "type": "string" },
+        "gender": { "type": "string" },
+        "region": { "type": "string" }
+      }
+    },
+    "conditions": {
+      "type": "array",
+      "description": "Active medical conditions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "description": "ICD-10 or SNOMED code" },
+          "display": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "resolved", "inactive"] },
+          "onset_date": { "type": "string", "format": "date" }
+        },
+        "required": ["code", "display", "status"]
+      }
+    },
+    "medications": {
+      "type": "array",
+      "description": "Current medications",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "dosage": { "type": "string" },
+          "frequency": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "discontinued", "on-hold"] }
+        },
+        "required": ["name", "status"]
+      }
+    },
+    "allergies": {
+      "type": "array",
+      "description": "Known allergies",
+      "items": {
+        "type": "object",
+        "properties": {
+          "substance": { "type": "string" },
+          "reaction": { "type": "string" },
+          "severity": { "type": "string", "enum": ["mild", "moderate", "severe"] }
+        },
+        "required": ["substance"]
+      }
+    },
+    "care_plan": {
+      "type": "object",
+      "description": "Current care plan summary",
+      "properties": {
+        "goals": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "interventions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "next_review": { "type": "string", "format": "date" }
+      }
+    }
+  },
+  "required": ["patient_id", "summary_date"]
+}

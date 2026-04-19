@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mpl-proxy.fullname" . }}-config
+  labels:
+    {{- include "mpl-proxy.labels" . | nindent 4 }}
+data:
+  mpl-config.yaml: |
+    transport:
+      listen: "0.0.0.0:{{ .Values.transport.port }}"
+      upstream: "{{ .Values.transport.upstream }}"
+      protocol: {{ .Values.transport.protocol }}
+
+    mpl:
+      registry: "{{ .Values.mpl.registry }}"
+      mode: {{ .Values.mpl.mode }}
+      required_profile: {{ .Values.mpl.requiredProfile }}
+      enforce_schema: {{ .Values.mpl.enforceSchema }}
+      enforce_assertions: {{ .Values.mpl.enforceAssertions }}
+      policy_engine: {{ .Values.mpl.policyEngine }}
+
+    observability:
+      metrics_port: {{ .Values.observability.metricsPort }}
+      metrics_format: prometheus
+      logs: stdout
+      log_format: {{ .Values.observability.logFormat }}
+      log_level: {{ .Values.observability.logLevel }}

@@ -1,0 +1,78 @@
+# MPL Demo Stack
+# Run with: docker compose up -d
+
+services:
+  # MPL Sidecar Proxy
+  mpl-proxy:
+    build: .
+    ports:
+      - "9443:9443"   # Proxy endpoint
+      - "9100:9100"   # Metrics
+    volumes:
+      - ./registry:/app/registry:ro
+      - ./mpl-config.yaml:/app/mpl-config.yaml:ro
+    environment:
+      - RUST_LOG=info
+    depends_on:
+      demo-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9443/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - mpl-network
+
+  # Demo MCP Server (echo server for testing)
+  demo-server:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./examples/demo-server:/app
+    command: python server.py
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - mpl-network
+
+  # Prometheus for metrics visualization (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./examples/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - mpl-network
+    profiles:
+      - monitoring
+
+  # Grafana for dashboards (optional)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - mpl-network
+    profiles:
+      - monitoring
+
+networks:
+  mpl-network:
+    driver: bridge
+
+volumes:
+  grafana-data:

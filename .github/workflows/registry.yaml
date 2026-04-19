@@ -1,0 +1,106 @@
+# Registry Validation Workflow
+# Validates SType schemas and examples on registry changes
+
+name: Registry
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'registry/**'
+
+jobs:
+  validate-registry:
+    name: Validate Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build CLI
+        run: cargo build --release --package mpl-cli
+
+      - name: Lint registry structure
+        run: ./target/release/mpl-cli lint --registry ./registry
+
+      - name: Validate all schemas
+        run: |
+          echo "Validating all SType schemas..."
+          ./target/release/mpl-cli conformance --registry ./registry --verbose
+
+      - name: Check for duplicate STypes
+        run: |
+          echo "Checking for duplicate SType IDs..."
+          find registry/stypes -name "schema.json" -exec grep -l '"$id"' {} \; | \
+            xargs grep '"$id"' | \
+            awk -F'"' '{print $4}' | \
+            sort | uniq -d | \
+            { read -r line && echo "ERROR: Duplicate SType ID found: $line" && exit 1 || true; }
+
+      - name: Validate JSON syntax
+        run: |
+          echo "Validating JSON syntax in all files..."
+          find registry -name "*.json" -exec sh -c 'python3 -m json.tool "$1" > /dev/null || (echo "Invalid JSON: $1" && exit 1)' _ {} \;
+
+  check-naming:
+    name: Check Naming Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check SType naming
+        run: |
+          echo "Checking SType naming conventions..."
+          find registry/stypes -name "schema.json" | while read schema; do
+            # Extract path components
+            dir=$(dirname "$schema")
+            version=$(basename "$dir")
+            name=$(basename "$(dirname "$dir")")
+
+            # Check version format (v1, v2, etc.)
+            if [[ ! "$version" =~ ^v[0-9]+$ ]]; then
+              echo "ERROR: Invalid version format in $schema (expected vN, got $version)"
+              exit 1
+            fi
+
+            # Check name starts with uppercase
+            if [[ ! "$name" =~ ^[A-Z] ]]; then
+              echo "ERROR: SType name should start with uppercase in $schema (got $name)"
+              exit 1
+            fi
+          done
+          echo "All naming conventions valid!"
+
+      - name: Check required files
+        run: |
+          echo "Checking required files for each SType..."
+          find registry/stypes -name "schema.json" | while read schema; do
+            dir=$(dirname "$schema")
+
+            # Check examples directory exists
+            if [[ ! -d "$dir/examples" ]]; then
+              echo "WARNING: Missing examples directory in $dir"
+            fi
+
+            # Check for at least one example
+            if [[ -d "$dir/examples" ]] && [[ -z "$(ls -A $dir/examples 2>/dev/null)" ]]; then
+              echo "WARNING: No example files in $dir/examples"
+            fi
+          done

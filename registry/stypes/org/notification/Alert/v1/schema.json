@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.notification.Alert.v1",
+  "title": "Notification Alert",
+  "description": "An alert or notification message",
+  "type": "object",
+  "properties": {
+    "alertId": {
+      "type": "string",
+      "description": "Unique alert identifier"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["info", "success", "warning", "error", "critical"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "source": {
+      "type": "string",
+      "description": "System or service that generated the alert"
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "groupId": { "type": "string" },
+        "channel": { "type": "string", "enum": ["email", "push", "sms", "slack", "webhook"] }
+      }
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "urgent"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "sent", "delivered", "read", "dismissed", "failed"]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "type": { "type": "string", "enum": ["link", "button", "dismiss"] }
+        }
+      }
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["alertId", "type", "title", "message"]
+}

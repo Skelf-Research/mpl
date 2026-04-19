@@ -1,0 +1,14 @@
+{
+  "id": "calendar.create.v1",
+  "name": "calendar.create",
+  "description": "Create a calendar event",
+  "args_stype": "org.calendar.Event.v1",
+  "returns_stype": "org.calendar.Event.v1",
+  "profiles": ["qom-basic", "qom-strict-argcheck"],
+  "policies": [],
+  "features": ["recurrence", "attendees", "reminders"],
+  "impl": {
+    "type": "http",
+    "url": "https://api.example.com/v1/calendar/events"
+  }
+}

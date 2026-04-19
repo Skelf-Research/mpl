@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:eval.feedback.Feedback.v1",
+  "title": "Evaluation Feedback",
+  "description": "Structured feedback for AI evaluation",
+  "type": "object",
+  "properties": {
+    "feedbackId": {
+      "type": "string"
+    },
+    "evaluationId": {
+      "type": "string",
+      "description": "Reference to the evaluation run"
+    },
+    "scores": {
+      "type": "object",
+      "properties": {
+        "relevance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "coherence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "helpfulness": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "humanJudgment": {
+      "type": "object",
+      "properties": {
+        "preferred": { "type": "string", "enum": ["a", "b", "tie", "neither"] },
+        "reason": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["error", "improvement", "highlight", "question"] },
+          "text": { "type": "string" },
+          "position": {
+            "type": "object",
+            "properties": {
+              "start": { "type": "integer" },
+              "end": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "evaluator": { "type": "string" },
+        "evaluatorType": { "type": "string", "enum": ["human", "model", "automated"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "required": ["feedbackId", "evaluationId"]
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:ai.completion.Response.v1",
+  "title": "AI Completion Response",
+  "description": "A response from an AI completion API",
+  "type": "object",
+  "properties": {
+    "responseId": {
+      "type": "string",
+      "description": "Unique response identifier"
+    },
+    "requestId": {
+      "type": "string",
+      "description": "Reference to the original request"
+    },
+    "content": {
+      "type": "string",
+      "description": "The generated content"
+    },
+    "structuredOutput": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Parsed structured output if JSON mode was used"
+    },
+    "model": {
+      "type": "string",
+      "description": "Model that generated the response"
+    },
+    "usage": {
+      "type": "object",
+      "properties": {
+        "promptTokens": { "type": "integer", "minimum": 0 },
+        "completionTokens": { "type": "integer", "minimum": 0 },
+        "totalTokens": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "finishReason": {
+      "type": "string",
+      "enum": ["stop", "length", "content_filter", "tool_calls", "error"]
+    },
+    "toolCalls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "arguments": { "type": "object" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "latencyMs": { "type": "integer" },
+        "cached": { "type": "boolean" },
+        "region": { "type": "string" }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["responseId", "content", "model"]
+}

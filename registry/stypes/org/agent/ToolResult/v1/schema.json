@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.agent.ToolResult.v1",
+  "title": "Tool Result",
+  "description": "Result of a tool invocation",
+  "type": "object",
+  "properties": {
+    "tool_name": {
+      "type": "string",
+      "description": "Name of the tool that was invoked"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "error", "partial", "timeout"],
+      "description": "Execution status"
+    },
+    "result": {
+      "type": "object",
+      "description": "Tool result (validated against tool's returns_stype)"
+    },
+    "error": {
+      "type": "object",
+      "description": "Error details if status is error",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Execution metrics",
+      "properties": {
+        "execution_time_ms": { "type": "integer" },
+        "retries": { "type": "integer" },
+        "tokens_used": { "type": "integer" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Execution provenance",
+      "properties": {
+        "invocation_id": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "agent_id": { "type": "string" }
+      }
+    }
+  },
+  "required": ["tool_name", "status"]
+}

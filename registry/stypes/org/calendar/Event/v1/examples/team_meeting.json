@@ -1,0 +1,11 @@
+{
+  "title": "Weekly Team Standup",
+  "start": "2024-01-15T09:00:00Z",
+  "end": "2024-01-15T09:30:00Z",
+  "description": "Regular team sync to discuss progress and blockers",
+  "location": "Conference Room A",
+  "attendees": [
+    {"email": "alice@example.com", "name": "Alice", "status": "accepted"},
+    {"email": "bob@example.com", "name": "Bob", "status": "pending"}
+  ]
+}

@@ -1,0 +1,74 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "mpl-sdk"
+version = "0.1.0"
+description = "MPL SDK - Meaning Protocol Layer for AI agents"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [
+    { name = "MPL Team" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["mpl", "ai", "agents", "semantic", "protocol"]
+
+dependencies = [
+    "aiohttp>=3.9.0",
+    "websockets>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "black>=24.0",
+    "mypy>=1.8",
+    "ruff>=0.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/anthropics/mpl"
+Documentation = "https://github.com/anthropics/mpl/docs"
+Repository = "https://github.com/anthropics/mpl"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+manifest-path = "../crates/mpl-python/Cargo.toml"
+module-name = "mpl_sdk._mpl_core"
+python-source = "."
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["mpl_sdk/tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]

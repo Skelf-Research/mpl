@@ -1,0 +1,10 @@
+{
+  "queryId": "q-12345",
+  "query": "What are the key features of our Q4 product launch?",
+  "context": {
+    "maxDocuments": 5,
+    "minRelevanceScore": 0.8,
+    "sources": ["product-docs", "announcements"]
+  },
+  "responseFormat": "markdown"
+}

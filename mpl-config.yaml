@@ -1,0 +1,29 @@
+# MPL Proxy Configuration
+# See docs/getting-started.md for usage
+
+transport:
+  listen: "0.0.0.0:9443"
+  upstream: "demo-server:8080"
+  protocol: http
+
+mpl:
+  registry: "./registry"
+  mode: transparent      # transparent: log only, strict: block invalid
+  required_profile: qom-basic
+  enforce_schema: true
+  enforce_assertions: true
+  policy_engine: false   # MVP: disabled
+
+observability:
+  metrics_port: 9100
+  metrics_format: prometheus
+  logs: stdout
+  log_format: json
+  log_level: info
+
+# Optional: SType-based routing
+# routing:
+#   - stype_pattern: "org.calendar.*"
+#     upstream: calendar-service:8080
+#   - stype_pattern: "org.finance.*"
+#     upstream: finance-service:8080

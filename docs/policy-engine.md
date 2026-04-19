@@ -2,6 +2,69 @@
 
 The MPL policy engine enforces semantic authorization, consent management, data governance, and compliance requirements negotiated during the AI-ALPN handshake. While QoM focuses on output quality, the policy engine governs what data can be accessed, how it can be used, and what protections must apply.
 
+## Implementation Status
+
+**Policy Engine Lite is implemented** in `crates/mpl-core/src/policy.rs`. This provides:
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Rule-based enforcement | ✅ | SType pattern matching with wildcards |
+| Access control | ✅ | Allow/deny lists per principal |
+| QoM profile overrides | ✅ | Per-namespace/domain profile requirements |
+| Rate limiting config | ✅ | Requests per window, per-principal |
+| Custom constraints | ✅ | Metadata checks, payload size limits |
+| Version constraints | ✅ | Eq, Gte, Lte, Range for SType versions |
+
+**Full OPA-based Policy Engine** (consent management, redaction, regional compliance) is planned for Phase 3.
+
+### Quick Start (Rust)
+
+```rust
+use mpl_core::policy::{PolicyEngine, Policy, PolicyContext, StypePattern, Operation};
+
+// Create engine
+let mut engine = PolicyEngine::new();
+
+// Add policy requiring strict QoM for eval namespace
+let policy = Policy::new("eval-strict")
+    .with_stype_pattern(StypePattern::namespace("eval"))
+    .with_qom_override("qom-strict-argcheck");
+
+engine.add_policy(policy);
+
+// Evaluate
+let stype = SType::parse("eval.rag.RAGQuery.v1")?;
+let context = PolicyContext::new(stype, Operation::Execute);
+let decision = engine.evaluate(&context);
+
+if decision.is_allowed() {
+    println!("Required profile: {:?}", decision.required_profile);
+}
+```
+
+### Configuration (YAML)
+
+```yaml
+# policy-config.yaml
+default_profile: qom-basic
+policies:
+  - name: eval-strict
+    stype_patterns:
+      - namespace: eval
+    qom_override:
+      profile: qom-strict-argcheck
+
+  - name: restricted-access
+    stype_patterns:
+      - namespace: org
+        domain: user
+    access_control:
+      allow: [admin, service-account]
+      default: deny
+```
+
+---
+
 ## 1. Goals & Responsibilities
 
 - **Semantic authorization:** enforce capability-level access control beyond transport-layer auth.

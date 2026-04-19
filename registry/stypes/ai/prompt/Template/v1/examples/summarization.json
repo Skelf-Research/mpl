@@ -1,0 +1,18 @@
+{
+  "templateId": "tmpl-summarize-001",
+  "name": "Document Summarization",
+  "description": "Summarize a document into key points",
+  "template": "Please summarize the following document in {{format}} format:\n\n{{document}}\n\nProvide {{numPoints}} key points.",
+  "variables": [
+    {"name": "document", "type": "string", "required": true, "description": "The document to summarize"},
+    {"name": "format", "type": "string", "required": false, "default": "bullet points"},
+    {"name": "numPoints", "type": "number", "required": false, "default": 5}
+  ],
+  "systemPrompt": "You are a helpful assistant that creates concise, accurate summaries.",
+  "config": {
+    "model": "claude-3-sonnet",
+    "temperature": 0.3,
+    "maxTokens": 1000
+  },
+  "tags": ["summarization", "document", "general"]
+}

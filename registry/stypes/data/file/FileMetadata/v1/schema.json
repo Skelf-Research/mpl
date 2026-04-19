@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:data.file.FileMetadata.v1",
+  "title": "File Metadata",
+  "description": "Metadata about a file or document",
+  "type": "object",
+  "properties": {
+    "fileId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "path": {
+      "type": "string"
+    },
+    "mimeType": {
+      "type": "string"
+    },
+    "size": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "File size in bytes"
+    },
+    "checksum": {
+      "type": "object",
+      "properties": {
+        "algorithm": { "type": "string", "enum": ["md5", "sha1", "sha256", "blake3"] },
+        "value": { "type": "string" }
+      }
+    },
+    "encoding": {
+      "type": "string",
+      "default": "utf-8"
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "provider": { "type": "string" },
+        "bucket": { "type": "string" },
+        "key": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "modifiedAt": { "type": "string", "format": "date-time" },
+        "accessedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "owner": { "type": "string" },
+        "public": { "type": "boolean" },
+        "acl": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "required": ["fileId", "name", "mimeType"]
+}

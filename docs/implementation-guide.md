@@ -69,7 +69,7 @@ See `docs/qom-evaluation-engine.md` for the detailed architecture, workflow, and
 
 ## 6. Manage Tool Metadata
 
-- Publish descriptors (`tool.{name}.v1.json`) with input/output STypes, supported features, QoM expectations, policy requirements, and implementation bindings (`impl.url`, `impl.type`).
+- Publish descriptors (`tool.{name}.v{major}.json`) with input/output STypes, supported features, QoM expectations, policy requirements, and implementation bindings (`impl.url`, `impl.type`).
 - During handshake, advertise tool IDs and negotiate feature subsets or profiles.
 - Provide schema mappers/adapters (`/adapters/{from}->{to}/map.jsonnet`) to bridge version skew across teams.
 - Ensure orchestrators cache descriptors, validate task plans against declared STypes, and log provenance per execution.
@@ -202,6 +202,7 @@ resp.assert_qom()
 - **Server SDK:** decorators enforce schema/QoM before invoking tool handlers.
 
 ```typescript
+// NOTE: TypeScript SDK is Phase 2. Python SDK available in MVP.
 import { defineTool } from "@mpl/sdk";
 
 export const generateRecommendation = defineTool({

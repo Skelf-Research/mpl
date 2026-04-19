@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:eval.rag.RAGResponse.v1",
+  "title": "RAG Response",
+  "description": "Response from a RAG query with sources and confidence",
+  "type": "object",
+  "properties": {
+    "queryId": {
+      "type": "string",
+      "description": "Reference to the original query"
+    },
+    "answer": {
+      "type": "string",
+      "description": "The generated answer"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "documentId": { "type": "string" },
+          "title": { "type": "string" },
+          "snippet": { "type": "string" },
+          "relevanceScore": { "type": "number", "minimum": 0, "maximum": 1 },
+          "url": { "type": "string", "format": "uri" }
+        },
+        "required": ["documentId", "relevanceScore"]
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in the answer"
+    },
+    "groundedness": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How well the answer is supported by sources"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "modelId": { "type": "string" },
+        "latencyMs": { "type": "integer" },
+        "tokensUsed": { "type": "integer" }
+      }
+    }
+  },
+  "required": ["answer", "sources"]
+}

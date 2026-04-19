@@ -1,0 +1,22 @@
+[package]
+name = "mpl-python"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Python bindings for MPL core library"
+
+[lib]
+name = "_mpl_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+mpl-core = { path = "../mpl-core" }
+pyo3.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+
+[build-dependencies]
+pyo3-build-config = "0.22"

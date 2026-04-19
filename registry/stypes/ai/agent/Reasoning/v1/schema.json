@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:ai.agent.Reasoning.v1",
+  "title": "Agent Reasoning",
+  "description": "A structured representation of agent reasoning and decision-making",
+  "type": "object",
+  "properties": {
+    "reasoningId": {
+      "type": "string"
+    },
+    "taskId": {
+      "type": "string",
+      "description": "Reference to the task being reasoned about"
+    },
+    "chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "thought": { "type": "string" },
+          "action": { "type": "string" },
+          "observation": { "type": "string" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["step", "thought"]
+      },
+      "minItems": 1
+    },
+    "conclusion": {
+      "type": "object",
+      "properties": {
+        "decision": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "option": { "type": "string" },
+              "reason": { "type": "string" },
+              "score": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "goal": { "type": "string" },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string" },
+        "strategy": { "type": "string", "enum": ["chain-of-thought", "tree-of-thought", "react", "reflexion"] },
+        "durationMs": { "type": "integer" }
+      }
+    }
+  },
+  "required": ["reasoningId", "chain"]
+}

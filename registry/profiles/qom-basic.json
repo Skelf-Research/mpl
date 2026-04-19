@@ -1,0 +1,10 @@
+{
+  "name": "qom-basic",
+  "description": "Basic validation: Schema Fidelity only",
+  "metrics": {
+    "schema_fidelity": {
+      "min": 1.0,
+      "sample_rate": 1.0
+    }
+  }
+}

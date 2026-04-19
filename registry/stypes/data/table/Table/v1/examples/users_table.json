@@ -1,0 +1,19 @@
+{
+  "tableId": "tbl-users-001",
+  "name": "users",
+  "columns": [
+    {"name": "id", "type": "string", "nullable": false},
+    {"name": "email", "type": "string", "nullable": false},
+    {"name": "name", "type": "string", "nullable": true},
+    {"name": "created_at", "type": "datetime", "nullable": false}
+  ],
+  "rows": [
+    {"id": "u1", "email": "alice@example.com", "name": "Alice", "created_at": "2024-01-01T00:00:00Z"},
+    {"id": "u2", "email": "bob@example.com", "name": "Bob", "created_at": "2024-01-02T00:00:00Z"}
+  ],
+  "rowCount": 2,
+  "metadata": {
+    "source": "postgresql",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+}

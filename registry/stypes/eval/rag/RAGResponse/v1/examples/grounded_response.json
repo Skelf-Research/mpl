@@ -1,0 +1,26 @@
+{
+  "queryId": "q-12345",
+  "answer": "The Q4 product launch includes three key features: enhanced AI assistant capabilities, improved collaboration tools, and a redesigned dashboard.",
+  "sources": [
+    {
+      "documentId": "doc-001",
+      "title": "Q4 Product Roadmap",
+      "snippet": "Key features for Q4 include enhanced AI assistant...",
+      "relevanceScore": 0.95,
+      "url": "https://docs.example.com/roadmap"
+    },
+    {
+      "documentId": "doc-002",
+      "title": "Launch Announcement",
+      "snippet": "We're excited to announce collaboration tools...",
+      "relevanceScore": 0.88
+    }
+  ],
+  "confidence": 0.92,
+  "groundedness": 0.95,
+  "metadata": {
+    "modelId": "claude-3-opus",
+    "latencyMs": 450,
+    "tokensUsed": 1250
+  }
+}

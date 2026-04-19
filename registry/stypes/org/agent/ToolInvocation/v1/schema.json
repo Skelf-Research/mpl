@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.agent.ToolInvocation.v1",
+  "title": "Tool Invocation",
+  "description": "A request to invoke a tool with typed arguments",
+  "type": "object",
+  "properties": {
+    "tool_name": {
+      "type": "string",
+      "description": "Name of the tool to invoke"
+    },
+    "tool_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Version of the tool"
+    },
+    "arguments": {
+      "type": "object",
+      "description": "Tool arguments (validated against tool's args_stype)"
+    },
+    "context": {
+      "type": "object",
+      "description": "Invocation context",
+      "properties": {
+        "session_id": { "type": "string" },
+        "correlation_id": { "type": "string" },
+        "user_id": { "type": "string" }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Execution constraints",
+      "properties": {
+        "timeout_ms": { "type": "integer", "minimum": 0 },
+        "max_retries": { "type": "integer", "minimum": 0 },
+        "idempotent": { "type": "boolean" }
+      }
+    }
+  },
+  "required": ["tool_name", "tool_version", "arguments"]
+}

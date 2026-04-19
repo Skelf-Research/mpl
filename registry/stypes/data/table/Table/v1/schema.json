@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:data.table.Table.v1",
+  "title": "Data Table",
+  "description": "A structured data table with columns and rows",
+  "type": "object",
+  "properties": {
+    "tableId": {
+      "type": "string",
+      "description": "Unique table identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Table name"
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["string", "number", "boolean", "date", "datetime", "json"] },
+          "nullable": { "type": "boolean", "default": true },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "type"]
+      },
+      "minItems": 1
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "rowCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "required": ["name", "columns"]
+}

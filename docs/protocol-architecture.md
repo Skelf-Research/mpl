@@ -32,7 +32,7 @@ MPL layers semantic guarantees on top of existing MCP/A2A transports. This docum
 ## 5. Tool & Schema Lifecycle
 
 - **Typed tool descriptors:** each tool advertises argument/return STypes, version bounds, and policy requirements. Metadata is versioned and discoverable via the registry.
-- **Policy bindings:** tool manifests include required policies (`policy.ref#...`), consent scopes, and redaction plans so MPL runtimes enforce them automatically (see `docs/implementation-guide.md#61-policy-engine`).
+- **Policy bindings:** tool manifests include required policies (`policy.ref#...`), consent scopes, and redaction plans so MPL runtimes enforce them automatically (see `docs/implementation-guide.md#62-policy-engine`).
 - **Change management:** deprecation notices, compatibility matrices, and conformance tests guard against SType drift and schema sprawl.
 - **Observability hooks:** QoM metrics, downgrade events, policy violations, and unknown SType rates feed existing monitoring systems.
 

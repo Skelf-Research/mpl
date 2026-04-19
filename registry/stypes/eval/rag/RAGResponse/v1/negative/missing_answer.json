@@ -1,0 +1,7 @@
+{
+  "queryId": "q-12345",
+  "sources": [
+    {"documentId": "doc-001", "relevanceScore": 0.9}
+  ],
+  "confidence": 0.8
+}

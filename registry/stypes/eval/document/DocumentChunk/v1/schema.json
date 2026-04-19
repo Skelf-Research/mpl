@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:eval.document.DocumentChunk.v1",
+  "title": "Document Chunk",
+  "description": "A chunk of a document with embedding and position info",
+  "type": "object",
+  "properties": {
+    "chunkId": {
+      "type": "string",
+      "description": "Unique chunk identifier"
+    },
+    "documentId": {
+      "type": "string",
+      "description": "Parent document identifier"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Chunk text content"
+    },
+    "position": {
+      "type": "object",
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 },
+        "page": { "type": "integer", "minimum": 1 },
+        "section": { "type": "string" }
+      }
+    },
+    "embedding": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Vector embedding of the chunk"
+    },
+    "tokenCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "language": { "type": "string" },
+        "contentType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "required": ["documentId", "content"]
+}

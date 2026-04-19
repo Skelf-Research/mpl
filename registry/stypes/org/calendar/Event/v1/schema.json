@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.calendar.Event.v1",
+  "title": "Calendar Event",
+  "description": "A calendar event with start and end times",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "description": "Unique identifier for the event"
+    },
+    "title": {
+      "type": "string",
+      "description": "Event title",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "description": "Event description"
+    },
+    "start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event start time (ISO 8601)"
+    },
+    "end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event end time (ISO 8601)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Event location"
+    },
+    "attendees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "accepted", "declined", "tentative"]
+          }
+        },
+        "required": ["email"]
+      }
+    },
+    "recurrence": {
+      "type": "object",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["daily", "weekly", "monthly", "yearly"]
+        },
+        "interval": { "type": "integer", "minimum": 1 },
+        "until": { "type": "string", "format": "date-time" },
+        "count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "reminders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": { "type": "string", "enum": ["email", "popup", "sms"] },
+          "minutes": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["method", "minutes"]
+      }
+    }
+  },
+  "required": ["title", "start", "end"],
+  "additionalProperties": false
+}

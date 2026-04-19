@@ -1,0 +1,19 @@
+{
+  "name": "qom-strict-argcheck",
+  "description": "Strict validation: Schema Fidelity and Instruction Compliance",
+  "metrics": {
+    "schema_fidelity": {
+      "min": 1.0,
+      "sample_rate": 1.0
+    },
+    "instruction_compliance": {
+      "min": 0.97,
+      "sample_rate": 1.0
+    }
+  },
+  "retry_policy": {
+    "max_retries": 1,
+    "degrade_to": "qom-basic",
+    "on_failure": "escalate"
+  }
+}

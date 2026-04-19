@@ -1,0 +1,6 @@
+{
+  "queryId": "q-12345",
+  "context": {
+    "maxDocuments": 5
+  }
+}

@@ -2,6 +2,56 @@
 
 The MPL registry is the authoritative source for Semantic Types (STypes), tool descriptors, QoM profiles, policy manifests, and agent metadata. It provides discovery, versioning, governance, and caching infrastructure to ensure semantic interoperability across distributed MPL deployments.
 
+## Implementation Status
+
+**Registry API is implemented** in `crates/mpl-registry-api/`. This provides:
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| REST API | ✅ | Axum-based HTTP server |
+| Schema caching | ✅ | Moka cache with 5-min TTL |
+| SType listing | ✅ | Paginated, filterable by namespace/domain |
+| Search | ✅ | Full-text search across SType metadata |
+| Health checks | ✅ | `/health` endpoint |
+| CORS | ✅ | Cross-origin requests supported |
+| Structured logging | ✅ | JSON tracing output |
+
+### Quick Start
+
+```bash
+# Run the registry API
+cargo run -p mpl-registry-api -- --registry ./registry --listen 0.0.0.0:8081
+
+# Or with Docker
+docker run -p 8081:8081 -v ./registry:/registry mpl-registry-api
+```
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/stypes` | List all STypes (paginated) |
+| GET | `/stypes/:ns/:domain/:name/:version` | Get SType metadata |
+| GET | `/stypes/:ns/:domain/:name/:version/schema` | Get JSON Schema |
+| GET | `/search?q=query` | Search STypes |
+| GET | `/cache/stats` | Cache statistics |
+
+### Example Requests
+
+```bash
+# List STypes
+curl http://localhost:8081/stypes?namespace=eval&limit=10
+
+# Get schema
+curl http://localhost:8081/stypes/eval/rag/RAGQuery/v1/schema
+
+# Search
+curl http://localhost:8081/search?q=calendar
+```
+
+---
+
 ## 1. Design Goals
 
 - **Global namespace:** unique, collision-free identifiers for STypes and tools across organizations.
@@ -110,9 +160,9 @@ registry/
 │           └── v1/
 │               └── schema.json
 ├── tools/
-│   ├── calendar.create.v1.json              # Tool descriptor
-│   ├── calendar.read.v1.json
-│   └── kb.search.v1.json
+│   ├── tool.calendar.create.v1.json         # Tool descriptor
+│   ├── tool.calendar.read.v1.json
+│   └── tool.kb.search.v1.json
 ├── profiles/
 │   ├── qom-strict-argcheck.json             # QoM profile definition
 │   ├── qom-basic.json
@@ -188,12 +238,12 @@ GET https://registry.mpl.dev/stypes/org/calendar/Event/v1/schema.json
 ### 4.2 Tool Descriptor Fetch
 
 ```
-GET /tools/{toolId}.json
+GET /tools/tool.{name}.v{major}.json
 ```
 
 **Example:**
 ```
-GET https://registry.mpl.dev/tools/calendar.create.v1.json
+GET https://registry.mpl.dev/tools/tool.calendar.create.v1.json
 ```
 
 **Response:**

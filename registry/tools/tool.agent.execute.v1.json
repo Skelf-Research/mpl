@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tool:agent.execute.v1",
+  "id": "tool.agent.execute.v1",
+  "name": "agent.execute",
+  "version": "v1",
+  "description": "Execute a tool with typed arguments and receive typed results",
+  "args_stype": "org.agent.ToolInvocation.v1",
+  "returns_stype": "org.agent.ToolResult.v1",
+  "qom_profile": "qom-strict-argcheck",
+  "capabilities": {
+    "idempotent": false,
+    "retry_safe": true,
+    "async": true
+  },
+  "constraints": {
+    "max_execution_time_ms": 30000,
+    "max_payload_bytes": 1048576
+  }
+}

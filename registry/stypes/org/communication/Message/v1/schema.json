@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.communication.Message.v1",
+  "title": "Communication Message",
+  "description": "A structured communication message between agents or systems",
+  "type": "object",
+  "properties": {
+    "message_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique message identifier"
+    },
+    "sender": {
+      "type": "object",
+      "description": "Message sender",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["agent", "user", "system"] },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "type"]
+    },
+    "recipient": {
+      "type": "object",
+      "description": "Message recipient",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["agent", "user", "system", "broadcast"] },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "type"]
+    },
+    "content": {
+      "type": "object",
+      "description": "Message content",
+      "properties": {
+        "type": { "type": "string", "enum": ["text", "structured", "binary"] },
+        "body": { "type": "string" },
+        "structured_data": { "type": "object" },
+        "encoding": { "type": "string" }
+      },
+      "required": ["type", "body"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Message metadata",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "priority": { "type": "string", "enum": ["low", "normal", "high", "urgent"] },
+        "thread_id": { "type": "string" },
+        "reply_to": { "type": "string" },
+        "expires_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "required": ["message_id", "sender", "recipient", "content"]
+}

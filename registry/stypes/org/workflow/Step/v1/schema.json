@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.workflow.Step.v1",
+  "title": "Workflow Step",
+  "description": "A single step in a workflow or pipeline",
+  "type": "object",
+  "properties": {
+    "stepId": {
+      "type": "string",
+      "description": "Unique step identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Step name"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["action", "decision", "parallel", "wait", "human-review"],
+      "description": "Step type"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "running", "completed", "failed", "skipped"],
+      "default": "pending"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Step input data"
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Step output data"
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "timeout": { "type": "integer", "description": "Timeout in seconds" },
+        "retries": { "type": "integer", "minimum": 0 },
+        "condition": { "type": "string", "description": "JSONLogic condition" }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "startedAt": { "type": "string", "format": "date-time" },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "durationMs": { "type": "integer" }
+      }
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    }
+  },
+  "required": ["stepId", "name", "type"]
+}

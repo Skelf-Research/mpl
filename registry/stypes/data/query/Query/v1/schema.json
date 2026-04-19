@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:data.query.Query.v1",
+  "title": "Data Query",
+  "description": "A structured query for data retrieval",
+  "type": "object",
+  "properties": {
+    "queryId": {
+      "type": "string",
+      "description": "Unique query identifier"
+    },
+    "source": {
+      "type": "string",
+      "description": "Table or collection to query"
+    },
+    "select": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fields to return"
+    },
+    "where": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "operator": { "type": "string", "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "contains", "startsWith", "endsWith"] },
+          "value": {}
+        },
+        "required": ["field", "operator", "value"]
+      }
+    },
+    "orderBy": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "direction": { "type": "string", "enum": ["asc", "desc"], "default": "asc" }
+        },
+        "required": ["field"]
+      }
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": ["source"]
+}

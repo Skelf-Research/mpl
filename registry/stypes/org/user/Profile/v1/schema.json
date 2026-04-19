@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:org.user.Profile.v1",
+  "title": "User Profile",
+  "description": "A user profile with identity and preferences",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Unique user identifier"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "avatar": {
+      "type": "string",
+      "format": "uri"
+    },
+    "role": {
+      "type": "string",
+      "enum": ["admin", "user", "viewer", "guest"]
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "language": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+        "timezone": { "type": "string" },
+        "theme": { "type": "string", "enum": ["light", "dark", "system"] },
+        "notifications": {
+          "type": "object",
+          "properties": {
+            "email": { "type": "boolean" },
+            "push": { "type": "boolean" },
+            "sms": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "inactive", "suspended", "pending"]
+    },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "required": ["userId", "email", "displayName"]
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:eval.search.SearchResult.v1",
+  "title": "Search Result",
+  "description": "A single search result with ranking and metadata",
+  "type": "object",
+  "properties": {
+    "resultId": {
+      "type": "string",
+      "description": "Unique result identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Result title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Result content or snippet"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Source URL"
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Relevance score"
+    },
+    "rank": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Position in result list"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source collection or index"
+    },
+    "highlights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": { "type": "string" },
+          "snippet": { "type": "string" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": ["title", "score"]
+}

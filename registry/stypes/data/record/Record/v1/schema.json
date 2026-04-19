@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stype:data.record.Record.v1",
+  "title": "Data Record",
+  "description": "A single data record with typed fields",
+  "type": "object",
+  "properties": {
+    "recordId": {
+      "type": "string",
+      "description": "Unique record identifier"
+    },
+    "schemaRef": {
+      "type": "string",
+      "description": "Reference to the schema this record conforms to"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Record data fields"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Record version for optimistic locking"
+    },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "deletedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["createdAt"]
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "createdBy": { "type": "string" },
+        "updatedBy": { "type": "string" }
+      }
+    }
+  },
+  "required": ["recordId", "data"]
+}

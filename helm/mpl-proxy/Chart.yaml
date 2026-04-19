@@ -1,0 +1,23 @@
+apiVersion: v2
+name: mpl-proxy
+description: MPL Sidecar Proxy for MCP/A2A traffic
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+keywords:
+  - mpl
+  - mcp
+  - a2a
+  - ai
+  - agents
+  - proxy
+
+home: https://github.com/anthropics/mpl
+
+sources:
+  - https://github.com/anthropics/mpl
+
+maintainers:
+  - name: MPL Team
+    url: https://github.com/anthropics/mpl

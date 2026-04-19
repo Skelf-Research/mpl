@@ -1,0 +1,15 @@
+{
+  "stepId": "step-approval-001",
+  "name": "Manager Approval",
+  "type": "human-review",
+  "status": "pending",
+  "input": {
+    "requestId": "req-123",
+    "amount": 5000,
+    "requester": "alice@example.com"
+  },
+  "config": {
+    "timeout": 86400,
+    "retries": 0
+  }
+}

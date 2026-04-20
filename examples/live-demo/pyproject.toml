@@ -1,0 +1,13 @@
+[project]
+name = "mpl-live-demo"
+version = "0.1.0"
+description = "Live demonstration of MPL with MCP and A2A protocols"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.scripts]
+mpl-demo = "demo:main"
+mcp-server = "mcp_server:main"

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "org.agent.ToolInvocation.v1",
+  "name": "tool_invocation_validations",
+  "description": "Safety and correctness assertions for tool invocations",
+  "assertions": [
+    {
+      "id": "tool_name_valid",
+      "expression": "size(payload.tool_name) > 0 && !payload.tool_name.startsWith('_')",
+      "message": "Tool name must be non-empty and not start with underscore",
+      "severity": "error",
+      "tags": ["required", "security"]
+    },
+    {
+      "id": "version_format",
+      "expression": "payload.tool_version.matches('^v[0-9]+$')",
+      "message": "Tool version must follow format vN (e.g., v1, v2)",
+      "severity": "error",
+      "tags": ["required", "format"]
+    },
+    {
+      "id": "arguments_present",
+      "expression": "has(payload.arguments)",
+      "message": "Arguments object must be present",
+      "severity": "error",
+      "tags": ["required"]
+    },
+    {
+      "id": "timeout_reasonable",
+      "expression": "!has(payload.constraints) || !has(payload.constraints.timeout_ms) || (payload.constraints.timeout_ms >= 100 && payload.constraints.timeout_ms <= 300000)",
+      "message": "Timeout should be between 100ms and 5 minutes",
+      "severity": "warning",
+      "tags": ["performance", "safety"]
+    },
+    {
+      "id": "retries_limited",
+      "expression": "!has(payload.constraints) || !has(payload.constraints.max_retries) || payload.constraints.max_retries <= 5",
+      "message": "Maximum retries should not exceed 5",
+      "severity": "warning",
+      "tags": ["performance", "safety"]
+    },
+    {
+      "id": "dangerous_tools_require_context",
+      "expression": "!(payload.tool_name in ['delete_file', 'execute_code', 'send_email', 'make_payment']) || (has(payload.context) && has(payload.context.user_id))",
+      "message": "Dangerous tools require user context for audit",
+      "severity": "error",
+      "tags": ["security", "audit"]
+    },
+    {
+      "id": "non_idempotent_single_try",
+      "expression": "!has(payload.constraints) || !has(payload.constraints.idempotent) || payload.constraints.idempotent == true || !has(payload.constraints.max_retries) || payload.constraints.max_retries == 0",
+      "message": "Non-idempotent operations should not have retries enabled",
+      "severity": "warning",
+      "tags": ["safety", "consistency"]
+    }
+  ],
+  "fail_fast": false
+}

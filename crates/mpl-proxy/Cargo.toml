@@ -50,6 +50,9 @@ uuid.workspace = true
 # CLI args (for proxy binary)
 clap.workspace = true
 
+# Time
+chrono.workspace = true
+
 # YAML parsing
 serde_yaml = "0.9"
 

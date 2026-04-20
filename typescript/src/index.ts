@@ -1,8 +1,30 @@
 /**
  * MPL SDK - Meaning Protocol Layer for AI agents
  *
+ * Simple usage (recommended):
+ * ```typescript
+ * import { Client, Mode } from 'mpl-sdk';
+ *
+ * const client = new Client('http://localhost:9443');
+ * const result = await client.call('calendar.create', { title: 'Meeting' });
+ * ```
+ *
+ * Advanced usage:
+ * ```typescript
+ * import { Session, SessionConfig, QomProfile } from 'mpl-sdk';
+ * // ... full control over validation, QoM, etc.
+ * ```
+ *
  * @packageDocumentation
  */
+
+// ===== Simple API (use these first) =====
+export { Client, Mode, ClientOptions, CallResult, typed } from './client';
+
+// Errors (commonly needed)
+export { MplError, SchemaFidelityError } from './errors';
+
+// ===== Advanced API =====
 
 // Types
 export { SType, STypeParseError, STypeComponents } from './types/stype';
@@ -38,10 +60,8 @@ export {
   SendOptions,
 } from './session/session';
 
-// Errors
+// More Errors
 export {
-  MplError,
-  SchemaFidelityError,
   QomBreachError,
   UnknownStypeError,
   NegotiationError,

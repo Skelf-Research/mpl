@@ -1,0 +1,58 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "eval.rag.RAGResponse.v1",
+  "name": "rag_response_validations",
+  "description": "Quality assertions for RAG response payloads",
+  "assertions": [
+    {
+      "id": "has_sources",
+      "expression": "size(payload.sources) > 0",
+      "message": "RAG response must cite at least one source",
+      "severity": "error",
+      "tags": ["required", "groundedness"]
+    },
+    {
+      "id": "answer_not_empty",
+      "expression": "size(payload.answer) > 0",
+      "message": "Answer must not be empty",
+      "severity": "error",
+      "tags": ["required"]
+    },
+    {
+      "id": "confidence_threshold",
+      "expression": "!has(payload.confidence) || payload.confidence >= 0.3",
+      "message": "Low confidence responses (< 0.3) should be flagged or regenerated",
+      "severity": "warning",
+      "tags": ["quality"]
+    },
+    {
+      "id": "groundedness_threshold",
+      "expression": "!has(payload.groundedness) || payload.groundedness >= 0.5",
+      "message": "Response groundedness is below 50% - answer may not be well-supported",
+      "severity": "warning",
+      "tags": ["quality", "groundedness"]
+    },
+    {
+      "id": "sources_have_relevance",
+      "expression": "payload.sources.all(s, has(s.relevanceScore) && s.relevanceScore >= 0.1)",
+      "message": "All cited sources should have relevance score >= 0.1",
+      "severity": "info",
+      "tags": ["quality"]
+    },
+    {
+      "id": "answer_length_reasonable",
+      "expression": "size(payload.answer) <= 10000",
+      "message": "Answer exceeds 10000 characters - consider summarizing",
+      "severity": "warning",
+      "tags": ["performance"]
+    },
+    {
+      "id": "high_confidence_has_groundedness",
+      "expression": "!has(payload.confidence) || payload.confidence < 0.8 || (has(payload.groundedness) && payload.groundedness >= 0.7)",
+      "message": "High confidence (>= 0.8) answers should have high groundedness (>= 0.7)",
+      "severity": "warning",
+      "tags": ["consistency", "quality"]
+    }
+  ],
+  "fail_fast": false
+}

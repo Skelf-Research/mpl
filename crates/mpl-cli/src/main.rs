@@ -242,6 +242,10 @@ enum SchemasCommands {
         /// Path to schemas directory
         #[arg(short, long, default_value = "./schemas")]
         path: String,
+
+        /// Export mode: new (skip existing), delta (export changes), full (overwrite all), bump (version changed)
+        #[arg(short, long, default_value = "delta")]
+        mode: ExportModeArg,
     },
 
     /// Show schema details
@@ -293,6 +297,29 @@ pub enum SchemaStatus {
     Pending,
     /// All schemas
     All,
+}
+
+#[derive(Clone, Copy, Debug, ValueEnum)]
+pub enum ExportModeArg {
+    /// Only export new schemas (skip existing)
+    New,
+    /// Export new and changed schemas (default)
+    Delta,
+    /// Overwrite all schemas
+    Full,
+    /// Bump version for changed schemas
+    Bump,
+}
+
+impl From<ExportModeArg> for commands::schemas::ExportMode {
+    fn from(arg: ExportModeArg) -> Self {
+        match arg {
+            ExportModeArg::New => commands::schemas::ExportMode::New,
+            ExportModeArg::Delta => commands::schemas::ExportMode::Delta,
+            ExportModeArg::Full => commands::schemas::ExportMode::Full,
+            ExportModeArg::Bump => commands::schemas::ExportMode::BumpVersion,
+        }
+    }
 }
 
 #[tokio::main]
@@ -350,8 +377,8 @@ async fn main() -> Result<()> {
             SchemasCommands::Approve { stype, all, path } => {
                 commands::schemas::approve(&path, stype.as_deref(), all)?;
             }
-            SchemasCommands::Export { output, path } => {
-                commands::schemas::export(&path, &output)?;
+            SchemasCommands::Export { output, path, mode } => {
+                commands::schemas::export(&path, &output, mode.into())?;
             }
             SchemasCommands::Show { stype, path } => {
                 commands::schemas::show(&path, &stype)?;

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "ai.completion.Response.v1",
+  "name": "ai_completion_validations",
+  "description": "Quality and safety assertions for AI completion responses",
+  "assertions": [
+    {
+      "id": "content_not_empty",
+      "expression": "size(payload.content) > 0",
+      "message": "Response content must not be empty",
+      "severity": "error",
+      "tags": ["required"]
+    },
+    {
+      "id": "model_specified",
+      "expression": "size(payload.model) > 0",
+      "message": "Model must be specified for traceability",
+      "severity": "error",
+      "tags": ["required", "audit"]
+    },
+    {
+      "id": "finish_reason_normal",
+      "expression": "!has(payload.finishReason) || payload.finishReason in ['stop', 'tool_calls']",
+      "message": "Response may be truncated or filtered (finishReason is not 'stop' or 'tool_calls')",
+      "severity": "warning",
+      "tags": ["quality"]
+    },
+    {
+      "id": "content_length_reasonable",
+      "expression": "size(payload.content) <= 100000",
+      "message": "Response content exceeds 100KB - may indicate an issue",
+      "severity": "warning",
+      "tags": ["performance"]
+    },
+    {
+      "id": "usage_tracking",
+      "expression": "has(payload.usage) && has(payload.usage.totalTokens)",
+      "message": "Token usage should be tracked for cost monitoring",
+      "severity": "info",
+      "tags": ["cost", "monitoring"]
+    },
+    {
+      "id": "tool_calls_have_ids",
+      "expression": "!has(payload.toolCalls) || payload.toolCalls.all(tc, has(tc.id) && has(tc.name))",
+      "message": "All tool calls must have id and name",
+      "severity": "error",
+      "tags": ["required", "tools"]
+    },
+    {
+      "id": "error_finish_has_no_content",
+      "expression": "!has(payload.finishReason) || payload.finishReason != 'error' || size(payload.content) == 0",
+      "message": "Error responses should have empty content",
+      "severity": "warning",
+      "tags": ["consistency"]
+    },
+    {
+      "id": "latency_tracked",
+      "expression": "has(payload.metadata) && has(payload.metadata.latencyMs)",
+      "message": "Response latency should be tracked",
+      "severity": "info",
+      "tags": ["monitoring"]
+    }
+  ],
+  "fail_fast": false
+}

@@ -62,13 +62,15 @@ async fn main() -> Result<()> {
         .finish();
     tracing::subscriber::set_global_default(subscriber)?;
 
-    // Load configuration
-    let mut config = ProxyConfig::load(&args.config).unwrap_or_else(|e| {
-        info!("Could not load config file: {}, using defaults", e);
-        ProxyConfig::default()
+    // Load configuration with environment variable overrides
+    let mut config = ProxyConfig::load_with_env(&args.config).unwrap_or_else(|e| {
+        info!("Could not load config file: {}, using defaults with env vars", e);
+        let mut cfg = ProxyConfig::default();
+        cfg.apply_env_overrides();
+        cfg
     });
 
-    // Override with CLI args
+    // Override with CLI args (highest priority)
     if let Some(listen) = args.listen {
         config.transport.listen = listen;
     }
@@ -100,6 +102,18 @@ async fn main() -> Result<()> {
         .route("/metrics", get(handlers::metrics))
         // WebSocket endpoint
         .route("/ws", get(handlers::websocket_handler))
+        // TOC callback endpoints (for Tool Outcome Correctness verification)
+        .route("/_mpl/toc/callback", post(handlers::toc_callback))
+        .route("/_mpl/toc/status/:callback_id", get(handlers::toc_status))
+        .route("/_mpl/toc/pending", get(handlers::toc_pending_list))
+        // QoM endpoints (for Quality of Meaning metrics)
+        .route("/_mpl/qom", get(handlers::qom_summary))
+        .route("/_mpl/qom/events", get(handlers::qom_events))
+        .route("/_mpl/qom/history", get(handlers::qom_history))
+        .route("/_mpl/qom/persist", post(handlers::qom_persist))
+        // Learning endpoints (for traffic recording and schema inference)
+        .route("/_mpl/learning/stats", get(handlers::learning_stats))
+        .route("/_mpl/learning/samples/:stype", get(handlers::learning_samples))
         // Proxy all other requests
         .route("/*path", any(handlers::proxy_handler))
         .with_state(proxy_state.clone())

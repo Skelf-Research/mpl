@@ -1,0 +1,72 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "org.healthcare.PatientSummary.v1",
+  "name": "patient_summary_validations",
+  "description": "HIPAA-aware assertions for patient health summaries",
+  "assertions": [
+    {
+      "id": "patient_id_deidentified",
+      "expression": "!payload.patient_id.matches('.*[0-9]{3}-[0-9]{2}-[0-9]{4}.*')",
+      "message": "Patient ID appears to contain SSN format - ensure de-identification",
+      "severity": "error",
+      "tags": ["hipaa", "phi", "security"]
+    },
+    {
+      "id": "summary_date_recent",
+      "expression": "has(payload.summary_date)",
+      "message": "Summary date is required for audit trail",
+      "severity": "error",
+      "tags": ["required", "audit"]
+    },
+    {
+      "id": "conditions_have_codes",
+      "expression": "!has(payload.conditions) || payload.conditions.all(c, has(c.code) && size(c.code) > 0)",
+      "message": "All conditions must have standardized codes (ICD-10/SNOMED)",
+      "severity": "error",
+      "tags": ["interoperability", "standards"]
+    },
+    {
+      "id": "medications_have_status",
+      "expression": "!has(payload.medications) || payload.medications.all(m, has(m.status))",
+      "message": "All medications must have a status",
+      "severity": "error",
+      "tags": ["required", "safety"]
+    },
+    {
+      "id": "severe_allergies_documented",
+      "expression": "!has(payload.allergies) || payload.allergies.filter(a, has(a.severity) && a.severity == 'severe').all(a, has(a.reaction))",
+      "message": "Severe allergies must document the reaction",
+      "severity": "warning",
+      "tags": ["safety", "quality"]
+    },
+    {
+      "id": "active_conditions_limited",
+      "expression": "!has(payload.conditions) || payload.conditions.filter(c, c.status == 'active').size() <= 50",
+      "message": "Unusually high number of active conditions - verify accuracy",
+      "severity": "warning",
+      "tags": ["quality"]
+    },
+    {
+      "id": "care_plan_has_goals",
+      "expression": "!has(payload.care_plan) || (has(payload.care_plan.goals) && size(payload.care_plan.goals) > 0)",
+      "message": "Care plan should include at least one goal",
+      "severity": "info",
+      "tags": ["quality", "care"]
+    },
+    {
+      "id": "no_pii_in_demographics",
+      "expression": "!has(payload.demographics) || !has(payload.demographics.region) || !payload.demographics.region.matches('.*[0-9]{5}.*')",
+      "message": "Region should not contain ZIP codes (use broader geographic terms)",
+      "severity": "warning",
+      "tags": ["hipaa", "phi"]
+    },
+    {
+      "id": "medication_dosage_format",
+      "expression": "!has(payload.medications) || payload.medications.filter(m, has(m.dosage)).all(m, m.dosage.matches('.*[0-9]+.*'))",
+      "message": "Medication dosages should include numeric values",
+      "severity": "warning",
+      "tags": ["quality", "safety"]
+    }
+  ],
+  "fail_fast": false
+}

@@ -73,6 +73,9 @@ uuid = { version = "1.10", features = ["v4", "serde"] }
 # Time
 chrono = { version = "0.4", features = ["serde"] }
 
+# Async trait support
+async-trait = "0.1"
+
 [profile.release]
 lto = true
 codegen-units = 1

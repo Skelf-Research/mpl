@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPL Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <div id="app" v-cloak>
+        <!-- Navigation -->
+        <nav class="bg-gray-800 border-b border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <span class="text-xl font-bold text-blue-400">MPL</span>
+                        <span class="ml-2 text-gray-400">Dashboard</span>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button
+                            v-for="tab in tabs"
+                            :key="tab.id"
+                            @click="activeTab = tab.id"
+                            :class="[
+                                'px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                                activeTab === tab.id
+                                    ? 'bg-gray-700 text-white'
+                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                            ]"
+                        >
+                            {{ tab.name }}
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span :class="[
+                            'w-2 h-2 rounded-full',
+                            status.status === 'running' ? 'bg-green-400' : 'bg-red-400'
+                        ]"></span>
+                        <span class="text-sm text-gray-400">{{ status.status }}</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Overview Tab -->
+            <div v-if="activeTab === 'overview'">
+                <h2 class="text-2xl font-bold mb-6">Overview</h2>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="text-gray-400 text-sm">Total Requests</div>
+                        <div class="text-3xl font-bold text-white mt-2">{{ metrics.requests_total }}</div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="text-gray-400 text-sm">Schema Pass Rate</div>
+                        <div class="text-3xl font-bold text-green-400 mt-2">{{ (metrics.schema_pass_rate * 100).toFixed(1) }}%</div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="text-gray-400 text-sm">QoM Pass Rate</div>
+                        <div class="text-3xl font-bold text-blue-400 mt-2">{{ (metrics.qom_pass_rate * 100).toFixed(1) }}%</div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="text-gray-400 text-sm">Avg Latency</div>
+                        <div class="text-3xl font-bold text-yellow-400 mt-2">{{ metrics.avg_latency_ms.toFixed(1) }}ms</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-medium transition-colors">
+                            Generate Schemas
+                        </button>
+                        <button class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md text-sm font-medium transition-colors">
+                            Approve All Pending
+                        </button>
+                        <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-sm font-medium transition-colors">
+                            Export to Registry
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QoM Metrics Tab -->
+            <div v-if="activeTab === 'qom'">
+                <h2 class="text-2xl font-bold mb-6">Quality of Meaning (QoM) Metrics</h2>
+
+                <!-- Profile Info -->
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-gray-400 text-sm">Active Profile:</span>
+                            <span class="ml-2 font-semibold text-blue-400">{{ status.profile || 'qom-basic' }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span :class="[
+                                'w-3 h-3 rounded-full',
+                                metrics.qom_pass_rate >= 0.95 ? 'bg-green-400' :
+                                metrics.qom_pass_rate >= 0.80 ? 'bg-yellow-400' : 'bg-red-400'
+                            ]"></span>
+                            <span class="text-sm">{{ (metrics.qom_pass_rate * 100).toFixed(1) }}% Pass Rate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Six Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <!-- Schema Fidelity (SF) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Schema Fidelity (SF)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-green-900 text-green-300">Required</span>
+                        </div>
+                        <div class="text-3xl font-bold text-green-400 mb-2">
+                            {{ qomMetrics.schema_fidelity.score !== null ? (qomMetrics.schema_fidelity.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            JSON Schema validation pass rate
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.schema_fidelity.samples }} samples</span>
+                            <span class="text-red-400">{{ qomMetrics.schema_fidelity.failures }} failures</span>
+                        </div>
+                    </div>
+
+                    <!-- Instruction Compliance (IC) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Instruction Compliance (IC)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-blue-900 text-blue-300">CEL</span>
+                        </div>
+                        <div class="text-3xl font-bold" :class="qomMetrics.instruction_compliance.score !== null ? 'text-blue-400' : 'text-gray-600'">
+                            {{ qomMetrics.instruction_compliance.score !== null ? (qomMetrics.instruction_compliance.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Assertion evaluation success rate
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.instruction_compliance.samples }} assertions</span>
+                            <span class="text-red-400">{{ qomMetrics.instruction_compliance.failures }} failures</span>
+                        </div>
+                    </div>
+
+                    <!-- Tool Outcome Correctness (TOC) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Tool Outcome Correctness (TOC)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-purple-900 text-purple-300">Callback</span>
+                        </div>
+                        <div class="text-3xl font-bold" :class="qomMetrics.tool_outcome_correctness.score !== null ? 'text-purple-400' : 'text-gray-600'">
+                            {{ qomMetrics.tool_outcome_correctness.score !== null ? (qomMetrics.tool_outcome_correctness.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Side-effect verification rate
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.tool_outcome_correctness.samples }} verified</span>
+                            <span class="text-yellow-400">{{ qomMetrics.tool_outcome_correctness.pending || 0 }} pending</span>
+                        </div>
+                    </div>
+
+                    <!-- Groundedness (G) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Groundedness (G)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-orange-900 text-orange-300">Hybrid</span>
+                        </div>
+                        <div class="text-3xl font-bold" :class="qomMetrics.groundedness.score !== null ? 'text-orange-400' : 'text-gray-600'">
+                            {{ qomMetrics.groundedness.score !== null ? (qomMetrics.groundedness.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Claims supported by citations
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.groundedness.samples }} claims</span>
+                            <span class="text-red-400">{{ qomMetrics.groundedness.failures }} ungrounded</span>
+                        </div>
+                    </div>
+
+                    <!-- Determinism Jitter (DJ) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Determinism Jitter (DJ)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-cyan-900 text-cyan-300">Replay</span>
+                        </div>
+                        <div class="text-3xl font-bold" :class="qomMetrics.determinism_jitter.score !== null ? 'text-cyan-400' : 'text-gray-600'">
+                            {{ qomMetrics.determinism_jitter.score !== null ? (qomMetrics.determinism_jitter.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Output stability across runs
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.determinism_jitter.samples }} replays</span>
+                            <span class="text-red-400">{{ qomMetrics.determinism_jitter.failures }} drifts</span>
+                        </div>
+                    </div>
+
+                    <!-- Ontology Adherence (OA) -->
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-400 text-sm font-medium">Ontology Adherence (OA)</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-pink-900 text-pink-300">Domain</span>
+                        </div>
+                        <div class="text-3xl font-bold" :class="qomMetrics.ontology_adherence.score !== null ? 'text-pink-400' : 'text-gray-600'">
+                            {{ qomMetrics.ontology_adherence.score !== null ? (qomMetrics.ontology_adherence.score * 100).toFixed(1) + '%' : 'N/A' }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Domain constraint conformance
+                        </div>
+                        <div class="mt-3 flex justify-between text-xs text-gray-500">
+                            <span>{{ qomMetrics.ontology_adherence.samples }} checks</span>
+                            <span class="text-red-400">{{ qomMetrics.ontology_adherence.failures }} violations</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending TOC Verifications -->
+                <div v-if="tocPending.length > 0" class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></span>
+                        Pending TOC Verifications ({{ tocPending.length }})
+                    </h3>
+                    <div class="space-y-2">
+                        <div v-for="toc in tocPending" :key="toc.callback_id" class="flex items-center justify-between bg-gray-750 rounded p-3">
+                            <div>
+                                <span class="font-mono text-sm text-blue-400">{{ toc.stype }}</span>
+                                <span class="text-xs text-gray-500 ml-2">{{ toc.callback_id }}</span>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ toc.timestamp }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QoM Trends Chart -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">QoM Trends (Last 24 Hours)</h3>
+                        <div class="flex space-x-2">
+                            <button
+                                v-for="period in ['1h', '6h', '24h', '7d']"
+                                :key="period"
+                                @click="trendsPeriod = period; fetchQomHistory()"
+                                :class="[
+                                    'px-3 py-1 text-xs rounded-md transition-colors',
+                                    trendsPeriod === period
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                ]"
+                            >
+                                {{ period }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="h-64">
+                        <canvas ref="trendsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent QoM Events -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Recent QoM Events</h3>
+                    <div v-if="qomEvents.length === 0" class="text-gray-500 text-sm text-center py-4">
+                        No QoM events recorded yet
+                    </div>
+                    <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+                        <div
+                            v-for="event in qomEvents"
+                            :key="event.id"
+                            :class="[
+                                'p-3 rounded-lg border text-sm',
+                                event.passed
+                                    ? 'bg-green-900/20 border-green-800'
+                                    : 'bg-red-900/20 border-red-800'
+                            ]"
+                        >
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-mono text-blue-400">{{ event.stype }}</span>
+                                    <span class="text-gray-500 ml-2">{{ event.profile }}</span>
+                                </div>
+                                <span class="text-xs text-gray-500">{{ formatTime(event.timestamp) }}</span>
+                            </div>
+                            <div class="mt-1 flex flex-wrap gap-2">
+                                <span
+                                    v-for="(score, metric) in event.scores"
+                                    :key="metric"
+                                    :class="[
+                                        'px-2 py-0.5 text-xs rounded',
+                                        score >= 0.9 ? 'bg-green-900 text-green-300' :
+                                        score >= 0.7 ? 'bg-yellow-900 text-yellow-300' :
+                                        'bg-red-900 text-red-300'
+                                    ]"
+                                >
+                                    {{ metric }}: {{ (score * 100).toFixed(0) }}%
+                                </span>
+                            </div>
+                            <div v-if="event.failure_reason" class="mt-2 text-red-400 text-xs">
+                                {{ event.failure_reason }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QoM Profiles Reference -->
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold mb-4">QoM Profiles Reference</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-700 text-left">
+                                    <th class="px-4 py-2 text-gray-400">Profile</th>
+                                    <th class="px-4 py-2 text-gray-400">SF</th>
+                                    <th class="px-4 py-2 text-gray-400">IC</th>
+                                    <th class="px-4 py-2 text-gray-400">TOC</th>
+                                    <th class="px-4 py-2 text-gray-400">G</th>
+                                    <th class="px-4 py-2 text-gray-400">DJ</th>
+                                    <th class="px-4 py-2 text-gray-400">OA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-2 font-medium">qom-basic</td>
+                                    <td class="px-4 py-2 text-green-400">= 1.0</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-2 font-medium">qom-strict-argcheck</td>
+                                    <td class="px-4 py-2 text-green-400">= 1.0</td>
+                                    <td class="px-4 py-2 text-blue-400">≥ 0.97</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-2 font-medium">qom-outcome</td>
+                                    <td class="px-4 py-2 text-green-400">= 1.0</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-purple-400">≥ 0.9</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                    <td class="px-4 py-2 text-gray-500">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 font-medium">qom-comprehensive</td>
+                                    <td class="px-4 py-2 text-green-400">= 1.0</td>
+                                    <td class="px-4 py-2 text-blue-400">≥ 0.95</td>
+                                    <td class="px-4 py-2 text-purple-400">≥ 0.9</td>
+                                    <td class="px-4 py-2 text-orange-400">≥ 0.8</td>
+                                    <td class="px-4 py-2 text-cyan-400">≥ 0.9</td>
+                                    <td class="px-4 py-2 text-pink-400">≥ 0.95</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schemas Tab -->
+            <div v-if="activeTab === 'schemas'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Schemas</h2>
+                    <div class="flex space-x-2">
+                        <select v-model="schemaFilter" class="bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm">
+                            <option value="all">All Schemas</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div v-if="filteredSchemas.length === 0" class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
+                    <div class="text-gray-400 mb-4">No schemas found</div>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Start the proxy with <code class="bg-gray-700 px-2 py-1 rounded">--learn</code> to record traffic,<br>
+                        then run <code class="bg-gray-700 px-2 py-1 rounded">mpl schemas generate</code> to create schemas.
+                    </p>
+                </div>
+
+                <div v-else class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-750">
+                            <tr class="border-b border-gray-700">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">SType</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Samples</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Updated</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <tr v-for="schema in filteredSchemas" :key="schema.stype" class="hover:bg-gray-750">
+                                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm">{{ schema.stype }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span :class="[
+                                        'px-2 py-1 text-xs font-medium rounded-full',
+                                        schema.status === 'active'
+                                            ? 'bg-green-900 text-green-300'
+                                            : 'bg-yellow-900 text-yellow-300'
+                                    ]">
+                                        {{ schema.status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ schema.sample_count }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ formatDate(schema.updated_at) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                    <button class="text-blue-400 hover:text-blue-300 mr-3">View</button>
+                                    <button v-if="schema.status === 'pending'" class="text-green-400 hover:text-green-300">Approve</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Traffic Tab -->
+            <div v-if="activeTab === 'traffic'">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Traffic Explorer</h2>
+                    <button @click="refreshTraffic" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm font-medium transition-colors">
+                        Refresh
+                    </button>
+                </div>
+
+                <div v-if="traffic.length === 0" class="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
+                    <div class="text-gray-400 mb-4">No traffic recorded yet</div>
+                    <p class="text-sm text-gray-500">
+                        Traffic will appear here when the proxy is running with learning enabled.
+                    </p>
+                </div>
+
+                <div v-else class="space-y-2">
+                    <div
+                        v-for="(record, index) in traffic"
+                        :key="index"
+                        class="bg-gray-800 rounded-lg border border-gray-700 p-4 hover:border-gray-600 cursor-pointer"
+                        @click="selectedRecord = record"
+                    >
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-mono text-sm text-blue-400">{{ record.stype || 'unknown' }}</span>
+                                <span class="text-gray-500 text-sm ml-2">{{ record.method || 'POST' }}</span>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ record.timestamp || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Record Detail Modal -->
+                <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" @click.self="selectedRecord = null">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 max-w-2xl w-full max-h-[80vh] overflow-auto">
+                        <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                            <h3 class="font-semibold">Request Details</h3>
+                            <button @click="selectedRecord = null" class="text-gray-400 hover:text-white">&times;</button>
+                        </div>
+                        <div class="p-4">
+                            <pre class="bg-gray-900 rounded p-4 overflow-auto text-sm">{{ JSON.stringify(selectedRecord, null, 2) }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div v-if="activeTab === 'settings'">
+                <h2 class="text-2xl font-bold mb-6">Settings</h2>
+
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6 space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Proxy Configuration</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Mode</label>
+                                <select class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2">
+                                    <option>Development</option>
+                                    <option>Production</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Learning</label>
+                                <select class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2">
+                                    <option>Enabled</option>
+                                    <option>Disabled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Schema Inference</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Minimum Samples</label>
+                                <input type="number" value="10" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-1">Auto-approve</label>
+                                <select class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2">
+                                    <option>Manual</option>
+                                    <option>Auto-approve</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-700">
+                        <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-sm font-medium transition-colors">
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const activeTab = ref('overview');
+                const tabs = [
+                    { id: 'overview', name: 'Overview' },
+                    { id: 'qom', name: 'QoM Metrics' },
+                    { id: 'schemas', name: 'Schemas' },
+                    { id: 'traffic', name: 'Traffic' },
+                    { id: 'settings', name: 'Settings' }
+                ];
+
+                const status = ref({ status: 'loading' });
+                const metrics = ref({
+                    requests_total: 0,
+                    requests_per_second: 0,
+                    schema_pass_rate: 1.0,
+                    qom_pass_rate: 1.0,
+                    avg_latency_ms: 0,
+                    active_connections: 0
+                });
+                const qomMetrics = ref({
+                    schema_fidelity: { score: 1.0, samples: 0, failures: 0 },
+                    instruction_compliance: { score: null, samples: 0, failures: 0 },
+                    tool_outcome_correctness: { score: null, samples: 0, failures: 0, pending: 0 },
+                    groundedness: { score: null, samples: 0, failures: 0 },
+                    determinism_jitter: { score: null, samples: 0, failures: 0 },
+                    ontology_adherence: { score: null, samples: 0, failures: 0 }
+                });
+                const tocPending = ref([]);
+                const schemas = ref([]);
+                const schemaFilter = ref('all');
+                const traffic = ref([]);
+                const selectedRecord = ref(null);
+
+                // QoM History and Trends
+                const qomEvents = ref([]);
+                const qomHistory = ref([]);
+                const trendsPeriod = ref('24h');
+                const trendsChart = ref(null);
+                let chartInstance = null;
+
+                const filteredSchemas = computed(() => {
+                    if (schemaFilter.value === 'all') return schemas.value;
+                    return schemas.value.filter(s => s.status === schemaFilter.value);
+                });
+
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return 'N/A';
+                    try {
+                        return new Date(dateStr).toLocaleString();
+                    } catch {
+                        return dateStr;
+                    }
+                };
+
+                const formatTime = (dateStr) => {
+                    if (!dateStr) return 'N/A';
+                    try {
+                        const date = new Date(dateStr);
+                        const now = new Date();
+                        const diffMs = now - date;
+                        const diffMins = Math.floor(diffMs / 60000);
+                        if (diffMins < 1) return 'just now';
+                        if (diffMins < 60) return `${diffMins}m ago`;
+                        const diffHours = Math.floor(diffMins / 60);
+                        if (diffHours < 24) return `${diffHours}h ago`;
+                        return date.toLocaleDateString();
+                    } catch {
+                        return dateStr;
+                    }
+                };
+
+                const fetchStatus = async () => {
+                    try {
+                        const res = await fetch('/api/status');
+                        status.value = await res.json();
+                    } catch (e) {
+                        console.error('Failed to fetch status:', e);
+                    }
+                };
+
+                const fetchMetrics = async () => {
+                    try {
+                        const res = await fetch('/api/metrics');
+                        metrics.value = await res.json();
+                    } catch (e) {
+                        console.error('Failed to fetch metrics:', e);
+                    }
+                };
+
+                const fetchSchemas = async () => {
+                    try {
+                        const res = await fetch('/api/schemas');
+                        const data = await res.json();
+                        schemas.value = data.schemas || [];
+                    } catch (e) {
+                        console.error('Failed to fetch schemas:', e);
+                    }
+                };
+
+                const refreshTraffic = async () => {
+                    try {
+                        const res = await fetch('/api/traffic');
+                        const data = await res.json();
+                        traffic.value = data.records || [];
+                    } catch (e) {
+                        console.error('Failed to fetch traffic:', e);
+                    }
+                };
+
+                const fetchQomMetrics = async () => {
+                    try {
+                        const res = await fetch('/api/qom');
+                        const data = await res.json();
+                        if (data.metrics) {
+                            qomMetrics.value = data.metrics;
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch QoM metrics:', e);
+                    }
+                };
+
+                const fetchTocPending = async () => {
+                    try {
+                        const res = await fetch('/api/toc/pending');
+                        const data = await res.json();
+                        tocPending.value = data.verifications || [];
+                    } catch (e) {
+                        console.error('Failed to fetch TOC pending:', e);
+                    }
+                };
+
+                const fetchQomEvents = async () => {
+                    try {
+                        const res = await fetch('/api/qom/events?limit=50');
+                        const data = await res.json();
+                        qomEvents.value = data.events || [];
+                    } catch (e) {
+                        console.error('Failed to fetch QoM events:', e);
+                    }
+                };
+
+                const fetchQomHistory = async () => {
+                    try {
+                        const res = await fetch(`/api/qom/history?period=${trendsPeriod.value}`);
+                        const data = await res.json();
+                        qomHistory.value = data.history || [];
+                        await nextTick();
+                        updateChart();
+                    } catch (e) {
+                        console.error('Failed to fetch QoM history:', e);
+                        // Generate demo data for development
+                        generateDemoHistory();
+                    }
+                };
+
+                const generateDemoHistory = () => {
+                    const now = Date.now();
+                    const periodMs = {
+                        '1h': 60 * 60 * 1000,
+                        '6h': 6 * 60 * 60 * 1000,
+                        '24h': 24 * 60 * 60 * 1000,
+                        '7d': 7 * 24 * 60 * 60 * 1000
+                    }[trendsPeriod.value];
+                    const points = 12;
+                    const interval = periodMs / points;
+
+                    const history = [];
+                    for (let i = 0; i < points; i++) {
+                        const time = new Date(now - periodMs + (i * interval));
+                        history.push({
+                            timestamp: time.toISOString(),
+                            sf: 0.95 + Math.random() * 0.05,
+                            ic: 0.85 + Math.random() * 0.15,
+                            toc: 0.80 + Math.random() * 0.20,
+                            g: 0.75 + Math.random() * 0.25,
+                            dj: 0.90 + Math.random() * 0.10,
+                            oa: 0.88 + Math.random() * 0.12
+                        });
+                    }
+                    qomHistory.value = history;
+                    updateChart();
+                };
+
+                const updateChart = () => {
+                    if (!trendsChart.value) return;
+
+                    const ctx = trendsChart.value.getContext('2d');
+                    const data = qomHistory.value;
+
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                    }
+
+                    const labels = data.map(d => {
+                        const date = new Date(d.timestamp);
+                        if (trendsPeriod.value === '1h') {
+                            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        } else if (trendsPeriod.value === '6h' || trendsPeriod.value === '24h') {
+                            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        } else {
+                            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        }
+                    });
+
+                    chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    label: 'SF',
+                                    data: data.map(d => (d.sf || 1) * 100),
+                                    borderColor: '#22c55e',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'IC',
+                                    data: data.map(d => (d.ic || 0) * 100),
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'TOC',
+                                    data: data.map(d => (d.toc || 0) * 100),
+                                    borderColor: '#a855f7',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'G',
+                                    data: data.map(d => (d.g || 0) * 100),
+                                    borderColor: '#f97316',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'DJ',
+                                    data: data.map(d => (d.dj || 0) * 100),
+                                    borderColor: '#06b6d4',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                },
+                                {
+                                    label: 'OA',
+                                    data: data.map(d => (d.oa || 0) * 100),
+                                    borderColor: '#ec4899',
+                                    backgroundColor: 'transparent',
+                                    tension: 0.3,
+                                    pointRadius: 2
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: '#9ca3af',
+                                        usePointStyle: true,
+                                        padding: 15
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: '#374151' },
+                                    ticks: { color: '#9ca3af' }
+                                },
+                                y: {
+                                    min: 0,
+                                    max: 100,
+                                    grid: { color: '#374151' },
+                                    ticks: {
+                                        color: '#9ca3af',
+                                        callback: (value) => value + '%'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+
+                // Watch for tab changes to initialize chart
+                watch(activeTab, async (newTab) => {
+                    if (newTab === 'qom') {
+                        await nextTick();
+                        fetchQomHistory();
+                        fetchQomEvents();
+                    }
+                });
+
+                onMounted(() => {
+                    fetchStatus();
+                    fetchMetrics();
+                    fetchSchemas();
+                    refreshTraffic();
+                    fetchQomMetrics();
+                    fetchTocPending();
+
+                    // Refresh periodically
+                    setInterval(() => {
+                        fetchStatus();
+                        fetchMetrics();
+                        fetchQomMetrics();
+                        fetchTocPending();
+                    }, 5000);
+                });
+
+                return {
+                    activeTab,
+                    tabs,
+                    status,
+                    metrics,
+                    qomMetrics,
+                    tocPending,
+                    qomEvents,
+                    qomHistory,
+                    trendsPeriod,
+                    trendsChart,
+                    schemas,
+                    schemaFilter,
+                    filteredSchemas,
+                    traffic,
+                    selectedRecord,
+                    formatDate,
+                    formatTime,
+                    refreshTraffic,
+                    fetchQomHistory
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

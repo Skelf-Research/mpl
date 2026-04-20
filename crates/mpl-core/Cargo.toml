@@ -22,5 +22,11 @@ chrono.workspace = true
 tracing.workspace = true
 pyo3 = { workspace = true, optional = true }
 
+# CEL expression evaluation for assertions
+cel-interpreter = "0.10"
+
+# Async trait support
+async-trait.workspace = true
+
 [dev-dependencies]
 pretty_assertions.workspace = true

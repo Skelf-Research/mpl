@@ -1,0 +1,53 @@
+{
+  "$schema": "https://mpl.dev/schemas/ontology.json",
+  "stype": "org.agent.ToolInvocation.v1",
+  "name": "tool_invocation_ontology",
+  "description": "Domain constraints for tool invocations beyond JSON Schema",
+  "relationships": [
+    {
+      "name": "idempotent_implies_retriable",
+      "type": "implies",
+      "if_field": "constraints.idempotent",
+      "if_value": true,
+      "then_field": "constraints.max_retries",
+      "then_condition": "may_exist"
+    },
+    {
+      "name": "payment_excludes_auto_retry",
+      "type": "excludes",
+      "if_field": "tool_name",
+      "if_value": "make_payment",
+      "then_field": "constraints.max_retries",
+      "then_condition": "must_be_zero_or_absent"
+    }
+  ],
+  "type_constraints": [
+    {
+      "field": "tool_name",
+      "constraint": "snake_case",
+      "message": "Tool names should use snake_case format"
+    },
+    {
+      "field": "context.user_id",
+      "constraint": "uuid",
+      "message": "User ID should be a valid UUID"
+    },
+    {
+      "field": "context.session_id",
+      "constraint": "non_empty",
+      "message": "Session ID must not be empty if present"
+    }
+  ],
+  "allowed_values": {
+    "tool_version": ["v1", "v2", "v3"]
+  },
+  "cardinality_constraints": [],
+  "domain_rules": [
+    {
+      "id": "sensitive_tools",
+      "description": "Tools that modify external state require user confirmation",
+      "tools": ["delete_file", "send_email", "make_payment", "execute_code"],
+      "requirement": "context.user_id must be present"
+    }
+  ]
+}

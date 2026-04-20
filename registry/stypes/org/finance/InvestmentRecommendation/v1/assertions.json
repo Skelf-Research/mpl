@@ -1,0 +1,72 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "org.finance.InvestmentRecommendation.v1",
+  "name": "investment_recommendation_validations",
+  "description": "Fiduciary and compliance assertions for investment recommendations",
+  "assertions": [
+    {
+      "id": "rationale_substantive",
+      "expression": "size(payload.rationale) >= 50",
+      "message": "Investment rationale must be substantive (at least 50 characters)",
+      "severity": "error",
+      "tags": ["fiduciary", "compliance"]
+    },
+    {
+      "id": "risk_disclosure_required",
+      "expression": "has(payload.riskDisclosure) && size(payload.riskDisclosure) >= 20",
+      "message": "Risk disclosure statement is required for all recommendations",
+      "severity": "error",
+      "tags": ["compliance", "regulatory"]
+    },
+    {
+      "id": "speculative_requires_warning",
+      "expression": "payload.riskLevel != 'speculative' || (has(payload.riskDisclosure) && payload.riskDisclosure.contains('speculative') || payload.riskDisclosure.contains('high risk'))",
+      "message": "Speculative investments must have explicit risk warning in disclosure",
+      "severity": "error",
+      "tags": ["compliance", "regulatory"]
+    },
+    {
+      "id": "crypto_asset_class_high_risk",
+      "expression": "!has(payload.assetClass) || payload.assetClass != 'crypto' || payload.riskLevel in ['aggressive', 'speculative']",
+      "message": "Crypto assets should be marked as aggressive or speculative risk level",
+      "severity": "warning",
+      "tags": ["consistency", "risk"]
+    },
+    {
+      "id": "allocation_reasonable",
+      "expression": "!has(payload.allocationPercentage) || payload.allocationPercentage <= 30 || payload.riskLevel != 'speculative'",
+      "message": "Speculative assets should not exceed 30% allocation",
+      "severity": "warning",
+      "tags": ["prudent", "diversification"]
+    },
+    {
+      "id": "confidence_disclosed",
+      "expression": "!has(payload.confidenceScore) || payload.confidenceScore >= 0.5 || payload.rationale.contains('uncertain') || payload.rationale.contains('low confidence')",
+      "message": "Low confidence recommendations should acknowledge uncertainty in rationale",
+      "severity": "warning",
+      "tags": ["transparency"]
+    },
+    {
+      "id": "amount_requires_client",
+      "expression": "!has(payload.amount) || payload.amount == 0 || has(payload.clientId)",
+      "message": "Specific dollar amounts require client identification",
+      "severity": "error",
+      "tags": ["personalization", "suitability"]
+    },
+    {
+      "id": "short_term_not_speculative",
+      "expression": "!has(payload.timeHorizon) || payload.timeHorizon != 'short_term' || payload.riskLevel != 'speculative'",
+      "message": "Short-term investments should not be speculative",
+      "severity": "warning",
+      "tags": ["suitability", "risk"]
+    },
+    {
+      "id": "sell_has_rationale",
+      "expression": "payload.action != 'sell' || payload.rationale.contains('sell') || payload.rationale.contains('exit') || payload.rationale.contains('reduce')",
+      "message": "Sell recommendations should explain the exit reasoning",
+      "severity": "info",
+      "tags": ["quality", "transparency"]
+    }
+  ],
+  "fail_fast": false
+}

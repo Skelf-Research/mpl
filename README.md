@@ -4,6 +4,35 @@
 
 MPL is a lightweight protocol overlay that brings typed contracts, quality SLOs, and audit trails to AI agent communications—without replacing MCP or A2A.
 
+## Quick Start (5 minutes)
+
+```bash
+# Install
+cargo install mpl-cli
+
+# Start proxy pointing to your MCP server - that's it!
+mpl proxy http://your-mcp-server:8080
+
+# Dashboard: http://localhost:9080
+# Metrics:   http://localhost:9100/metrics
+```
+
+**What you get immediately:**
+- Traffic visibility for all MCP/A2A requests
+- Real-time metrics and dashboard
+- Schema learning from traffic (use `mpl schemas generate` after observing traffic)
+
+**Next steps:**
+```bash
+mpl schemas generate        # Generate schemas from recorded traffic
+mpl schemas approve --all   # Approve inferred schemas
+mpl proxy http://server:8080 --mode production  # Enforce validation
+```
+
+See the [Quick Start Guide](docs/quick-start.md) for the full walkthrough.
+
+---
+
 ## Executive Summary
 
 | Stakeholder | Key Benefit |

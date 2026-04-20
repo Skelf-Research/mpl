@@ -13,6 +13,7 @@ path = "src/main.rs"
 
 [dependencies]
 mpl-core = { path = "../mpl-core" }
+mpl-proxy = { path = "../mpl-proxy" }
 
 # CLI
 clap.workspace = true
@@ -24,8 +25,9 @@ tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
-# HTTP
+# HTTP/Web
 reqwest.workspace = true
+axum.workspace = true
 
 # Error handling
 anyhow.workspace = true
@@ -44,6 +46,13 @@ walkdir = "2.5"
 # Colors/formatting
 colored = "2.1"
 indicatif = "0.17"
+
+# Utilities
+shellexpand = "3.1"
+open = "5.0"
+
+# Hashing
+sha2 = "0.10"
 
 [dev-dependencies]
 pretty_assertions.workspace = true

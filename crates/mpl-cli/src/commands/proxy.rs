@@ -29,7 +29,7 @@ pub async fn run(
     ui_enabled: bool,
     ui_port: u16,
     data_dir: &str,
-    verbose: bool,
+    _verbose: bool,
 ) -> Result<()> {
     // Ensure data directory exists
     let data_path = std::path::Path::new(data_dir);
@@ -82,9 +82,9 @@ pub async fn run(
         limits: Default::default(),
     };
 
-    // Create proxy state
+    // Create proxy state with traffic recording
     let state = Arc::new(
-        ProxyState::new(config.clone())
+        ProxyState::with_options(config.clone(), Some(data_dir), learn)
             .await
             .context("Failed to initialize proxy state")?,
     );

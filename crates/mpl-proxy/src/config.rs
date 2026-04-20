@@ -1,6 +1,12 @@
 //! Proxy configuration
+//!
+//! Configuration can be loaded from:
+//! 1. YAML file (default: mpl-config.yaml)
+//! 2. Environment variables (MPL_* prefix)
+//! 3. CLI arguments (highest priority)
 
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::path::Path;
 
 /// Main proxy configuration
@@ -33,6 +39,95 @@ impl ProxyConfig {
         let contents = std::fs::read_to_string(path)?;
         let config: Self = serde_yaml::from_str(&contents)?;
         Ok(config)
+    }
+
+    /// Load configuration with environment variable overrides
+    ///
+    /// Environment variables (all optional):
+    /// - MPL_LISTEN: Listen address (e.g., "0.0.0.0:9443")
+    /// - MPL_UPSTREAM: Upstream server address
+    /// - MPL_REGISTRY: Registry path or URL
+    /// - MPL_MODE: "transparent" or "strict"
+    /// - MPL_PROFILE: QoM profile name
+    /// - MPL_ENFORCE_SCHEMA: "true" or "false"
+    /// - MPL_ENFORCE_ASSERTIONS: "true" or "false"
+    /// - MPL_CONNECT_TIMEOUT_MS: Connection timeout
+    /// - MPL_REQUEST_TIMEOUT_MS: Request timeout
+    /// - MPL_METRICS_PORT: Metrics server port
+    /// - MPL_LOG_LEVEL: Log level (trace, debug, info, warn, error)
+    pub fn load_with_env<P: AsRef<Path>>(path: P) -> anyhow::Result<Self> {
+        let mut config = Self::load(path).unwrap_or_default();
+        config.apply_env_overrides();
+        Ok(config)
+    }
+
+    /// Apply environment variable overrides to configuration
+    pub fn apply_env_overrides(&mut self) {
+        // Transport settings
+        if let Ok(val) = env::var("MPL_LISTEN") {
+            self.transport.listen = val;
+        }
+        if let Ok(val) = env::var("MPL_UPSTREAM") {
+            self.transport.upstream = val;
+        }
+        if let Ok(val) = env::var("MPL_CONNECT_TIMEOUT_MS") {
+            if let Ok(ms) = val.parse() {
+                self.transport.connect_timeout_ms = ms;
+            }
+        }
+        if let Ok(val) = env::var("MPL_REQUEST_TIMEOUT_MS") {
+            if let Ok(ms) = val.parse() {
+                self.transport.request_timeout_ms = ms;
+            }
+        }
+
+        // MPL settings
+        if let Ok(val) = env::var("MPL_REGISTRY") {
+            self.mpl.registry = val;
+        }
+        if let Ok(val) = env::var("MPL_MODE") {
+            self.mpl.mode = match val.to_lowercase().as_str() {
+                "strict" => ProxyMode::Strict,
+                _ => ProxyMode::Transparent,
+            };
+        }
+        if let Ok(val) = env::var("MPL_PROFILE") {
+            self.mpl.required_profile = Some(val);
+        }
+        if let Ok(val) = env::var("MPL_ENFORCE_SCHEMA") {
+            self.mpl.enforce_schema = val.to_lowercase() == "true";
+        }
+        if let Ok(val) = env::var("MPL_ENFORCE_ASSERTIONS") {
+            self.mpl.enforce_assertions = val.to_lowercase() == "true";
+        }
+
+        // Observability settings
+        if let Ok(val) = env::var("MPL_METRICS_PORT") {
+            if let Ok(port) = val.parse() {
+                self.observability.metrics_port = Some(port);
+            }
+        }
+        if let Ok(val) = env::var("MPL_LOG_LEVEL") {
+            self.observability.log_level = match val.to_lowercase().as_str() {
+                "trace" => LogLevel::Trace,
+                "debug" => LogLevel::Debug,
+                "warn" => LogLevel::Warn,
+                "error" => LogLevel::Error,
+                _ => LogLevel::Info,
+            };
+        }
+
+        // Resource limits
+        if let Ok(val) = env::var("MPL_MAX_CONNECTIONS") {
+            if let Ok(n) = val.parse() {
+                self.limits.max_connections = n;
+            }
+        }
+        if let Ok(val) = env::var("MPL_RATE_LIMIT") {
+            if let Ok(n) = val.parse() {
+                self.limits.rate_limit_per_second = n;
+            }
+        }
     }
 
     /// Save configuration to a YAML file

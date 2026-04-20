@@ -1,0 +1,30 @@
+{
+  "$schema": "https://mpl.dev/schemas/assertions.json",
+  "stype": "org.feedback.Rating.v1",
+  "name": "rating_validations",
+  "description": "Business logic assertions for Rating payloads",
+  "assertions": [
+    {
+      "id": "rating_range",
+      "expression": "payload.rating >= 1 && payload.rating <= 5",
+      "message": "Rating must be between 1 and 5",
+      "severity": "error",
+      "tags": ["required", "range"]
+    },
+    {
+      "id": "feedback_with_low_rating",
+      "expression": "payload.rating > 2 || (has(payload.feedback) && size(payload.feedback) > 10)",
+      "message": "Low ratings (1-2) should include feedback explaining why",
+      "severity": "warning",
+      "tags": ["quality", "ux"]
+    },
+    {
+      "id": "tags_consistent_with_rating",
+      "expression": "!has(payload.tags) || (payload.rating >= 4 ? !('not-helpful' in payload.tags) : !('helpful' in payload.tags))",
+      "message": "Tags should be consistent with rating (high ratings shouldn't have negative tags and vice versa)",
+      "severity": "info",
+      "tags": ["consistency"]
+    }
+  ],
+  "fail_fast": false
+}

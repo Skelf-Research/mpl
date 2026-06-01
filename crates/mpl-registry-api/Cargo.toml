@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2021"
 description = "MPL Registry API - REST service for SType discovery"
 license = "Apache-2.0"
+repository = "https://github.com/Skelf-Research/mpl"
+documentation = "https://docs.skelfresearch.com/mpl"
+homepage = "https://docs.skelfresearch.com/mpl"
+keywords = ["mpl", "ai-agents", "semantic", "protocol", "validation"]
+categories = ["development-tools", "api-bindings", "web-programming"]
 
 [dependencies]
 # Web framework

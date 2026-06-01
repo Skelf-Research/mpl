@@ -36,6 +36,10 @@
   ],
   "author": "MPL Team",
   "license": "Apache-2.0",
+  "homepage": "https://docs.skelfresearch.com/mpl",
+  "bugs": {
+    "url": "https://github.com/Skelf-Research/mpl/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Skelf-Research/mpl.git",

@@ -5,6 +5,10 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "Core library for MPL: types, validation, hashing, and protocol primitives"
 
 [lib]

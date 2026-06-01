@@ -23,7 +23,7 @@ classifiers = [
     "Programming Language :: Rust",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["mpl", "ai", "agents", "semantic", "protocol"]
+keywords = ["mpl", "ai", "agents", "semantic", "protocol", "mcp", "a2a", "validation", "quality"]
 
 dependencies = [
     "aiohttp>=3.9.0",
@@ -40,9 +40,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Skelf-Research/mpl"
-Documentation = "https://github.com/Skelf-Research/mpl/docs"
+Homepage = "https://docs.skelfresearch.com/mpl"
+Documentation = "https://docs.skelfresearch.com/mpl"
 Repository = "https://github.com/Skelf-Research/mpl"
+Issues = "https://github.com/Skelf-Research/mpl/issues"
+Changelog = "https://github.com/Skelf-Research/mpl/blob/main/CHANGELOG.md"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

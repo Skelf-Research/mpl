@@ -1,6 +1,6 @@
 # MPL: Meaning Protocol Layer
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://skelf-research.github.io/mpl)
 [![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)](#status)
 
@@ -292,4 +292,4 @@ See the [Contributing Guide](https://skelf-research.github.io/mpl/community/cont
 
 ## License
 
-Apache 2.0 — [Open an issue](https://github.com/Skelf-Research/mpl/issues) if you have questions.
+MIT — [Open an issue](https://github.com/Skelf-Research/mpl/issues) if you have questions.

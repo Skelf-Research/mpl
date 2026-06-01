@@ -16,7 +16,7 @@ name = "_mpl_core"
 crate-type = ["cdylib"]
 
 [dependencies]
-mpl_core = { package = "mpl-protocol", path = "../mpl-protocol" }
+mpl_core = { package = "mpl-protocol", version = "0.1.0", path = "../mpl-protocol" }
 pyo3.workspace = true
 serde.workspace = true
 serde_json.workspace = true

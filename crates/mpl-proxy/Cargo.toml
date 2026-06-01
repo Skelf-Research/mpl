@@ -20,7 +20,7 @@ name = "mpl-proxy"
 path = "src/main.rs"
 
 [dependencies]
-mpl_core = { package = "mpl-protocol", path = "../mpl-protocol" }
+mpl_core = { package = "mpl-protocol", version = "0.1.0", path = "../mpl-protocol" }
 
 # Async runtime
 tokio.workspace = true

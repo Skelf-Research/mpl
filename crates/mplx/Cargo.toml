@@ -16,8 +16,8 @@ name = "mpl"
 path = "src/main.rs"
 
 [dependencies]
-mpl_core = { package = "mpl-protocol", path = "../mpl-protocol" }
-mpl-proxy = { path = "../mpl-proxy" }
+mpl_core = { package = "mpl-protocol", version = "0.1.0", path = "../mpl-protocol" }
+mpl-proxy = { version = "0.1.0", path = "../mpl-proxy" }
 
 # CLI
 clap.workspace = true

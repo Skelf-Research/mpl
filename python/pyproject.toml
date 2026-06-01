@@ -40,9 +40,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/anthropics/mpl"
-Documentation = "https://github.com/anthropics/mpl/docs"
-Repository = "https://github.com/anthropics/mpl"
+Homepage = "https://github.com/Skelf-Research/mpl"
+Documentation = "https://github.com/Skelf-Research/mpl/docs"
+Repository = "https://github.com/Skelf-Research/mpl"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

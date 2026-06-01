@@ -49,7 +49,7 @@ Guides for connecting MPL to existing systems, frameworks, and protocols.
 | CI/CD Pipeline | Validate schemas and assertions in your build pipeline | GitHub Actions or similar |
 
 !!! note "Coming Soon"
-    Integration guides are under active development. Check back for updates or [contribute on GitHub](https://github.com/mpl-dev/mpl).
+    Integration guides are under active development. Check back for updates or [contribute on GitHub](https://github.com/Skelf-Research/mpl).
 
 ---
 
@@ -65,7 +65,7 @@ Guides for deploying, monitoring, and maintaining MPL in production environments
 | Troubleshooting | Diagnose common issues with validation, QoM, and the proxy | All |
 
 !!! note "Coming Soon"
-    Operations guides are under active development. Check back for updates or [contribute on GitHub](https://github.com/mpl-dev/mpl).
+    Operations guides are under active development. Check back for updates or [contribute on GitHub](https://github.com/Skelf-Research/mpl).
 
 ---
 

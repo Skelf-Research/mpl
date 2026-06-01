@@ -2,7 +2,7 @@
 
 # Image configuration
 image:
-  repository: ghcr.io/anthropics/mpl-proxy
+  repository: ghcr.io/skelf-research/mpl-proxy
   tag: ""  # Defaults to Chart appVersion
   pullPolicy: IfNotPresent
 
@@ -44,7 +44,7 @@ mpl:
   mode: transparent
 
   # Registry URL or path
-  registry: "https://github.com/anthropics/mpl/raw/main/registry"
+  registry: "https://github.com/Skelf-Research/mpl/raw/main/registry"
 
   # Required QoM profile
   requiredProfile: qom-basic

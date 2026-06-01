@@ -17,7 +17,7 @@ The fastest way to try MPL:
 
 ```bash
 # Clone the repo
-git clone https://github.com/anthropics/mpl.git
+git clone https://github.com/Skelf-Research/mpl.git
 cd mpl
 
 # Start everything with Docker Compose
@@ -43,7 +43,7 @@ curl http://localhost:9443/capabilities
 
 ```bash
 # Clone and build
-git clone https://github.com/anthropics/mpl.git
+git clone https://github.com/Skelf-Research/mpl.git
 cd mpl
 cargo build --release
 

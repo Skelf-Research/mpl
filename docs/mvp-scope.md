@@ -111,7 +111,7 @@ Based on the feasibility analysis, this document defines a pragmatic MVP scope t
     listen: 0.0.0.0:9443
     upstream: mcp-server:8080
   mpl:
-    registry: https://github.com/mpl/registry/raw/main
+    registry: https://github.com/Skelf-Research/mpl/raw/main/registry
     profile: qom-basic
   ```
 - [x] Prometheus metrics export

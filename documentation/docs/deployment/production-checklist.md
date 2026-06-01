@@ -169,7 +169,7 @@ Ensure the MPL proxy is configured for production-grade semantic governance.
     ```yaml
     mpl:
       mode: strict
-      registry: "https://github.com/anthropics/mpl/raw/v0.1.0/registry"
+      registry: "https://github.com/Skelf-Research/mpl/raw/v0.1.0/registry"
       required_profile: qom-strict-argcheck
       enforce_schema: true
       enforce_assertions: true

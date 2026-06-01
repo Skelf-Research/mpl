@@ -70,7 +70,7 @@ transport:
   protocol: websocket  # or http, grpc
 
 mpl:
-  registry: https://github.com/mpl/registry/raw/main
+  registry: https://github.com/Skelf-Research/mpl/raw/main/registry
   mode: transparent  # or strict (reject non-MPL)
 
   # QoM enforcement
@@ -185,7 +185,7 @@ session = Session.connect(
     stypes=["org.calendar.Event.v1", "org.calendar.Query.v1"],
     tools=["calendar.create.v1", "calendar.read.v1"],
     profile="qom-strict-argcheck",
-    registry="https://github.com/mpl/registry/raw/main"
+    registry="https://github.com/Skelf-Research/mpl/raw/main/registry"
 )
 
 # Make typed call
@@ -237,7 +237,7 @@ async def create_event(payload):
 # Run server
 server = MPLServer(
     tools=[create_event],
-    registry="https://github.com/mpl/registry/raw/main"
+    registry="https://github.com/Skelf-Research/mpl/raw/main/registry"
 )
 server.run(host="0.0.0.0", port=8080)
 ```
@@ -338,7 +338,7 @@ server = MCPServer()
 
 # Enable MPL extension
 mpl = MPLExtension(
-    registry="https://github.com/mpl/registry/raw/main",
+    registry="https://github.com/Skelf-Research/mpl/raw/main/registry",
     qom_profile="qom-strict-argcheck",
     enforce_schema=True,
     enforce_assertions=True
@@ -358,7 +358,7 @@ server.run()
 ```go
 import (
     "github.com/a2a/protocol"
-    "github.com/mpl/go-sdk"
+    "github.com/Skelf-Research/mpl/go-sdk"
 )
 
 func main() {
@@ -368,7 +368,7 @@ func main() {
 
     // Enable MPL middleware
     peer.Use(mpl.Middleware{
-        Registry: "https://github.com/mpl/registry/raw/main",
+        Registry: "https://github.com/Skelf-Research/mpl/raw/main/registry",
         Profile:  "qom-strict-argcheck",
     })
 

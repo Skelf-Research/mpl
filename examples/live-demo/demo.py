@@ -954,7 +954,7 @@ Examples:
     print(header("Demo Complete"))
     print(f"""
   {color('Resources:', Colors.BOLD)}
-    Documentation: https://github.com/anthropics/mpl
+    Documentation: https://github.com/Skelf-Research/mpl
     MCP Integration: docs/mpl-with-mcp.md
     A2A Integration: docs/mpl-with-a2a.md
 

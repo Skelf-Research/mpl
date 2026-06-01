@@ -38,7 +38,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anthropics/mpl.git",
+    "url": "https://github.com/Skelf-Research/mpl.git",
     "directory": "typescript"
   },
   "devDependencies": {

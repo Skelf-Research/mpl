@@ -262,7 +262,7 @@ pub struct MplConfig {
 }
 
 fn default_registry() -> String {
-    "https://github.com/mpl/registry/raw/main".to_string()
+    "https://github.com/Skelf-Research/mpl/raw/main/registry".to_string()
 }
 
 fn default_true() -> bool {

@@ -292,7 +292,7 @@ A pre-built Grafana dashboard is available:
 ```bash
 # Download the MPL Grafana dashboard
 curl -o mpl-dashboard.json \
-  https://raw.githubusercontent.com/mpl-dev/mpl/main/dashboards/grafana-mpl-proxy.json
+  https://raw.githubusercontent.com/Skelf-Research/mpl/main/dashboards/grafana-mpl-proxy.json
 
 # Import via Grafana API
 curl -X POST http://admin:admin@localhost:3000/api/dashboards/db \

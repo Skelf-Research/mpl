@@ -85,7 +85,7 @@ helm uninstall mpl-proxy
 
 ```yaml
 image:
-  repository: ghcr.io/anthropics/mpl-proxy
+  repository: ghcr.io/skelf-research/mpl-proxy
   tag: ""           # Defaults to Chart.appVersion (0.1.0)
   pullPolicy: IfNotPresent
 
@@ -106,7 +106,7 @@ mpl:
   mode: transparent
 
   # Registry URL or path for SType schemas
-  registry: "https://github.com/anthropics/mpl/raw/main/registry"
+  registry: "https://github.com/Skelf-Research/mpl/raw/main/registry"
 
   # Required QoM profile for validation
   requiredProfile: qom-basic
@@ -287,7 +287,7 @@ spec:
 
         # MPL sidecar proxy
         - name: mpl-proxy
-          image: ghcr.io/anthropics/mpl-proxy:0.1.0
+          image: ghcr.io/skelf-research/mpl-proxy:0.1.0
           args: ["--config", "/config/mpl-config.yaml"]
           ports:
             - name: proxy
@@ -336,7 +336,7 @@ data:
       upstream: "localhost:8080"   # Same pod, via localhost
       protocol: http
     mpl:
-      registry: "https://github.com/anthropics/mpl/raw/main/registry"
+      registry: "https://github.com/Skelf-Research/mpl/raw/main/registry"
       mode: strict
       required_profile: qom-strict-argcheck
       enforce_schema: true
@@ -533,7 +533,7 @@ securityContext:
 
 ```yaml title="production-values.yaml"
 image:
-  repository: ghcr.io/anthropics/mpl-proxy
+  repository: ghcr.io/skelf-research/mpl-proxy
   tag: "0.1.0"
 
 replicaCount: 3

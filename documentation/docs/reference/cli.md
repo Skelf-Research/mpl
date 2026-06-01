@@ -13,18 +13,18 @@ Complete command reference for the `mpl` binary. The MPL CLI provides proxy mana
 === "Homebrew"
 
     ```bash
-    brew install anthropic/tap/mpl
+    brew install skelf-research/tap/mpl
     ```
 
 === "Go Install"
 
     ```bash
-    go install github.com/anthropic/mpl@latest
+    go install github.com/Skelf-Research/mpl@latest
     ```
 
 === "Binary Download"
 
-    Download the latest release from the [releases page](https://github.com/anthropic/mpl/releases) and place the binary in your `$PATH`.
+    Download the latest release from the [releases page](https://github.com/Skelf-Research/mpl/releases) and place the binary in your `$PATH`.
 
 ---
 

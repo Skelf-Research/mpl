@@ -13,11 +13,11 @@ keywords:
   - agents
   - proxy
 
-home: https://github.com/anthropics/mpl
+home: https://github.com/Skelf-Research/mpl
 
 sources:
-  - https://github.com/anthropics/mpl
+  - https://github.com/Skelf-Research/mpl
 
 maintainers:
   - name: MPL Team
-    url: https://github.com/anthropics/mpl
+    url: https://github.com/Skelf-Research/mpl

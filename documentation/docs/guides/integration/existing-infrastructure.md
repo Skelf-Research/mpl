@@ -337,7 +337,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install MPL
-        run: cargo install mpl-cli
+        run: cargo install mplx
 
       - name: Start MCP server
         run: node mcp-server.js &
@@ -373,7 +373,7 @@ jobs:
 test_with_mpl:
   stage: test
   script:
-    - cargo install mpl-cli
+    - cargo install mplx
     - node mcp-server.js &
     - mpl proxy http://localhost:8080 --mode production --schemas ./schemas &
     - sleep 2

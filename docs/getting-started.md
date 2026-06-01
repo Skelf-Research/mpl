@@ -48,7 +48,7 @@ cd mpl
 cargo build --release
 
 # Install CLI tools
-cargo install --path crates/mpl-cli
+cargo install --path crates/mplx
 cargo install --path crates/mpl-proxy
 ```
 
@@ -87,10 +87,10 @@ Use the CLI to create a semantic type:
 
 ```bash
 # Initialize a namespace (one-time setup)
-mpl-cli init --namespace org --registry ./registry
+mpl init --namespace org --registry ./registry
 
 # Add a new SType
-mpl-cli add-stype \
+mpl add-stype \
   --namespace org \
   --domain calendar \
   --name Event \
@@ -180,13 +180,13 @@ Add an example in `examples/team_meeting.json`:
 
 ```bash
 # Lint the registry structure
-mpl-cli lint --registry ./registry
+mpl lint --registry ./registry
 
 # Run conformance tests
-mpl-cli conformance --registry ./registry --verbose
+mpl conformance --registry ./registry --verbose
 
 # Validate a payload
-mpl-cli validate \
+mpl validate \
   --stype org.calendar.Event.v1 \
   --payload '{"title": "Meeting", "start": "2024-01-15T10:00:00Z", "end": "2024-01-15T11:00:00Z"}' \
   --registry ./registry
@@ -313,14 +313,14 @@ async with Session(SessionConfig(
 - Check logs: `mpl-proxy --verbose`
 
 ### Schema validation fails unexpectedly
-- Run `mpl-cli lint` to check schema syntax
+- Run `mpl lint` to check schema syntax
 - Verify JSON is valid with `jq`
 - Check field types match schema
 
 ### Can't find SType
 - Verify registry path is correct
 - Check SType naming: `namespace.domain.Name.vN`
-- Run `mpl-cli conformance` to test registry
+- Run `mpl conformance` to test registry
 
 ## Kubernetes Deployment
 
@@ -454,12 +454,12 @@ kubectl logs -l app=mpl-proxy | jq 'select(.stype | startswith("org.finance"))'
 
 | Command | Description |
 |---------|-------------|
-| `mpl-cli init` | Initialize registry namespace |
-| `mpl-cli add-stype` | Create new semantic type |
-| `mpl-cli validate` | Validate payload against schema |
-| `mpl-cli lint` | Check registry structure |
-| `mpl-cli conformance` | Run all schema tests |
-| `mpl-cli hash` | Compute semantic hash |
+| `mpl init` | Initialize registry namespace |
+| `mpl add-stype` | Create new semantic type |
+| `mpl validate` | Validate payload against schema |
+| `mpl lint` | Check registry structure |
+| `mpl conformance` | Run all schema tests |
+| `mpl hash` | Compute semantic hash |
 | `mpl-proxy` | Start the sidecar proxy |
 
 ## SDK Quick Reference

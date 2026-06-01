@@ -10,7 +10,7 @@ Start the proxy with a single command:
 
 ```bash
 # Install
-cargo install mpl-cli
+cargo install mplx
 
 # Start proxy pointing to your MCP server
 mpl proxy http://your-mcp-server:8080

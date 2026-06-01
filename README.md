@@ -24,7 +24,7 @@ MPL sits between your agents and their tools. It makes every interaction **typed
 ## Get Running in 2 Minutes
 
 ```bash
-cargo install mpl-cli
+cargo install mplx
 mpl proxy http://your-mcp-server:8080
 ```
 
@@ -275,9 +275,9 @@ Full docs at **[skelf-research.github.io/mpl](https://skelf-research.github.io/m
 ## Repository
 
 ```
-crates/mpl-core/        Core protocol (Rust)
+crates/mpl-protocol/    Core protocol (Rust)
 crates/mpl-proxy/       Sidecar proxy
-crates/mpl-cli/         CLI tooling
+crates/mplx/            CLI tooling
 python/                 Python SDK
 typescript/             TypeScript SDK
 registry/stypes/        Pre-built contract definitions

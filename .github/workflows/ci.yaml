@@ -98,13 +98,13 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build CLI
-        run: cargo build --release --package mpl-cli
+        run: cargo build --release --package mplx
 
       - name: Lint registry
-        run: ./target/release/mpl-cli lint --registry ./registry
+        run: ./target/release/mpl lint --registry ./registry
 
       - name: Run conformance tests
-        run: ./target/release/mpl-cli conformance --registry ./registry --verbose
+        run: ./target/release/mpl conformance --registry ./registry --verbose
 
   # Docker build test
   docker-build:

@@ -31,7 +31,7 @@ clap = { version = "4.4", features = ["derive"] }
 moka = { version = "0.12", features = ["sync", "future"] }
 
 # Core library
-mpl-core = { path = "../mpl-core" }
+mpl_core = { package = "mpl-protocol", path = "../mpl-protocol" }
 
 [dev-dependencies]
 reqwest = { version = "0.11", features = ["json"] }

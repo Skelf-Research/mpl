@@ -35,15 +35,15 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build CLI
-        run: cargo build --release --package mpl-cli
+        run: cargo build --release --package mplx
 
       - name: Lint registry structure
-        run: ./target/release/mpl-cli lint --registry ./registry
+        run: ./target/release/mpl lint --registry ./registry
 
       - name: Validate all schemas
         run: |
           echo "Validating all SType schemas..."
-          ./target/release/mpl-cli conformance --registry ./registry --verbose
+          ./target/release/mpl conformance --registry ./registry --verbose
 
       - name: Check for duplicate STypes
         run: |

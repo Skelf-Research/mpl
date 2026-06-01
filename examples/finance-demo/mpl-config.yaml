@@ -1,0 +1,23 @@
+# MPL Proxy Configuration for Finance Advisory Demo
+# Validates investment recommendations against fiduciary compliance assertions
+
+transport:
+  listen: "0.0.0.0:9443"
+  upstream: "localhost:8080"
+  protocol: http
+  connect_timeout_ms: 5000
+  request_timeout_ms: 10000
+
+mpl:
+  registry: "../../registry"
+  mode: strict               # Block requests that fail validation
+  required_profile: qom-basic
+  enforce_schema: true        # Validate payloads against JSON Schema
+  enforce_assertions: true    # Run CEL assertion checks
+  policy_engine: false
+
+observability:
+  metrics_port: 9100
+  log_level: info
+  log_format: json
+  logs: stderr

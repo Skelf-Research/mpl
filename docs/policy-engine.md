@@ -4,7 +4,7 @@ The MPL policy engine enforces semantic authorization, consent management, data 
 
 ## Implementation Status
 
-**Policy Engine Lite is implemented** in `crates/mpl-core/src/policy.rs`. This provides:
+**Policy Engine Lite is implemented** in `crates/mpl-protocol/src/policy.rs`. This provides:
 
 | Feature | Status | Description |
 |---------|--------|-------------|

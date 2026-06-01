@@ -547,10 +547,10 @@ mpl-proxy --config mpl-config.yaml --verbose
 
 ```bash
 # Initialize registry namespace
-mpl-cli init --namespace mycompany --registry ./registry
+mpl init --namespace mycompany --registry ./registry
 
 # Add new SType
-mpl-cli add-stype \
+mpl add-stype \
   --namespace mycompany \
   --domain calendar \
   --name Event \
@@ -558,22 +558,22 @@ mpl-cli add-stype \
   --registry ./registry
 
 # Validate payload
-mpl-cli validate \
+mpl validate \
   --stype mycompany.calendar.Event.v1 \
   --payload '{"title": "Meeting", "start": "2025-01-15T10:00:00Z", "end": "2025-01-15T11:00:00Z"}' \
   --registry ./registry
 
 # Lint registry structure
-mpl-cli lint --registry ./registry
+mpl lint --registry ./registry
 
 # Run conformance tests
-mpl-cli conformance --registry ./registry --verbose
+mpl conformance --registry ./registry --verbose
 
 # Compute semantic hash
-mpl-cli hash --payload '{"title": "Meeting"}'
+mpl hash --payload '{"title": "Meeting"}'
 
 # Start web UI
-mpl-cli ui --port 8080 --data-dir ~/.mpl
+mpl ui --port 8080 --data-dir ~/.mpl
 ```
 
 ---
@@ -585,7 +585,7 @@ mpl-cli ui --port 8080 --data-dir ~/.mpl
 | Issue | Cause | Solution |
 |-------|-------|----------|
 | "Unknown SType" | SType not in registry | Check registry path, verify SType exists |
-| Schema validation fails | Payload doesn't match schema | Use `mpl-cli validate` to debug |
+| Schema validation fails | Payload doesn't match schema | Use `mpl validate` to debug |
 | Assertions not loading | Invalid assertions.json | Check JSON syntax, verify CEL expressions |
 | QoM always passes | Profile not configured | Set `required_profile` in config |
 | Metrics not exposed | Port conflict or disabled | Check `metrics_port` setting |
@@ -606,7 +606,7 @@ curl http://localhost:9443/_mpl/qom
 curl http://localhost:9443/_mpl/qom/events?limit=10
 
 # Test specific SType validation
-mpl-cli validate \
+mpl validate \
   --stype org.calendar.Event.v1 \
   --payload @event.json \
   --registry ./registry \

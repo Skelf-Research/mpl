@@ -74,7 +74,7 @@ The proxy exposes Prometheus metrics on port 9100 including validation rates, Qo
 
 ### Where should I start?
 
-1. Install the CLI: `cargo install mpl-cli`
+1. Install the CLI: `cargo install mplx`
 2. Start the proxy in transparent mode pointing at your MCP server
 3. Observe traffic and let MPL learn schemas
 4. Review and approve generated schemas

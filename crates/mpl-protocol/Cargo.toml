@@ -1,11 +1,15 @@
 [package]
-name = "mpl-core"
+name = "mpl-protocol"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 description = "Core library for MPL: types, validation, hashing, and protocol primitives"
+
+[lib]
+name = "mpl_core"
+path = "src/lib.rs"
 
 [features]
 default = []

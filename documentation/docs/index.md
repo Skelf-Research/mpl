@@ -66,7 +66,7 @@ Choose your path based on your role:
 
 ```bash
 # Install the CLI
-cargo install mpl-cli
+cargo install mplx
 
 # Start proxy pointing to your MCP server
 mpl proxy http://your-mcp-server:8080

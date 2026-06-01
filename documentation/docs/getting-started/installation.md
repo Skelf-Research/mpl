@@ -5,7 +5,7 @@
 ### From Cargo (Recommended)
 
 ```bash
-cargo install mpl-cli
+cargo install mplx
 ```
 
 This installs the `mpl` binary which includes the proxy, schema tools, and all CLI commands.

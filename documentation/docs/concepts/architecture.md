@@ -193,19 +193,19 @@ sequenceDiagram
 
 | Component | Source | Purpose |
 |-----------|--------|---------|
-| **STypes** | `crates/mpl-core/src/stype.rs` | Versioned semantic type identifiers with JSON Schema backing |
-| **Envelope** | `crates/mpl-core/src/envelope.rs` | Message wrapper carrying payload, provenance, semantic hash, and QoM report |
-| **AI-ALPN** | `crates/mpl-core/src/handshake.rs` | Capability negotiation protocol for aligning peers before work |
-| **QoM Engine** | `crates/mpl-core/src/qom.rs` | Quality metrics evaluation against configurable profiles |
-| **Policy Engine** | `crates/mpl-core/src/policy.rs` | Rule-based enforcement of organizational governance policies |
-| **Validation** | `crates/mpl-core/src/validation.rs` | JSON Schema validation using draft 2020-12 |
+| **STypes** | `crates/mpl-protocol/src/stype.rs` | Versioned semantic type identifiers with JSON Schema backing |
+| **Envelope** | `crates/mpl-protocol/src/envelope.rs` | Message wrapper carrying payload, provenance, semantic hash, and QoM report |
+| **AI-ALPN** | `crates/mpl-protocol/src/handshake.rs` | Capability negotiation protocol for aligning peers before work |
+| **QoM Engine** | `crates/mpl-protocol/src/qom.rs` | Quality metrics evaluation against configurable profiles |
+| **Policy Engine** | `crates/mpl-protocol/src/policy.rs` | Rule-based enforcement of organizational governance policies |
+| **Validation** | `crates/mpl-protocol/src/validation.rs` | JSON Schema validation using draft 2020-12 |
 
 ### STypes
 
 STypes are the foundational building block. They provide a globally unique name for what a message *means*, decoupled from how it is transmitted.
 
 ```rust
-// From crates/mpl-core/src/stype.rs
+// From crates/mpl-protocol/src/stype.rs
 pub struct SType {
     pub namespace: String,    // e.g., "org"
     pub domain: String,       // e.g., "calendar"
@@ -221,7 +221,7 @@ pub struct SType {
 The Envelope wraps every MPL message with governance metadata:
 
 ```rust
-// From crates/mpl-core/src/envelope.rs
+// From crates/mpl-protocol/src/envelope.rs
 pub struct MplEnvelope {
     pub id: String,
     pub stype: SType,
@@ -241,7 +241,7 @@ pub struct MplEnvelope {
 The handshake ensures both parties agree on capabilities before work begins:
 
 ```rust
-// From crates/mpl-core/src/handshake.rs
+// From crates/mpl-protocol/src/handshake.rs
 pub struct AlpnProposal {
     pub protocols: Vec<String>,
     pub stypes: Vec<SType>,
@@ -269,7 +269,7 @@ Evaluates messages against quality profiles:
 Enforces organizational rules expressed as declarative policies:
 
 ```rust
-// From crates/mpl-core/src/policy.rs
+// From crates/mpl-protocol/src/policy.rs
 pub struct PolicyRule {
     pub name: String,
     pub match_criteria: MatchCriteria,
@@ -283,7 +283,7 @@ pub struct PolicyRule {
 Performs JSON Schema validation (draft 2020-12) against registered schemas:
 
 ```rust
-// From crates/mpl-core/src/validation.rs
+// From crates/mpl-protocol/src/validation.rs
 pub fn validate(payload: &Value, schema: &Value) -> ValidationResult {
     // Validates payload against JSON Schema draft 2020-12
     // Returns detailed error paths on failure

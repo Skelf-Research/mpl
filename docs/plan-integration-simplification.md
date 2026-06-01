@@ -78,7 +78,7 @@ mpl proxy http://mcp-server:8080  # Works immediately
 - [ ] Create default data directory (~/.mpl/)
 
 **Files to modify:**
-- `crates/mpl-cli/src/main.rs` - Add unified entry point
+- `crates/mplx/src/main.rs` - Add unified entry point
 - `crates/mpl-proxy/src/config.rs` - Enhance defaults
 - `crates/mpl-proxy/src/main.rs` - Simplify startup
 

@@ -20,7 +20,7 @@ You'll learn how to:
 The `org.calendar.Event.v1` SType is already defined in the registry:
 
 ```bash
-mpl-cli validate \
+mpl validate \
   --stype org.calendar.Event.v1 \
   --payload '{"title": "Test", "start": "2024-01-15T10:00:00Z", "end": "2024-01-15T11:00:00Z"}' \
   --registry ./registry

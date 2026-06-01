@@ -113,4 +113,4 @@ MPL's QoM metrics are valuable for multi-agent workflows:
 
 - Explore the [Registry Architecture](../../../docs/registry-architecture.md)
 - Read about [QoM Profiles](../../../docs/qom-evaluation-engine.md)
-- Try building your own STypes with `mpl-cli add-stype`
+- Try building your own STypes with `mpl add-stype`

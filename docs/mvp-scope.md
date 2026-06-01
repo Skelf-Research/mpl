@@ -51,7 +51,7 @@ Based on the feasibility analysis, this document defines a pragmatic MVP scope t
   - `data.*` (Table, Record, Query, FileMetadata)
   - `org.*` (Step, Pipeline, Profile, Alert, Rating, AccessControl)
   - `ai.*` (Template, Response, Reasoning)
-- [x] CLI tooling (`mpl-cli`)
+- [x] CLI tooling (`mplx`)
   - `validate`, `conformance`, schema validation
   - JSON Schema validation + lint rules
   - Example/negative test runner
@@ -194,12 +194,12 @@ Based on the feasibility analysis, this document defines a pragmatic MVP scope t
 6. 🚧 A2A integration (in progress)
 
 ### Deliverables
-- [x] Tool Outcome Correctness (post-check hooks) - `crates/mpl-core/src/qom.rs`
+- [x] Tool Outcome Correctness (post-check hooks) - `crates/mpl-protocol/src/qom.rs`
 - [x] Ontology Adherence (JSONLogic rules)
 - [x] Registry API (REST + Moka cache) - `crates/mpl-registry-api/`
 - [x] TypeScript SDK - `typescript/`
 - [ ] Go SDK (deferred - Rust covers performance needs)
-- [x] Policy engine lite - `crates/mpl-core/src/policy.rs`:
+- [x] Policy engine lite - `crates/mpl-protocol/src/policy.rs`:
   - Rule-based enforcement with SType patterns
   - Access control (allow/deny lists)
   - QoM profile overrides per namespace/domain

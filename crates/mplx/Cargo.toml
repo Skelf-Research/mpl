@@ -1,5 +1,5 @@
 [package]
-name = "mpl-cli"
+name = "mplx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -12,7 +12,7 @@ name = "mpl"
 path = "src/main.rs"
 
 [dependencies]
-mpl-core = { path = "../mpl-core" }
+mpl_core = { package = "mpl-protocol", path = "../mpl-protocol" }
 mpl-proxy = { path = "../mpl-proxy" }
 
 # CLI

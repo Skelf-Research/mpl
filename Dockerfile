@@ -10,7 +10,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
 
 # Build release binaries
-RUN cargo build --release --package mpl-proxy --package mpl-cli
+RUN cargo build --release --package mpl-proxy --package mplx
 
 # Runtime image
 FROM debian:bookworm-slim
@@ -23,7 +23,7 @@ WORKDIR /app
 
 # Copy binaries from builder
 COPY --from=builder /app/target/release/mpl-proxy /usr/local/bin/
-COPY --from=builder /app/target/release/mpl-cli /usr/local/bin/
+COPY --from=builder /app/target/release/mpl /usr/local/bin/mpl
 
 # Copy registry
 COPY registry /app/registry

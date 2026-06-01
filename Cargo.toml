@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/mpl-core",
+    "crates/mpl-protocol",
     "crates/mpl-proxy",
-    "crates/mpl-cli",
+    "crates/mplx",
     "crates/mpl-python",
     "crates/mpl-registry-api",
 ]

@@ -1,0 +1,182 @@
+site_name: MPL Documentation
+site_url: https://skelf-research.github.io/mpl
+site_description: "Meaning Protocol Layer - Semantic governance for AI agents in regulated environments"
+site_author: Skelf Research
+repo_url: https://github.com/Skelf-Research/mpl
+repo_name: Skelf-Research/mpl
+edit_uri: edit/main/documentation/docs/
+
+copyright: Copyright &copy; 2024-2026 Skelf Research
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+  - tags
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Skelf-Research/mpl
+  generator: false
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+nav:
+  - Home:
+      - index.md
+      - Why MPL: overview/why-mpl.md
+      - How It Works: overview/how-it-works.md
+      - Use Cases: overview/use-cases.md
+      - FAQ: overview/faq.md
+      - Glossary: overview/glossary.md
+
+  - Getting Started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - First Validation: getting-started/first-validation.md
+      - Docker Compose: getting-started/docker-compose.md
+
+  - Concepts:
+      - concepts/index.md
+      - Architecture: concepts/architecture.md
+      - Integration Modes: concepts/integration-modes.md
+      - Semantic Types: concepts/stypes.md
+      - Quality of Meaning: concepts/qom.md
+      - Envelope & Provenance: concepts/envelope.md
+      - AI-ALPN Handshake: concepts/handshake.md
+      - Policy Engine: concepts/policy-engine.md
+      - Registry: concepts/registry.md
+
+  - Guides:
+      - guides/index.md
+      - Tutorials:
+          - Calendar Workflow: guides/tutorials/calendar-workflow.md
+          - RAG with QoM: guides/tutorials/rag-workflow.md
+          - Multi-Agent Workflow: guides/tutorials/multi-agent.md
+          - Custom SType: guides/tutorials/custom-stype.md
+      - Integration:
+          - MPL with MCP: guides/integration/mpl-with-mcp.md
+          - MPL with A2A: guides/integration/mpl-with-a2a.md
+          - Existing Infrastructure: guides/integration/existing-infrastructure.md
+      - Operations:
+          - Monitoring & Metrics: guides/operations/monitoring.md
+          - Troubleshooting: guides/operations/troubleshooting.md
+
+  - SDK Reference:
+      - reference/index.md
+      - Python SDK:
+          - Overview: reference/python/index.md
+          - Client: reference/python/client.md
+          - Session: reference/python/session.md
+          - Types: reference/python/types.md
+          - Validation: reference/python/validation.md
+          - QoM: reference/python/qom.md
+          - Errors: reference/python/errors.md
+          - Hashing: reference/python/hashing.md
+      - TypeScript SDK:
+          - Overview: reference/typescript/index.md
+          - Client: reference/typescript/client.md
+          - Session: reference/typescript/session.md
+          - Types: reference/typescript/types.md
+          - Validation: reference/typescript/validation.md
+          - QoM: reference/typescript/qom.md
+          - Errors: reference/typescript/errors.md
+          - Hashing: reference/typescript/hashing.md
+      - CLI Reference: reference/cli.md
+      - Configuration: reference/configuration.md
+      - REST API: reference/rest-api.md
+
+  - Deployment:
+      - deployment/index.md
+      - Docker: deployment/docker.md
+      - Kubernetes & Helm: deployment/kubernetes.md
+      - Production Checklist: deployment/production-checklist.md
+
+  - Security:
+      - security/index.md
+      - Threat Model: security/threat-model.md
+      - Adversarial Robustness: security/adversarial-robustness.md
+      - Compliance Mapping: security/compliance.md
+      - Audit Trails: security/audit-trails.md
+
+  - Community:
+      - community/index.md
+      - Contributing: community/contributing.md
+      - Roadmap: community/roadmap.md
+      - Comparisons: community/comparisons.md

@@ -1,338 +1,220 @@
 # MPL: Meaning Protocol Layer
 
-**Semantic governance for AI agents in regulated environments.**
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://skelf-research.github.io/mpl)
+[![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)](#status)
 
-MPL is a lightweight protocol overlay that brings typed contracts, quality SLOs, and audit trails to AI agent communications—without replacing MCP or A2A.
+**Your AI agents are stuck in compliance purgatory.** MCP and A2A give them transport—but compliance teams are asking: *"Can you prove the agent did what you said?"*
 
-## Quick Start (5 minutes)
-
-```bash
-# Install
-cargo install mpl-cli
-
-# Start proxy pointing to your MCP server - that's it!
-mpl proxy http://your-mcp-server:8080
-
-# Dashboard: http://localhost:9080
-# Metrics:   http://localhost:9100/metrics
-```
-
-**What you get immediately:**
-- Traffic visibility for all MCP/A2A requests
-- Real-time metrics and dashboard
-- Schema learning from traffic (use `mpl schemas generate` after observing traffic)
-
-**Next steps:**
-```bash
-mpl schemas generate        # Generate schemas from recorded traffic
-mpl schemas approve --all   # Approve inferred schemas
-mpl proxy http://server:8080 --mode production  # Enforce validation
-```
-
-See the [Quick Start Guide](docs/quick-start.md) for the full walkthrough.
-
----
-
-## Executive Summary
-
-| Stakeholder | Key Benefit |
-|-------------|-------------|
-| **CTO** | Unblock AI agent deployment by providing compliance teams the semantic guarantees they need |
-| **CISO** | Audit trails, schema enforcement, and policy controls that map to SOX/GDPR/HIPAA/EU AI Act |
-| **Architect** | Drop-in sidecar proxy requiring zero code changes; works with existing MCP/A2A infrastructure |
-| **Solution Engineer** | Docker Compose deployment in <10 minutes; SDKs for Python and TypeScript |
-
-### The Problem MPL Solves
-
-Regulated enterprises are blocking AI agent deployments because they cannot answer: *"Can we prove the agent did what we said?"*
-
-Current agent protocols (MCP, A2A) provide transport—not semantics. Teams lack:
-- **Schema enforcement**: No contract for what messages mean
-- **Quality guarantees**: No SLOs for agent behavior
-- **Audit trails**: No provenance or tamper detection
-- **Policy controls**: No enforcement of organizational rules
-
-MPL fills this gap as a semantic overlay that runs alongside existing protocols.
-
----
-
-## For CTOs: Strategic Value
-
-### Unblock AI Deployment
-
-AI agent pilots are stuck in 12-18 week compliance approval cycles. MPL provides the semantic contracts that compliance teams need to approve production deployment.
-
-### Overlay, Not Replacement
-
-MPL is not a new protocol—it's an overlay that augments MCP and A2A with typed semantics. Your existing investments in agent infrastructure remain intact.
-
-### Market Timing
-
-MPL addresses a 2026-2027 problem today. As enterprises move from supervised copilots to autonomous agents, semantic governance becomes critical. Early adoption positions your organization ahead of regulatory requirements.
-
-**Key Documents:**
-- [`docs/market-assessment.md`](docs/market-assessment.md) — Honest market viability analysis
-- [`docs/challenges.md`](docs/challenges.md) — Industry problems MPL solves
-- [`docs/gtm.md`](docs/gtm.md) — Go-to-market strategy
-
----
-
-## For CISOs: Security & Compliance
-
-### Compliance Mapping
-
-| Regulation | MPL Control |
-|------------|-------------|
-| **SOX** | Semantic hashes + provenance provide tamper-evident audit trails |
-| **GDPR** | Consent references in envelopes; policy engine for data handling rules |
-| **HIPAA** | SType patterns restrict PHI access; QoM thresholds enforce accuracy |
-| **EU AI Act** | QoM metrics for transparency; provenance for explainability |
-| **UK FCA/PRA** | Policy engine for fiduciary duty; instruction compliance checks |
-
-### Adversarial Defenses
-
-MPL provides defense-in-depth against AI-specific attacks:
-
-| Threat | Defense |
-|--------|---------|
-| **Prompt Injection** | Schema validation rejects unexpected fields |
-| **Data Exfiltration** | Policy engine enforces data handling rules |
-| **Output Manipulation** | Semantic hashes detect payload tampering |
-| **Jailbreaking** | QoM thresholds flag anomalous behavior |
-
-### Audit Capabilities
-
-Every MPL message includes:
-- **Semantic hash** (BLAKE3): Tamper-evident content fingerprint
-- **Provenance**: Agent ID, intent, inputs, policy references
-- **QoM report**: Quality metrics with pass/fail status
-- **Typed errors**: Structured failure information for incident response
-
-**Key Documents:**
-- [`docs/regulated-enterprise-value.md`](docs/regulated-enterprise-value.md) — Detailed compliance mapping
-- [`docs/adversarial-robustness.md`](docs/adversarial-robustness.md) — Security controls
-- [`docs/ai-safety-risk-alignment.md`](docs/ai-safety-risk-alignment.md) — Risk team integration
-
----
-
-## For Architects: Technical Architecture
-
-### Protocol Stack
+MPL is the answer. A lightweight overlay that adds **typed contracts**, **quality SLOs**, and **tamper-evident audit trails** to your existing agent infrastructure. No rewrites. No new transport. Just the semantic governance layer that gets your agents to production.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Application Layer                     │
-│              (Agent Logic, Business Rules)               │
+│                    Your Agent Logic                      │
 ├─────────────────────────────────────────────────────────┤
-│                  MPL Semantic Layer                      │
-│   ┌─────────────┐  ┌──────────┐  ┌────────────────┐     │
-│   │   STypes    │  │   QoM    │  │  Policy Engine │     │
-│   │  (schemas)  │  │ (metrics)│  │   (rules)      │     │
-│   └─────────────┘  └──────────┘  └────────────────┘     │
-│   ┌─────────────────────────────────────────────────┐   │
-│   │         AI-ALPN Handshake (negotiation)         │   │
-│   └─────────────────────────────────────────────────┘   │
+│                   MPL (this layer)                       │
+│   Typed Schemas  ·  Quality Metrics  ·  Policy Engine   │
+│   Semantic Hashing  ·  Provenance  ·  Audit Trails      │
 ├─────────────────────────────────────────────────────────┤
-│                  Transport Layer                         │
-│              MCP (client-server)  |  A2A (peer-to-peer) │
+│            MCP (client-server)  |  A2A (peer-to-peer)   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Integration Modes
+---
 
-| Mode | Effort | Use Case |
-|------|--------|----------|
-| **Sidecar Proxy** | Zero code | Recommended for 90% of deployments |
-| **SDK Integration** | Low code | Custom telemetry, advanced assertions |
-| **Native Integration** | Medium | MCP/A2A vendors adding MPL support |
+## Get Running in 2 Minutes
 
-### Core Components
+```bash
+cargo install mpl-cli
+mpl proxy http://your-mcp-server:8080
+```
 
-| Component | Purpose | Implementation |
-|-----------|---------|----------------|
-| **STypes** | Versioned semantic types with JSON Schema | `crates/mpl-core/src/stype.rs` |
-| **Envelope** | Message wrapper with provenance, hash, QoM | `crates/mpl-core/src/envelope.rs` |
-| **AI-ALPN** | Capability negotiation before work begins | `crates/mpl-core/src/handshake.rs` |
-| **QoM Engine** | Quality metrics evaluation | `crates/mpl-core/src/qom.rs` |
-| **Policy Engine** | Rule-based enforcement | `crates/mpl-core/src/policy.rs` |
-| **Validation** | JSON Schema validation with caching | `crates/mpl-core/src/validation.rs` |
+That's it. Your agents now talk through MPL. Open http://localhost:9080 for the dashboard.
 
-### QoM Profiles
+**What you immediately get:**
+- Every request validated against typed schemas
+- Quality metrics computed per interaction
+- Tamper-evident hashes on every payload
+- Full provenance trail (who did what, with what intent)
 
-| Profile | Metrics | Thresholds | Use Case |
-|---------|---------|------------|----------|
-| `qom-basic` | Schema Fidelity | SF = 1.0 | Development, low-risk |
-| `qom-strict-argcheck` | SF + Instruction Compliance | SF = 1.0, IC >= 0.97 | Production, regulated |
-| `qom-outcome` | SF + IC + Tool Outcome | All >= 0.95 | High-stakes workflows |
-| `qom-comprehensive` | All 6 metrics | Configurable | Mission-critical |
+**When you're ready to enforce:**
 
-**Key Documents:**
-- [`docs/protocol-architecture.md`](docs/protocol-architecture.md) — Full protocol specification
-- [`docs/integration-modes.md`](docs/integration-modes.md) — Integration decision guide
-- [`docs/qom-evaluation-engine.md`](docs/qom-evaluation-engine.md) — QoM implementation details
+```bash
+mpl schemas generate        # Learn schemas from live traffic
+mpl schemas approve --all   # Lock them in
+mpl proxy http://your-mcp-server:8080 --mode production  # Now invalid requests are blocked
+```
 
 ---
 
-## For Solution Engineers: Deployment
+## Why Teams Choose MPL
 
-### Quick Start (10 minutes)
+| Without MPL | With MPL |
+|------------|----------|
+| Agents send untyped JSON—nobody knows if it's correct | Every message has a versioned schema contract (`org.calendar.Event.v1`) |
+| Quality is "works on my prompt" | Six measurable metrics with enforceable thresholds |
+| Compliance review takes 12-18 weeks | Tamper-evident audit trails satisfy SOX/GDPR/HIPAA/EU AI Act |
+| Breaking changes discovered in production | Schema validation catches errors before they reach servers |
+| No way to prove what the agent did | Provenance + semantic hashes = verifiable execution records |
 
-```bash
-# Clone and deploy
-git clone https://github.com/anthropics/mpl.git
-cd mpl
-docker compose up -d
+---
 
-# Verify deployment
-curl http://localhost:9443/health
-curl http://localhost:9443/capabilities
+## SDK Examples
 
-# Test validation
-curl -X POST http://localhost:9443/validate \
-  -H "Content-Type: application/json" \
-  -d '{"stype": "org.calendar.Event.v1", "payload": {"title": "Meeting"}}'
-```
-
-### Kubernetes Deployment
+### Python
 
 ```bash
-helm repo add mpl https://mpl-charts.example.com
-helm install mpl-proxy mpl/mpl-proxy \
-  --set registry.endpoint=http://registry:8080 \
-  --set qom.defaultProfile=qom-strict-argcheck
+pip install mpl-sdk
 ```
 
-### SDK Integration
-
-**Python:**
 ```python
-from mpl import MplClient, SType, QomProfile
+from mpl_sdk import Client, Mode
 
-client = MplClient("http://localhost:9443")
-client.negotiate(stypes=["org.calendar.Event.v1"], profile=QomProfile.STRICT)
+async with Client("http://localhost:9443", mode=Mode.PRODUCTION) as client:
+    result = await client.call("calendar.create", {
+        "title": "Quarterly Review",
+        "start": "2025-03-15T14:00:00Z",
+        "end": "2025-03-15T15:00:00Z"
+    })
 
-result = client.validate(
-    stype="org.calendar.Event.v1",
-    payload={"title": "Meeting", "start": "2025-01-15T10:00:00Z"}
-)
-assert result.qom_report.meets_profile
+    print(result.valid)       # True  — schema contract met
+    print(result.qom_passed)  # True  — quality thresholds met
+    print(result.data)        # The response payload
 ```
 
-**TypeScript:**
+### TypeScript
+
+```bash
+npm install @mpl/sdk
+```
+
 ```typescript
-import { MplClient, QomProfile } from '@mpl/sdk';
+import { MplClient, Mode } from '@mpl/sdk';
 
-const client = new MplClient('http://localhost:9443');
-await client.negotiate({
-  stypes: ['org.calendar.Event.v1'],
-  profile: QomProfile.Strict
+const client = new MplClient('http://localhost:9443', { mode: Mode.Production });
+
+const result = await client.call('calendar.create', {
+  title: 'Quarterly Review',
+  start: '2025-03-15T14:00:00Z',
+  end: '2025-03-15T15:00:00Z',
 });
 
-const result = await client.validate({
-  stype: 'org.calendar.Event.v1',
-  payload: { title: 'Meeting', start: '2025-01-15T10:00:00Z' }
-});
+console.log(result.valid);     // true  — schema contract met
+console.log(result.qomPassed); // true  — quality thresholds met
 ```
 
-### Registry Seeding
+### Docker
 
-25+ STypes pre-seeded across namespaces:
-
-| Namespace | STypes | Examples |
-|-----------|--------|----------|
-| `eval.*` | 5+ | RAGQuery, SearchResult, Feedback |
-| `data.*` | 6+ | Table, Record, Query, FileMetadata |
-| `org.*` | 8+ | Step, Pipeline, Profile, Alert, Rating |
-| `ai.*` | 6+ | Template, Response, Reasoning |
-
-**Key Documents:**
-- [`docs/getting-started.md`](docs/getting-started.md) — Full deployment guide
-- [`docs/implementation-guide.md`](docs/implementation-guide.md) — SDK integration details
-- [`helm/mpl-proxy/`](helm/mpl-proxy/) — Kubernetes Helm chart
-
----
-
-## Implementation Status
-
-| Phase | Status | Deliverables |
-|-------|--------|--------------|
-| **Phase 1 (MVP)** | ✅ Complete | Core protocol, Python SDK, Sidecar Proxy, Registry |
-| **Phase 2** | ✅ Complete | TypeScript SDK, Registry API, Helm Chart, Policy Engine |
-| **Phase 3** | 🚧 In Progress | Conformance suite (100+), A2A integration, Production hardening |
-
-### Test Coverage
-
-- **144 tests** across workspace
-- **20 A2A integration tests** (client-server + MPL envelope)
-- **107 core protocol tests** (conformance suite)
-
-### Repository Structure
-
-```
-mpl/
-├── crates/
-│   ├── mpl-core/       # Core protocol (Rust)
-│   ├── mpl-proxy/      # Sidecar proxy
-│   ├── mpl-cli/        # CLI tooling
-│   ├── mpl-python/     # Python SDK (PyO3)
-│   └── mpl-registry-api/  # Registry REST API
-├── typescript/         # TypeScript SDK
-├── registry/stypes/    # SType definitions
-├── helm/mpl-proxy/     # Kubernetes chart
-├── docs/               # Documentation
-└── examples/           # Tutorials and samples
+```bash
+git clone https://github.com/Skelf-Research/mpl.git && cd mpl
+docker compose up -d
+curl http://localhost:9443/health  # {"status": "healthy"}
 ```
 
 ---
 
-## Documentation Index
+## How It Works
 
-### By Role
+**1. Typed Contracts (STypes)**
 
-| Role | Start Here |
-|------|------------|
-| **CTO/Executive** | [`docs/market-assessment.md`](docs/market-assessment.md) |
-| **CISO/Compliance** | [`docs/regulated-enterprise-value.md`](docs/regulated-enterprise-value.md) |
-| **Architect** | [`docs/protocol-architecture.md`](docs/protocol-architecture.md) |
-| **Solution Engineer** | [`docs/getting-started.md`](docs/getting-started.md) |
-| **Developer** | [`docs/implementation-guide.md`](docs/implementation-guide.md) |
+Every message declares its semantic type—a versioned, schema-backed identifier:
 
-### Full Index
+```json
+{
+  "stype": "org.calendar.Event.v1",
+  "payload": { "title": "Meeting", "start": "2025-01-15T10:00:00Z", "end": "..." },
+  "sem_hash": "blake3:7f2a...",
+  "provenance": { "agent_id": "scheduler", "intent": "create-event" }
+}
+```
 
-**Core Concepts:**
-- [`docs/challenges.md`](docs/challenges.md) — Problems MPL solves
-- [`docs/conceptual-model.md`](docs/conceptual-model.md) — Mental models
-- [`GLOSSARY.md`](GLOSSARY.md) — Term definitions
+25+ STypes ship pre-seeded (`org.*`, `data.*`, `eval.*`, `ai.*`). Create your own in minutes.
 
-**Technical Specification:**
-- [`docs/protocol-architecture.md`](docs/protocol-architecture.md) — Protocol pillars
-- [`docs/qom-evaluation-engine.md`](docs/qom-evaluation-engine.md) — Quality metrics
-- [`docs/policy-engine.md`](docs/policy-engine.md) — Policy enforcement
-- [`docs/registry-architecture.md`](docs/registry-architecture.md) — Registry design
+**2. Quality of Meaning (QoM)**
 
-**Integration:**
-- [`docs/mpl-with-mcp.md`](docs/mpl-with-mcp.md) — MCP integration
-- [`docs/mpl-with-a2a.md`](docs/mpl-with-a2a.md) — A2A integration
-- [`docs/integration-modes.md`](docs/integration-modes.md) — Deployment options
+Six metrics that measure whether your agent is doing its job:
 
-**Security & Compliance:**
-- [`docs/security.md`](docs/security.md) — Threat model
-- [`docs/adversarial-robustness.md`](docs/adversarial-robustness.md) — Attack defenses
-- [`docs/regulated-enterprise-value.md`](docs/regulated-enterprise-value.md) — Compliance mapping
+| Metric | What It Measures | Example Threshold |
+|--------|-----------------|-------------------|
+| Schema Fidelity | Payload matches the contract | 1.0 (mandatory) |
+| Instruction Compliance | Assertions and constraints met | >= 0.97 |
+| Groundedness | Claims supported by sources | >= 0.90 |
+| Determinism | Output stable under perturbation | >= 0.85 |
+| Ontology Adherence | Domain rules followed | >= 0.95 |
+| Tool Outcome | Side effects match expectations | >= 0.90 |
 
-**Strategy:**
-- [`docs/market-assessment.md`](docs/market-assessment.md) — Market analysis
-- [`docs/roadmap.md`](docs/roadmap.md) — Development plan
-- [`docs/mvp-scope.md`](docs/mvp-scope.md) — MVP specification
+Combine into profiles: `qom-basic` for dev, `qom-strict-argcheck` for production, or define your own.
+
+**3. Zero-Code Integration**
+
+MPL deploys as a sidecar proxy. No code changes to your agents or servers:
+
+```
+Agent  ──▶  MPL Proxy  ──▶  MCP/A2A Server
+              │
+              ├── Validates schemas
+              ├── Computes QoM metrics
+              ├── Enforces policies
+              └── Records audit trail
+```
+
+**4. Compliance Built In**
+
+| Regulation | MPL Control |
+|------------|-------------|
+| **SOX** | Semantic hashes + provenance = tamper-evident audit trails |
+| **GDPR** | Consent refs in envelopes; policy engine for data handling |
+| **HIPAA** | SType patterns restrict PHI; QoM enforces accuracy |
+| **EU AI Act** | QoM for transparency; provenance for explainability |
 
 ---
 
-## License
+## Documentation
 
-Apache 2.0
+Full docs at **[skelf-research.github.io/mpl](https://skelf-research.github.io/mpl)**
+
+| I want to... | Go here |
+|--------------|---------|
+| Understand the value proposition | [Why MPL](https://skelf-research.github.io/mpl/overview/why-mpl/) |
+| Get running quickly | [Quick Start](https://skelf-research.github.io/mpl/getting-started/quick-start/) |
+| Understand the architecture | [Concepts](https://skelf-research.github.io/mpl/concepts/architecture/) |
+| Follow a hands-on tutorial | [Guides](https://skelf-research.github.io/mpl/guides/) |
+| Look up SDK methods | [Python SDK](https://skelf-research.github.io/mpl/reference/python/) / [TypeScript SDK](https://skelf-research.github.io/mpl/reference/typescript/) |
+| Deploy to production | [Deployment](https://skelf-research.github.io/mpl/deployment/) |
+| Show my CISO | [Security & Compliance](https://skelf-research.github.io/mpl/security/) |
+
+---
+
+## Status
+
+| Phase | Status | What Shipped |
+|-------|--------|-------------|
+| **Phase 1** | Complete | Core protocol, Python SDK, Sidecar Proxy, Schema Registry |
+| **Phase 2** | Complete | TypeScript SDK, Registry API, Helm Chart, Policy Engine |
+| **Phase 3** | In Progress | Conformance suite, A2A hardening, Production readiness |
+
+**144 tests** across the workspace. **25+ pre-seeded STypes.** SDKs for Python and TypeScript.
+
+---
+
+## Repository
+
+```
+crates/mpl-core/        Core protocol implementation (Rust)
+crates/mpl-proxy/       Sidecar proxy
+crates/mpl-cli/         CLI tooling
+python/                 Python SDK
+typescript/             TypeScript SDK
+registry/stypes/        Pre-seeded SType definitions
+helm/mpl-proxy/         Kubernetes Helm chart
+examples/               Tutorials and demos
+documentation/          MkDocs documentation site
+```
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions. See the [Contributing Guide](https://skelf-research.github.io/mpl/community/contributing/) for setup instructions.
 
-Questions? Open an issue or contact the MPL working group.
+## License
+
+Apache 2.0 — [Open an issue](https://github.com/Skelf-Research/mpl/issues) if you have questions.

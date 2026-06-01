@@ -9,6 +9,7 @@ documentation.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
+readme.workspace = true
 description = "Core library for MPL: types, validation, hashing, and protocol primitives"
 
 [lib]

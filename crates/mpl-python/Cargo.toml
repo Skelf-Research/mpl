@@ -9,6 +9,7 @@ documentation.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
+readme.workspace = true
 description = "Python bindings for MPL core library"
 
 [lib]

@@ -1,6 +1,6 @@
 [package]
 name = "mpl-registry-api"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "MPL Registry API - REST service for SType discovery"
 license = "MIT"
@@ -9,6 +9,7 @@ documentation = "https://docs.skelfresearch.com/mpl"
 homepage = "https://docs.skelfresearch.com/mpl"
 keywords = ["mpl", "ai-agents", "semantic", "protocol", "validation"]
 categories = ["development-tools", "api-bindings", "web-programming"]
+readme = "../../README.md"
 
 [dependencies]
 # Web framework

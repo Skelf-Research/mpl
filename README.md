@@ -4,17 +4,16 @@
 [![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://skelf-research.github.io/mpl)
 [![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)](#status)
 
-**Your AI agents are stuck in compliance purgatory.** MCP and A2A give them transport—but compliance teams are asking: *"Can you prove the agent did what you said?"*
+### Contracts, quality measurement, and audit trails for AI agent communication.
 
-MPL is the answer. A lightweight overlay that adds **typed contracts**, **quality SLOs**, and **tamper-evident audit trails** to your existing agent infrastructure. No rewrites. No new transport. Just the semantic governance layer that gets your agents to production.
+MPL sits between your agents and their tools. It makes every interaction **typed**, **measurable**, and **provable** — so you can move from prototype to production without rewriting your stack.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Your Agent Logic                      │
 ├─────────────────────────────────────────────────────────┤
-│                   MPL (this layer)                       │
-│   Typed Schemas  ·  Quality Metrics  ·  Policy Engine   │
-│   Semantic Hashing  ·  Provenance  ·  Audit Trails      │
+│                    MPL (this layer)                      │
+│   Contracts  ·  Quality Metrics  ·  Policies  ·  Proofs │
 ├─────────────────────────────────────────────────────────┤
 │            MCP (client-server)  |  A2A (peer-to-peer)   │
 └─────────────────────────────────────────────────────────┘
@@ -29,33 +28,107 @@ cargo install mpl-cli
 mpl proxy http://your-mcp-server:8080
 ```
 
-That's it. Your agents now talk through MPL. Open http://localhost:9080 for the dashboard.
+Your agents keep working exactly as before — MPL observes, validates, and records everything passing through. Open http://localhost:9080 for the dashboard.
 
-**What you immediately get:**
-- Every request validated against typed schemas
-- Quality metrics computed per interaction
-- Tamper-evident hashes on every payload
-- Full provenance trail (who did what, with what intent)
-
-**When you're ready to enforce:**
+When you're ready to enforce:
 
 ```bash
-mpl schemas generate        # Learn schemas from live traffic
+mpl schemas generate        # Learn contracts from live traffic
 mpl schemas approve --all   # Lock them in
-mpl proxy http://your-mcp-server:8080 --mode production  # Now invalid requests are blocked
+mpl proxy http://your-mcp-server:8080 --mode production
 ```
+
+Now malformed requests get blocked before they reach your server.
 
 ---
 
-## Why Teams Choose MPL
+## What This Does For You
 
-| Without MPL | With MPL |
-|------------|----------|
-| Agents send untyped JSON—nobody knows if it's correct | Every message has a versioned schema contract (`org.calendar.Event.v1`) |
-| Quality is "works on my prompt" | Six measurable metrics with enforceable thresholds |
-| Compliance review takes 12-18 weeks | Tamper-evident audit trails satisfy SOX/GDPR/HIPAA/EU AI Act |
-| Breaking changes discovered in production | Schema validation catches errors before they reach servers |
-| No way to prove what the agent did | Provenance + semantic hashes = verifiable execution records |
+| Your problem | How MPL helps |
+|-------------|---------------|
+| Agent outputs are unpredictable | Define contracts for every message type — invalid payloads are caught immediately |
+| "It worked in testing" doesn't satisfy compliance | Every interaction gets a tamper-proof hash and quality score you can point to |
+| Breaking changes surface in production | Schema validation catches structural errors at the protocol layer |
+| No visibility into what agents actually did | Full provenance chain — which agent, what intent, which inputs, what quality score |
+| Compliance review blocks your deployment | Audit trails map directly to SOX, GDPR, HIPAA, and EU AI Act requirements |
+
+---
+
+## This Is Not a Guardrail
+
+Guardrails are reactive safety nets — they block bad outputs after generation. MPL is different:
+
+| | Guardrails | MPL |
+|-|-----------|-----|
+| **When** | After the agent responds | Before, during, and after |
+| **What** | Filters harmful content | Defines what correct looks like, measures quality, records proof |
+| **Scope** | Single agent output | Entire communication chain across agents |
+| **Output** | Pass/block decision | Typed contracts, quality scores, provenance records, audit trails |
+| **Adapts to** | Safety policies | Your domain schemas, your quality thresholds, your compliance requirements |
+
+MPL doesn't ask "is this safe?" — it asks **"did this meet the contract, and can you prove it?"**
+
+---
+
+## Adapt It To Your Domain
+
+### Define Your Own Contracts
+
+Create a schema for any message type your agents handle:
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Support Ticket",
+  "type": "object",
+  "required": ["title", "priority", "description"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "priority": { "enum": ["low", "medium", "high", "critical"] },
+    "description": { "type": "string", "minLength": 10 },
+    "assignee": { "type": "string" }
+  }
+}
+```
+
+Save it as `registry/stypes/org/support/Ticket/v1/schema.json` — done. Your agents now validate against it.
+
+### Set Your Own Quality Thresholds
+
+Pick which metrics matter for your use case:
+
+```yaml
+# qom-my-profile.json
+name: "my-production-profile"
+metrics:
+  schema_fidelity: { min: 1.0 }          # Must match contract perfectly
+  instruction_compliance: { min: 0.95 }   # Must follow constraints
+  groundedness: { min: 0.90 }             # Claims must cite sources
+```
+
+### Write Your Own Policies
+
+Enforce organizational rules at the protocol layer:
+
+```yaml
+policies:
+  - name: "require-provenance"
+    match: { stypes: ["org.finance.*"] }
+    rules:
+      - deny_if_missing: ["provenance.agent_id"]
+      - require_profile: "my-production-profile"
+```
+
+### 25+ Contracts Ship Out of the Box
+
+Get started without defining anything — use the pre-built types and extend from there:
+
+| Namespace | Examples |
+|-----------|----------|
+| `org.*` | Calendar events, task plans, tool calls, workflows |
+| `data.*` | Tables, records, queries, file metadata |
+| `eval.*` | RAG queries, search results, feedback |
+| `ai.*` | Prompt templates, completions, reasoning traces |
 
 ---
 
@@ -77,9 +150,9 @@ async with Client("http://localhost:9443", mode=Mode.PRODUCTION) as client:
         "end": "2025-03-15T15:00:00Z"
     })
 
-    print(result.valid)       # True  — schema contract met
-    print(result.qom_passed)  # True  — quality thresholds met
-    print(result.data)        # The response payload
+    result.valid       # True  — matched the contract
+    result.qom_passed  # True  — met quality thresholds
+    result.data        # The response payload
 ```
 
 ### TypeScript
@@ -99,8 +172,8 @@ const result = await client.call('calendar.create', {
   end: '2025-03-15T15:00:00Z',
 });
 
-console.log(result.valid);     // true  — schema contract met
-console.log(result.qomPassed); // true  — quality thresholds met
+result.valid;     // true  — matched the contract
+result.qomPassed; // true  — met quality thresholds
 ```
 
 ### Docker
@@ -115,9 +188,9 @@ curl http://localhost:9443/health  # {"status": "healthy"}
 
 ## How It Works
 
-**1. Typed Contracts (STypes)**
+**1. Contracts**
 
-Every message declares its semantic type—a versioned, schema-backed identifier:
+Every message declares what it is — a versioned identifier backed by a JSON Schema:
 
 ```json
 {
@@ -128,44 +201,48 @@ Every message declares its semantic type—a versioned, schema-backed identifier
 }
 ```
 
-25+ STypes ship pre-seeded (`org.*`, `data.*`, `eval.*`, `ai.*`). Create your own in minutes.
+If the payload doesn't match the contract, it's rejected before reaching the server.
 
-**2. Quality of Meaning (QoM)**
+**2. Quality Measurement**
 
-Six metrics that measure whether your agent is doing its job:
+Six metrics you can mix and match into profiles:
 
-| Metric | What It Measures | Example Threshold |
-|--------|-----------------|-------------------|
-| Schema Fidelity | Payload matches the contract | 1.0 (mandatory) |
-| Instruction Compliance | Assertions and constraints met | >= 0.97 |
-| Groundedness | Claims supported by sources | >= 0.90 |
-| Determinism | Output stable under perturbation | >= 0.85 |
-| Ontology Adherence | Domain rules followed | >= 0.95 |
-| Tool Outcome | Side effects match expectations | >= 0.90 |
+| Metric | What it answers |
+|--------|----------------|
+| Schema Fidelity | Does the payload match the contract? |
+| Instruction Compliance | Were the constraints followed? |
+| Groundedness | Are claims backed by sources? |
+| Determinism | Is the output stable across runs? |
+| Ontology Adherence | Are domain rules respected? |
+| Tool Outcome | Did the side effects match expectations? |
 
-Combine into profiles: `qom-basic` for dev, `qom-strict-argcheck` for production, or define your own.
+Use `qom-basic` while developing. Switch to `qom-strict-argcheck` for production. Or define your own.
 
-**3. Zero-Code Integration**
+**3. No Code Changes Required**
 
-MPL deploys as a sidecar proxy. No code changes to your agents or servers:
+MPL runs as a proxy alongside your existing setup:
 
 ```
 Agent  ──▶  MPL Proxy  ──▶  MCP/A2A Server
               │
-              ├── Validates schemas
-              ├── Computes QoM metrics
-              ├── Enforces policies
-              └── Records audit trail
+              ├── Validates contracts
+              ├── Measures quality
+              ├── Applies policies
+              └── Records everything
 ```
 
-**4. Compliance Built In**
+Start in transparent mode (observe only), graduate to strict (enforce) when you're ready.
 
-| Regulation | MPL Control |
-|------------|-------------|
-| **SOX** | Semantic hashes + provenance = tamper-evident audit trails |
-| **GDPR** | Consent refs in envelopes; policy engine for data handling |
-| **HIPAA** | SType patterns restrict PHI; QoM enforces accuracy |
-| **EU AI Act** | QoM for transparency; provenance for explainability |
+**4. Compliance You Can Point To**
+
+Every message through MPL carries a BLAKE3 hash (tamper detection), provenance metadata (who did what), and a quality report (did it meet thresholds). These map to:
+
+| Requirement | What MPL provides |
+|-------------|-------------------|
+| Tamper-evident records (SOX) | Cryptographic hash on every payload |
+| Data handling proof (GDPR) | Consent references + policy enforcement |
+| Accuracy controls (HIPAA) | Quality thresholds on clinical outputs |
+| Transparency (EU AI Act) | Quality scores + full provenance chain |
 
 ---
 
@@ -173,47 +250,45 @@ Agent  ──▶  MPL Proxy  ──▶  MCP/A2A Server
 
 Full docs at **[skelf-research.github.io/mpl](https://skelf-research.github.io/mpl)**
 
-| I want to... | Go here |
-|--------------|---------|
-| Understand the value proposition | [Why MPL](https://skelf-research.github.io/mpl/overview/why-mpl/) |
+| I want to... | Start here |
+|--------------|-----------|
 | Get running quickly | [Quick Start](https://skelf-research.github.io/mpl/getting-started/quick-start/) |
-| Understand the architecture | [Concepts](https://skelf-research.github.io/mpl/concepts/architecture/) |
-| Follow a hands-on tutorial | [Guides](https://skelf-research.github.io/mpl/guides/) |
-| Look up SDK methods | [Python SDK](https://skelf-research.github.io/mpl/reference/python/) / [TypeScript SDK](https://skelf-research.github.io/mpl/reference/typescript/) |
-| Deploy to production | [Deployment](https://skelf-research.github.io/mpl/deployment/) |
-| Show my CISO | [Security & Compliance](https://skelf-research.github.io/mpl/security/) |
+| Understand the architecture | [How It Works](https://skelf-research.github.io/mpl/overview/how-it-works/) |
+| Follow a tutorial end-to-end | [Guides](https://skelf-research.github.io/mpl/guides/) |
+| Create my own contracts | [Custom SType Tutorial](https://skelf-research.github.io/mpl/guides/tutorials/custom-stype/) |
+| Look up SDK methods | [Python](https://skelf-research.github.io/mpl/reference/python/) / [TypeScript](https://skelf-research.github.io/mpl/reference/typescript/) |
+| Deploy to Kubernetes | [Deployment](https://skelf-research.github.io/mpl/deployment/) |
+| Understand the compliance story | [Security & Compliance](https://skelf-research.github.io/mpl/security/) |
 
 ---
 
 ## Status
 
-| Phase | Status | What Shipped |
-|-------|--------|-------------|
-| **Phase 1** | Complete | Core protocol, Python SDK, Sidecar Proxy, Schema Registry |
-| **Phase 2** | Complete | TypeScript SDK, Registry API, Helm Chart, Policy Engine |
-| **Phase 3** | In Progress | Conformance suite, A2A hardening, Production readiness |
-
-**144 tests** across the workspace. **25+ pre-seeded STypes.** SDKs for Python and TypeScript.
+| Phase | What's in it |
+|-------|-------------|
+| **Phase 1** — Complete | Core protocol, Python SDK, Sidecar Proxy, Schema Registry |
+| **Phase 2** — Complete | TypeScript SDK, Registry API, Helm Chart, Policy Engine |
+| **Phase 3** — In Progress | Conformance suite, A2A hardening, Production readiness |
 
 ---
 
 ## Repository
 
 ```
-crates/mpl-core/        Core protocol implementation (Rust)
+crates/mpl-core/        Core protocol (Rust)
 crates/mpl-proxy/       Sidecar proxy
 crates/mpl-cli/         CLI tooling
 python/                 Python SDK
 typescript/             TypeScript SDK
-registry/stypes/        Pre-seeded SType definitions
+registry/stypes/        Pre-built contract definitions
 helm/mpl-proxy/         Kubernetes Helm chart
 examples/               Tutorials and demos
-documentation/          MkDocs documentation site
+documentation/          Documentation site (MkDocs)
 ```
 
 ## Contributing
 
-We welcome contributions. See the [Contributing Guide](https://skelf-research.github.io/mpl/community/contributing/) for setup instructions.
+See the [Contributing Guide](https://skelf-research.github.io/mpl/community/contributing/) for development setup and workflow.
 
 ## License
 

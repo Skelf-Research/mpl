@@ -1,6 +1,6 @@
 [package]
 name = "mpl-registry-api"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "MPL Registry API - REST service for SType discovery"
 license = "MIT"

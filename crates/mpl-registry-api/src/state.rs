@@ -40,7 +40,13 @@ impl RegistryState {
     }
 
     /// Get the examples directory for an SType
-    pub fn examples_path(&self, namespace: &str, domain: &str, name: &str, version: u32) -> PathBuf {
+    pub fn examples_path(
+        &self,
+        namespace: &str,
+        domain: &str,
+        name: &str,
+        version: u32,
+    ) -> PathBuf {
         self.stype_path(namespace, domain, name, version)
             .join("examples")
     }

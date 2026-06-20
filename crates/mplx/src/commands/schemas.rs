@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 use crate::SchemaStatus;
 
@@ -157,7 +157,11 @@ pub fn generate(data_dir: &str, min_samples: usize, output: &str) -> Result<()> 
         fs::write(&schema_file, content)?;
     }
 
-    println!("Generated {} schemas from {} stypes", generated, state.samples.len());
+    println!(
+        "Generated {} schemas from {} stypes",
+        generated,
+        state.samples.len()
+    );
     println!("Output: {}", output);
 
     if state.samples.iter().any(|(_, s)| s.len() < min_samples) {
@@ -266,8 +270,14 @@ fn infer_from_value(value: &serde_json::Value) -> serde_json::Value {
 /// Merge two schemas, keeping common structure
 fn merge_schemas(a: serde_json::Value, b: serde_json::Value) -> serde_json::Value {
     // Simple merge - keep type from a, merge properties
-    let a_type = a.get("type").cloned().unwrap_or(serde_json::json!("object"));
-    let b_type = b.get("type").cloned().unwrap_or(serde_json::json!("object"));
+    let a_type = a
+        .get("type")
+        .cloned()
+        .unwrap_or(serde_json::json!("object"));
+    let b_type = b
+        .get("type")
+        .cloned()
+        .unwrap_or(serde_json::json!("object"));
 
     if a_type != b_type {
         // Types differ, make it a union
@@ -354,10 +364,7 @@ pub fn list(path: &str, status_filter: Option<SchemaStatus>) -> Result<()> {
         };
 
         if show {
-            println!(
-                "{:<40} {:<10} {:<8}",
-                stype, info.status, info.sample_count
-            );
+            println!("{:<40} {:<10} {:<8}", stype, info.status, info.sample_count);
         }
     }
 
@@ -408,7 +415,7 @@ fn schema_exists_in_registry(output_path: &Path, stype: &str) -> Option<String> 
         return None;
     }
 
-    let version = parts.last().unwrap();
+    let version = parts.last().expect("guarded by parts.len() >= 4 above");
     let name = parts[parts.len() - 2];
     let namespace_parts = &parts[..parts.len() - 2];
 
@@ -451,8 +458,8 @@ fn find_next_version(output_path: &Path, stype: &str) -> String {
     if let Ok(entries) = fs::read_dir(&type_dir) {
         for entry in entries.flatten() {
             if let Some(name) = entry.file_name().to_str() {
-                if name.starts_with('v') {
-                    if let Ok(num) = name[1..].parse::<u32>() {
+                if let Some(rest) = name.strip_prefix('v') {
+                    if let Ok(num) = rest.parse::<u32>() {
                         max_version = max_version.max(num);
                     }
                 }
@@ -499,8 +506,14 @@ pub fn export(path: &str, output: &str, mode: ExportMode) -> Result<()> {
     let mut bumped = 0;
 
     for stype in active_stypes {
-        let info = state.schemas.get(&stype).unwrap();
-        let current_hash = info.schema_hash.clone().unwrap_or_else(|| compute_schema_hash(&info.schema));
+        let info = state
+            .schemas
+            .get(&stype)
+            .expect("active_stypes is derived from state.schemas keys above");
+        let current_hash = info
+            .schema_hash
+            .clone()
+            .unwrap_or_else(|| compute_schema_hash(&info.schema));
 
         // Check if schema already exists in target registry
         let existing_hash = schema_exists_in_registry(output_path, &stype);
@@ -549,9 +562,7 @@ pub fn export(path: &str, output: &str, mode: ExportMode) -> Result<()> {
                         export_schema(output_path, &new_stype, info)?;
                         ExportResult::VersionBumped(new_stype)
                     }
-                    Some(_) => {
-                        ExportResult::Skipped("unchanged")
-                    }
+                    Some(_) => ExportResult::Skipped("unchanged"),
                 }
             }
         };
@@ -605,7 +616,7 @@ fn export_schema(output_path: &Path, stype: &str, info: &SchemaInfo) -> Result<(
         anyhow::bail!("Invalid stype format: {}", stype);
     }
 
-    let version = parts.last().unwrap();
+    let version = parts.last().expect("guarded by parts.len() >= 4 above");
     let name = parts[parts.len() - 2];
     let namespace_parts = &parts[..parts.len() - 2];
 

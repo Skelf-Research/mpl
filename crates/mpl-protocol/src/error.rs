@@ -226,12 +226,14 @@ impl From<&MplError> for MplErrorResponse {
                 "stype": stype,
                 "suggestions": suggestions,
             })),
-            MplError::NegotiationIncompatible { client_capabilities, server_capabilities, .. } => {
-                Some(serde_json::json!({
-                    "client_capabilities": client_capabilities,
-                    "server_capabilities": server_capabilities,
-                }))
-            }
+            MplError::NegotiationIncompatible {
+                client_capabilities,
+                server_capabilities,
+                ..
+            } => Some(serde_json::json!({
+                "client_capabilities": client_capabilities,
+                "server_capabilities": server_capabilities,
+            })),
             MplError::InvalidSType { stype, reason } => Some(serde_json::json!({
                 "stype": stype,
                 "reason": reason,
@@ -255,7 +257,9 @@ pub struct ErrorBuilder {
 
 impl ErrorBuilder {
     pub fn new() -> Self {
-        Self { context: Vec::new() }
+        Self {
+            context: Vec::new(),
+        }
     }
 
     /// Add context to the error
@@ -270,7 +274,8 @@ impl ErrorBuilder {
         let context_str = if self.context.is_empty() {
             String::new()
         } else {
-            let pairs: Vec<String> = self.context
+            let pairs: Vec<String> = self
+                .context
                 .iter()
                 .map(|(k, v)| format!("{}={}", k, v))
                 .collect();
@@ -285,7 +290,8 @@ impl ErrorBuilder {
         let context_str = if self.context.is_empty() {
             String::new()
         } else {
-            let pairs: Vec<String> = self.context
+            let pairs: Vec<String> = self
+                .context
                 .iter()
                 .map(|(k, v)| format!("{}={}", k, v))
                 .collect();

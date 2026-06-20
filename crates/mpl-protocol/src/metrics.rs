@@ -186,7 +186,11 @@ impl TocResult {
 
     /// Convert to score (1.0 for verified, 0.0 otherwise)
     pub fn to_score(&self) -> f64 {
-        if self.verified { 1.0 } else { 0.0 }
+        if self.verified {
+            1.0
+        } else {
+            0.0
+        }
     }
 }
 
@@ -413,8 +417,8 @@ impl QomComputer {
             compute_ic: true,
             compute_toc: true,
             compute_groundedness: false, // Disabled by default (expensive)
-            compute_determinism: false,   // Disabled by default (requires replay)
-            compute_ontology: false,      // Disabled by default
+            compute_determinism: false,  // Disabled by default (requires replay)
+            compute_ontology: false,     // Disabled by default
         }
     }
 
@@ -794,8 +798,7 @@ impl QomComputer {
         }
 
         // Calculate score
-        let total_constraints =
-            constraints.allowed_values.len() + constraints.relationships.len();
+        let total_constraints = constraints.allowed_values.len() + constraints.relationships.len();
         let score = if total_constraints == 0 {
             1.0
         } else {
@@ -809,9 +812,7 @@ impl QomComputer {
 /// Count total fields in a JSON value
 fn count_fields(value: &serde_json::Value) -> usize {
     match value {
-        serde_json::Value::Object(obj) => {
-            obj.len() + obj.values().map(count_fields).sum::<usize>()
-        }
+        serde_json::Value::Object(obj) => obj.len() + obj.values().map(count_fields).sum::<usize>(),
         serde_json::Value::Array(arr) => arr.iter().map(count_fields).sum(),
         _ => 1,
     }
@@ -858,11 +859,15 @@ mod tests {
     fn test_ic_computation() {
         let assertions = AssertionSet::new(vec![
             Assertion::new("check1", "payload.value > 0", "Value must be positive"),
-            Assertion::new("check2", "payload.value < 100", "Value must be less than 100"),
+            Assertion::new(
+                "check2",
+                "payload.value < 100",
+                "Value must be less than 100",
+            ),
         ]);
 
-        let ctx = MetricContext::new("test.Type.v1", json!({"value": 42}))
-            .with_assertions(assertions);
+        let ctx =
+            MetricContext::new("test.Type.v1", json!({"value": 42})).with_assertions(assertions);
 
         let computer = QomComputer::new().with_ic(true);
         let result = computer.compute(&ctx);
@@ -875,11 +880,15 @@ mod tests {
     fn test_ic_partial_failure() {
         let assertions = AssertionSet::new(vec![
             Assertion::new("check1", "payload.value > 0", "Value must be positive"),
-            Assertion::new("check2", "payload.value > 100", "Value must be greater than 100"),
+            Assertion::new(
+                "check2",
+                "payload.value > 100",
+                "Value must be greater than 100",
+            ),
         ]);
 
-        let ctx = MetricContext::new("test.Type.v1", json!({"value": 42}))
-            .with_assertions(assertions);
+        let ctx =
+            MetricContext::new("test.Type.v1", json!({"value": 42})).with_assertions(assertions);
 
         let computer = QomComputer::new().with_ic(true);
         let result = computer.compute(&ctx);

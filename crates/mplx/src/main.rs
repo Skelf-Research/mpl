@@ -91,7 +91,6 @@ enum Commands {
     },
 
     // ===== Registry Commands (existing) =====
-
     /// Initialize a new registry namespace
     Init {
         /// Namespace to initialize (e.g., "org.mycompany")
@@ -368,7 +367,10 @@ async fn main() -> Result<()> {
         }
 
         Commands::Schemas { command } => match command {
-            SchemasCommands::Generate { min_samples, output } => {
+            SchemasCommands::Generate {
+                min_samples,
+                output,
+            } => {
                 commands::schemas::generate(&data_dir, min_samples, &output)?;
             }
             SchemasCommands::List { status, path } => {

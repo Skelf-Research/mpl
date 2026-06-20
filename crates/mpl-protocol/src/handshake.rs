@@ -371,7 +371,11 @@ pub fn negotiate(client: &ClientHello, server_capabilities: &ServerCapabilities)
 
     // Check tools
     for tool_req in &client.tools {
-        if let Some(server_tool) = server_capabilities.tools.iter().find(|t| t.id == tool_req.id) {
+        if let Some(server_tool) = server_capabilities
+            .tools
+            .iter()
+            .find(|t| t.id == tool_req.id)
+        {
             let supported_features: Vec<_> = tool_req
                 .features
                 .iter()
@@ -398,9 +402,10 @@ pub fn negotiate(client: &ClientHello, server_capabilities: &ServerCapabilities)
                 ));
             }
         } else {
-            response
-                .tools
-                .push(ToolResponse::unavailable(&tool_req.id, "Tool not available"));
+            response.tools.push(ToolResponse::unavailable(
+                &tool_req.id,
+                "Tool not available",
+            ));
             downgrades.push(Downgrade::new(
                 DowngradeCategory::Tool,
                 &tool_req.id,
@@ -505,7 +510,9 @@ mod tests {
 
         let response = negotiate(&client, &server);
         assert!(response.success);
-        assert!(response.stypes.contains(&"org.calendar.Event.v1".to_string()));
+        assert!(response
+            .stypes
+            .contains(&"org.calendar.Event.v1".to_string()));
         assert_eq!(response.profile, Some("qom-basic".to_string()));
     }
 

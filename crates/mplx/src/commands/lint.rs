@@ -24,31 +24,29 @@ pub fn run(path: &str) -> Result<()> {
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
-            if path.is_file() && path.extension().map_or(false, |e| e == "json") {
-                if path.file_name().map_or(false, |n| n == "schema.json") {
-                    schema_count += 1;
-                    // Validate schema
-                    match fs::read_to_string(path) {
-                        Ok(content) => match serde_json::from_str::<serde_json::Value>(&content) {
-                            Ok(schema) => {
-                                // Check for required fields
-                                if !schema.get("$schema").is_some() {
-                                    warnings.push(format!(
-                                        "{}: missing $schema field",
-                                        path.display()
-                                    ));
-                                }
-                                if !schema.get("type").is_some() {
-                                    errors.push(format!("{}: missing type field", path.display()));
-                                }
+            if path.is_file()
+                && path.extension().is_some_and(|e| e == "json")
+                && path.file_name().is_some_and(|n| n == "schema.json")
+            {
+                schema_count += 1;
+                // Validate schema
+                match fs::read_to_string(path) {
+                    Ok(content) => match serde_json::from_str::<serde_json::Value>(&content) {
+                        Ok(schema) => {
+                            // Check for required fields
+                            if schema.get("$schema").is_none() {
+                                warnings.push(format!("{}: missing $schema field", path.display()));
                             }
-                            Err(e) => {
-                                errors.push(format!("{}: invalid JSON: {}", path.display(), e));
+                            if schema.get("type").is_none() {
+                                errors.push(format!("{}: missing type field", path.display()));
                             }
-                        },
-                        Err(e) => {
-                            errors.push(format!("{}: could not read: {}", path.display(), e));
                         }
+                        Err(e) => {
+                            errors.push(format!("{}: invalid JSON: {}", path.display(), e));
+                        }
+                    },
+                    Err(e) => {
+                        errors.push(format!("{}: could not read: {}", path.display(), e));
                     }
                 }
             }
@@ -61,15 +59,15 @@ pub fn run(path: &str) -> Result<()> {
         for entry in fs::read_dir(&tools_path)? {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().map_or(false, |e| e == "json") {
+            if path.extension().is_some_and(|e| e == "json") {
                 tool_count += 1;
                 match fs::read_to_string(&path) {
                     Ok(content) => match serde_json::from_str::<serde_json::Value>(&content) {
                         Ok(tool) => {
-                            if !tool.get("id").is_some() {
+                            if tool.get("id").is_none() {
                                 errors.push(format!("{}: missing id field", path.display()));
                             }
-                            if !tool.get("args_stype").is_some() {
+                            if tool.get("args_stype").is_none() {
                                 warnings.push(format!("{}: missing args_stype", path.display()));
                             }
                         }
@@ -91,7 +89,7 @@ pub fn run(path: &str) -> Result<()> {
         for entry in fs::read_dir(&profiles_path)? {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().map_or(false, |e| e == "json") {
+            if path.extension().is_some_and(|e| e == "json") {
                 profile_count += 1;
                 match fs::read_to_string(&path) {
                     Ok(content) => {

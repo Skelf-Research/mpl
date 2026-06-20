@@ -63,12 +63,20 @@ mpl_handshakes_total {}
 # TYPE mpl_downgrade_rate gauge
 mpl_downgrade_rate {}
 "#,
-        metrics.requests_total.load(std::sync::atomic::Ordering::Relaxed),
-        metrics.schema_pass.load(std::sync::atomic::Ordering::Relaxed),
-        metrics.schema_fail.load(std::sync::atomic::Ordering::Relaxed),
+        metrics
+            .requests_total
+            .load(std::sync::atomic::Ordering::Relaxed),
+        metrics
+            .schema_pass
+            .load(std::sync::atomic::Ordering::Relaxed),
+        metrics
+            .schema_fail
+            .load(std::sync::atomic::Ordering::Relaxed),
         schema_pass_rate,
         qom_pass_rate,
-        metrics.handshakes.load(std::sync::atomic::Ordering::Relaxed),
+        metrics
+            .handshakes
+            .load(std::sync::atomic::Ordering::Relaxed),
         downgrade_rate,
     );
 
@@ -84,7 +92,10 @@ pub async fn ai_alpn_handshake(
     State(state): State<Arc<ProxyState>>,
     Json(hello): Json<AiAlpnClientHello>,
 ) -> impl IntoResponse {
-    info!("AI-ALPN handshake from client with {} STypes", hello.stypes.len());
+    info!(
+        "AI-ALPN handshake from client with {} STypes",
+        hello.stypes.len()
+    );
 
     let response = state.handle_handshake(hello);
 
@@ -149,7 +160,8 @@ async fn handle_websocket(socket: WebSocket, state: Arc<ProxyState>) {
                         // Try to parse as AI-ALPN handshake
                         if let Ok(hello) = serde_json::from_str::<AiAlpnClientHello>(&text) {
                             let select = state.handle_handshake(hello);
-                            serde_json::to_value(&select).unwrap_or_else(|_| json!({"error": "serialization failed"}))
+                            serde_json::to_value(&select)
+                                .unwrap_or_else(|_| json!({"error": "serialization failed"}))
                         } else {
                             // Pass through non-MPL messages
                             json!({
@@ -216,7 +228,7 @@ pub async fn proxy_handler(
                     })
                     .to_string(),
                 ))
-                .unwrap()
+                .expect("static BAD_GATEWAY response with literal header + JSON body always builds")
         }
     }
 }
@@ -294,7 +306,10 @@ pub async fn toc_callback(
     } else {
         let mut r = TocResult::failed(
             TocMethod::Callback,
-            request.details.clone().unwrap_or_else(|| "Verification failed".to_string()),
+            request
+                .details
+                .clone()
+                .unwrap_or_else(|| "Verification failed".to_string()),
         );
         r.expected = request.expected;
         r.actual = request.actual;

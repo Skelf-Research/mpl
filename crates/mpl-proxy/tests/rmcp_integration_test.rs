@@ -3,14 +3,13 @@
 //! Tests the MPL proxy with actual MCP protocol implementation.
 
 use rmcp::{
-    ServerHandler, ServiceExt,
-    model::{
-        CallToolResult, Implementation, Content, InitializeResult,
-        ServerCapabilities, ProtocolVersion,
-    },
-    tool, tool_router,
     handler::server::tool::ToolRouter,
     handler::server::wrapper::Parameters,
+    model::{
+        CallToolResult, Content, Implementation, InitializeResult, ProtocolVersion,
+        ServerCapabilities,
+    },
+    tool, tool_router, ServerHandler, ServiceExt,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -58,6 +57,12 @@ pub struct MockMcpServer {
     tool_router: ToolRouter<Self>,
 }
 
+impl Default for MockMcpServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MockMcpServer {
     pub fn new() -> Self {
         Self {
@@ -86,9 +91,10 @@ impl MockMcpServer {
         let mut events = self.events.lock().await;
         events.push(event_str.clone());
 
-        Ok(CallToolResult::success(vec![
-            Content::text(format!("Created event: {}", input.0.title))
-        ]))
+        Ok(CallToolResult::success(vec![Content::text(format!(
+            "Created event: {}",
+            input.0.title
+        ))]))
     }
 
     /// Increment a counter
@@ -101,9 +107,10 @@ impl MockMcpServer {
         *counter += input.0.amount;
         let new_value = *counter;
 
-        Ok(CallToolResult::success(vec![
-            Content::text(format!("Counter is now: {}", new_value))
-        ]))
+        Ok(CallToolResult::success(vec![Content::text(format!(
+            "Counter is now: {}",
+            new_value
+        ))]))
     }
 
     /// Get current counter value
@@ -111,20 +118,19 @@ impl MockMcpServer {
     async fn get_counter(&self) -> Result<CallToolResult, rmcp::ErrorData> {
         let counter = self.counter.lock().await;
 
-        Ok(CallToolResult::success(vec![
-            Content::text(format!("Counter value: {}", *counter))
-        ]))
+        Ok(CallToolResult::success(vec![Content::text(format!(
+            "Counter value: {}",
+            *counter
+        ))]))
     }
 
     /// Echo back input for testing
     #[tool(description = "Echo back the provided message")]
-    async fn echo(
-        &self,
-        input: Parameters<EchoInput>,
-    ) -> Result<CallToolResult, rmcp::ErrorData> {
-        Ok(CallToolResult::success(vec![
-            Content::text(format!("Echo: {}", input.0.message))
-        ]))
+    async fn echo(&self, input: Parameters<EchoInput>) -> Result<CallToolResult, rmcp::ErrorData> {
+        Ok(CallToolResult::success(vec![Content::text(format!(
+            "Echo: {}",
+            input.0.message
+        ))]))
     }
 }
 
@@ -132,9 +138,7 @@ impl ServerHandler for MockMcpServer {
     fn get_info(&self) -> InitializeResult {
         InitializeResult {
             protocol_version: ProtocolVersion::LATEST,
-            capabilities: ServerCapabilities::builder()
-                .enable_tools()
-                .build(),
+            capabilities: ServerCapabilities::builder().enable_tools().build(),
             server_info: Implementation {
                 name: "mock-mcp-server".to_string(),
                 version: "1.0.0".to_string(),
@@ -161,7 +165,8 @@ impl ServerHandler for MockMcpServer {
         request: rmcp::model::CallToolRequestParam,
         context: rmcp::service::RequestContext<rmcp::service::RoleServer>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
-        let tool_context = rmcp::handler::server::tool::ToolCallContext::new(self, request, context);
+        let tool_context =
+            rmcp::handler::server::tool::ToolCallContext::new(self, request, context);
         self.tool_router.call(tool_context).await
     }
 }
@@ -169,8 +174,8 @@ impl ServerHandler for MockMcpServer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::io::duplex;
     use rmcp::transport::IntoTransport;
+    use tokio::io::duplex;
 
     #[tokio::test]
     async fn test_mcp_server_initialize() {
@@ -218,9 +223,18 @@ mod tests {
 
         // Should have our defined tools
         let tool_names: Vec<&str> = tools.iter().map(|t| t.name.as_ref()).collect();
-        assert!(tool_names.contains(&"calendar_create"), "Should have calendar_create tool");
-        assert!(tool_names.contains(&"increment"), "Should have increment tool");
-        assert!(tool_names.contains(&"get_counter"), "Should have get_counter tool");
+        assert!(
+            tool_names.contains(&"calendar_create"),
+            "Should have calendar_create tool"
+        );
+        assert!(
+            tool_names.contains(&"increment"),
+            "Should have increment tool"
+        );
+        assert!(
+            tool_names.contains(&"get_counter"),
+            "Should have get_counter tool"
+        );
         assert!(tool_names.contains(&"echo"), "Should have echo tool");
 
         client.cancel().await.ok();
@@ -242,12 +256,18 @@ mod tests {
         let client = ().serve(transport).await.unwrap();
 
         // Call echo tool
-        let result = client.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "echo".into(),
-                arguments: Some(serde_json::json!({"message": "Hello MCP!"}).as_object().unwrap().clone()),
-            }
-        ).await.unwrap();
+                arguments: Some(
+                    serde_json::json!({"message": "Hello MCP!"})
+                        .as_object()
+                        .unwrap()
+                        .clone(),
+                ),
+            })
+            .await
+            .unwrap();
 
         // Verify response
         assert!(!result.is_error.unwrap_or(false));
@@ -273,34 +293,47 @@ mod tests {
         let client = ().serve(transport).await.unwrap();
 
         // Increment counter
-        let result = client.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "increment".into(),
-                arguments: Some(serde_json::json!({"amount": 5}).as_object().unwrap().clone()),
-            }
-        ).await.unwrap();
+                arguments: Some(
+                    serde_json::json!({"amount": 5})
+                        .as_object()
+                        .unwrap()
+                        .clone(),
+                ),
+            })
+            .await
+            .unwrap();
 
         let text = result.content[0].as_text().unwrap();
         assert!(text.text.contains("Counter is now: 5"));
 
         // Get counter
-        let result = client.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "get_counter".into(),
                 arguments: None,
-            }
-        ).await.unwrap();
+            })
+            .await
+            .unwrap();
 
         let text = result.content[0].as_text().unwrap();
         assert!(text.text.contains("Counter value: 5"));
 
         // Increment again
-        let result = client.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "increment".into(),
-                arguments: Some(serde_json::json!({"amount": 3}).as_object().unwrap().clone()),
-            }
-        ).await.unwrap();
+                arguments: Some(
+                    serde_json::json!({"amount": 3})
+                        .as_object()
+                        .unwrap()
+                        .clone(),
+                ),
+            })
+            .await
+            .unwrap();
 
         let text = result.content[0].as_text().unwrap();
         assert!(text.text.contains("Counter is now: 8"));
@@ -324,17 +357,23 @@ mod tests {
         let client = ().serve(transport).await.unwrap();
 
         // Create calendar event
-        let result = client.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "calendar_create".into(),
-                arguments: Some(serde_json::json!({
-                    "title": "Team Standup",
-                    "start": "2024-01-15T09:00:00Z",
-                    "end": "2024-01-15T09:30:00Z",
-                    "description": "Daily team sync"
-                }).as_object().unwrap().clone()),
-            }
-        ).await.unwrap();
+                arguments: Some(
+                    serde_json::json!({
+                        "title": "Team Standup",
+                        "start": "2024-01-15T09:00:00Z",
+                        "end": "2024-01-15T09:30:00Z",
+                        "description": "Daily team sync"
+                    })
+                    .as_object()
+                    .unwrap()
+                    .clone(),
+                ),
+            })
+            .await
+            .unwrap();
 
         assert!(!result.is_error.unwrap_or(false));
         let text = result.content[0].as_text().unwrap();
@@ -361,13 +400,20 @@ mod tests {
         // Get tools and verify schema
         let tools = client.list_all_tools().await.unwrap();
 
-        let calendar_tool = tools.iter().find(|t| t.name.as_ref() == "calendar_create").unwrap();
+        let calendar_tool = tools
+            .iter()
+            .find(|t| t.name.as_ref() == "calendar_create")
+            .unwrap();
 
         // Verify input schema exists and is valid JSON
         let schema = &calendar_tool.input_schema;
 
         // Should have properties defined
-        assert!(schema.contains_key("properties") || schema.contains_key("$defs") || schema.contains_key("title"));
+        assert!(
+            schema.contains_key("properties")
+                || schema.contains_key("$defs")
+                || schema.contains_key("title")
+        );
 
         client.cancel().await.ok();
         let _ = server_handle.await;
@@ -403,23 +449,30 @@ mod tests {
         let client2 = ().serve(transport2).await.unwrap();
 
         // Client 1 increments
-        let result = client1.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client1
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "increment".into(),
-                arguments: Some(serde_json::json!({"amount": 10}).as_object().unwrap().clone()),
-            }
-        ).await.unwrap();
+                arguments: Some(
+                    serde_json::json!({"amount": 10})
+                        .as_object()
+                        .unwrap()
+                        .clone(),
+                ),
+            })
+            .await
+            .unwrap();
 
         let text = result.content[0].as_text().unwrap();
         assert!(text.text.contains("Counter is now: 10"));
 
         // Client 2 should see same counter (shared state)
-        let result = client2.call_tool(
-            rmcp::model::CallToolRequestParam {
+        let result = client2
+            .call_tool(rmcp::model::CallToolRequestParam {
                 name: "get_counter".into(),
                 arguments: None,
-            }
-        ).await.unwrap();
+            })
+            .await
+            .unwrap();
 
         let text = result.content[0].as_text().unwrap();
         assert!(text.text.contains("Counter value: 10"));

@@ -20,7 +20,10 @@ const REGISTRY_PATH: &str = "../../registry";
 /// Start a mock upstream server that echoes requests
 async fn start_mock_upstream() -> std::net::SocketAddr {
     let app = Router::new()
-        .route("/", post(|Json(body): Json<Value>| async move { Json(body) }))
+        .route(
+            "/",
+            post(|Json(body): Json<Value>| async move { Json(body) }),
+        )
         .route(
             "/*path",
             post(|Json(body): Json<Value>| async move { Json(body) }),
@@ -68,10 +71,7 @@ async fn start_mpl_proxy(
 
     let app = Router::new()
         .route("/health", axum::routing::get(handlers::health))
-        .route(
-            "/capabilities",
-            axum::routing::get(handlers::capabilities),
-        )
+        .route("/capabilities", axum::routing::get(handlers::capabilities))
         .route(
             "/.well-known/ai-alpn",
             axum::routing::post(handlers::ai_alpn_handshake),
@@ -171,7 +171,7 @@ async fn test_schema_validation_failure_in_strict_mode() {
 
     let body: Value = response.json().await.unwrap();
     assert_eq!(body["error"], "E-SCHEMA-FIDELITY");
-    assert!(body["details"].as_array().unwrap().len() > 0);
+    assert!(!body["details"].as_array().unwrap().is_empty());
 }
 
 #[tokio::test]
@@ -324,7 +324,8 @@ async fn test_invalid_semantic_hash_in_strict_mode() {
         }),
     );
     // Set a fake hash
-    envelope.sem_hash = Some("b3:0000000000000000000000000000000000000000000000000000000000000000".to_string());
+    envelope.sem_hash =
+        Some("b3:0000000000000000000000000000000000000000000000000000000000000000".to_string());
 
     let response = client
         .post(format!("http://{}/mcp", proxy))
@@ -492,7 +493,9 @@ async fn test_capabilities_lists_stypes() {
     // Verify calendar event is loaded
     let stypes = body["stypes"].as_array().unwrap();
     assert!(
-        stypes.iter().any(|s| s.as_str() == Some("org.calendar.Event.v1")),
+        stypes
+            .iter()
+            .any(|s| s.as_str() == Some("org.calendar.Event.v1")),
         "Calendar Event SType should be loaded. Available: {:?}",
         stypes
     );

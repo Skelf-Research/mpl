@@ -1,8 +1,9 @@
 # MPL: Meaning Protocol Layer
 
+[![CI](https://github.com/Skelf-Research/mpl/actions/workflows/ci.yaml/badge.svg)](https://github.com/Skelf-Research/mpl/actions/workflows/ci.yaml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://skelf-research.github.io/mpl)
-[![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)](#status)
+[![Security audit](https://img.shields.io/badge/security-cargo--audit-blue.svg)](.cargo/audit.toml)
 
 ### Contracts, quality measurement, and audit trails for AI agent communication.
 

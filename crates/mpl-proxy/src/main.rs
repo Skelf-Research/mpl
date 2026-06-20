@@ -7,7 +7,10 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use anyhow::Result;
-use axum::{routing::{any, get, post}, Router};
+use axum::{
+    routing::{any, get, post},
+    Router,
+};
 use clap::Parser;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
@@ -15,9 +18,9 @@ use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 use mpl_proxy::config::ProxyConfig;
+use mpl_proxy::handlers;
 use mpl_proxy::middleware::MplMiddleware;
 use mpl_proxy::proxy::ProxyState;
-use mpl_proxy::handlers;
 
 /// MPL Sidecar Proxy
 #[derive(Parser, Debug)]
@@ -64,7 +67,10 @@ async fn main() -> Result<()> {
 
     // Load configuration with environment variable overrides
     let mut config = ProxyConfig::load_with_env(&args.config).unwrap_or_else(|e| {
-        info!("Could not load config file: {}, using defaults with env vars", e);
+        info!(
+            "Could not load config file: {}, using defaults with env vars",
+            e
+        );
         let mut cfg = ProxyConfig::default();
         cfg.apply_env_overrides();
         cfg
@@ -113,7 +119,10 @@ async fn main() -> Result<()> {
         .route("/_mpl/qom/persist", post(handlers::qom_persist))
         // Learning endpoints (for traffic recording and schema inference)
         .route("/_mpl/learning/stats", get(handlers::learning_stats))
-        .route("/_mpl/learning/samples/:stype", get(handlers::learning_samples))
+        .route(
+            "/_mpl/learning/samples/:stype",
+            get(handlers::learning_samples),
+        )
         // Proxy all other requests
         .route("/*path", any(handlers::proxy_handler))
         .with_state(proxy_state.clone())

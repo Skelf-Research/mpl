@@ -79,7 +79,11 @@ pub enum AssertionSeverity {
 
 impl Assertion {
     /// Create a new assertion
-    pub fn new(id: impl Into<String>, expression: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        expression: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             expression: expression.into(),
@@ -168,7 +172,10 @@ impl AssertionSet {
     }
 
     /// Evaluate all assertions against a payload
-    pub fn evaluate(&self, payload: &serde_json::Value) -> Result<AssertionSetResult, AssertionError> {
+    pub fn evaluate(
+        &self,
+        payload: &serde_json::Value,
+    ) -> Result<AssertionSetResult, AssertionError> {
         let evaluator = AssertionEvaluator::new();
         evaluator.evaluate_set(self, payload, None)
     }
@@ -384,12 +391,13 @@ impl AssertionEvaluator {
         }
 
         // Execute the program
-        let result = program.execute(&cel_context).map_err(|e| {
-            AssertionError::EvaluationError {
-                expr: assertion.expression.clone(),
-                message: format!("{:?}", e),
-            }
-        })?;
+        let result =
+            program
+                .execute(&cel_context)
+                .map_err(|e| AssertionError::EvaluationError {
+                    expr: assertion.expression.clone(),
+                    message: format!("{:?}", e),
+                })?;
 
         // Check if result is truthy
         let passed = match &result {
@@ -451,7 +459,9 @@ fn json_to_cel(value: &serde_json::Value) -> Value {
                 .into_iter()
                 .map(|(k, v)| (cel_interpreter::objects::Key::String(k.into()), v))
                 .collect();
-            Value::Map(cel_interpreter::objects::Map { map: cel_map.into() })
+            Value::Map(cel_interpreter::objects::Map {
+                map: cel_map.into(),
+            })
         }
     }
 }
@@ -478,12 +488,16 @@ mod tests {
 
         // Passing case
         let payload = json!({"amount": 100});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(result.passed);
 
         // Failing case
         let payload = json!({"amount": -50});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(!result.passed);
     }
 
@@ -498,11 +512,15 @@ mod tests {
         let evaluator = AssertionEvaluator::new();
 
         let payload = json!({"currency": "USD"});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(result.passed);
 
         let payload = json!({"currency": "XYZ"});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(!result.passed);
     }
 
@@ -526,16 +544,15 @@ mod tests {
 
     #[test]
     fn test_nested_payload() {
-        let assertion = Assertion::new(
-            "nested_check",
-            "payload.user.age >= 18",
-            "User must be 18+",
-        );
+        let assertion =
+            Assertion::new("nested_check", "payload.user.age >= 18", "User must be 18+");
 
         let evaluator = AssertionEvaluator::new();
 
         let payload = json!({"user": {"name": "Alice", "age": 25}});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(result.passed);
     }
 
@@ -550,11 +567,15 @@ mod tests {
         let evaluator = AssertionEvaluator::new();
 
         let payload = json!({"items": [1, 2, 3]});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(result.passed);
 
         let payload = json!({"items": []});
-        let result = evaluator.evaluate_single(&assertion, &payload, None).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, None)
+            .unwrap();
         assert!(!result.passed);
     }
 
@@ -574,16 +595,21 @@ mod tests {
             ..Default::default()
         };
 
-        let result = evaluator.evaluate_single(&assertion, &payload, Some(&ctx)).unwrap();
+        let result = evaluator
+            .evaluate_single(&assertion, &payload, Some(&ctx))
+            .unwrap();
         assert!(result.passed);
     }
 
     #[test]
     fn test_severity_levels() {
         let set = AssertionSet::new(vec![
-            Assertion::new("error_check", "false", "Error level").with_severity(AssertionSeverity::Error),
-            Assertion::new("warn_check", "false", "Warning level").with_severity(AssertionSeverity::Warning),
-            Assertion::new("info_check", "false", "Info level").with_severity(AssertionSeverity::Info),
+            Assertion::new("error_check", "false", "Error level")
+                .with_severity(AssertionSeverity::Error),
+            Assertion::new("warn_check", "false", "Warning level")
+                .with_severity(AssertionSeverity::Warning),
+            Assertion::new("info_check", "false", "Info level")
+                .with_severity(AssertionSeverity::Info),
         ]);
 
         let result = set.evaluate(&json!({})).unwrap();

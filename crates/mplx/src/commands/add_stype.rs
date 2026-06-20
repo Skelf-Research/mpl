@@ -46,7 +46,8 @@ pub fn run(stype_str: &str, schema_path: &str, examples: &[String]) -> Result<()
 
         for example_path in examples {
             let path = Path::new(example_path);
-            let filename = path.file_name()
+            let filename = path
+                .file_name()
                 .map(|f| f.to_string_lossy().to_string())
                 .unwrap_or_else(|| {
                     // Fallback to using the full path as filename if extraction fails

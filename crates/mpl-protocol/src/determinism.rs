@@ -163,10 +163,7 @@ impl DeterminismChecker {
         let history_size = self.config.history_size;
 
         // Add to history
-        let history = self
-            .history
-            .entry(signature.clone())
-            .or_insert_with(VecDeque::new);
+        let history = self.history.entry(signature.clone()).or_default();
 
         history.push_back(normalized);
 
@@ -209,7 +206,10 @@ impl DeterminismChecker {
 
             // Collect unique differences
             for diff in differences {
-                if !all_differences.iter().any(|d: &FieldDifference| d.path == diff.path) {
+                if !all_differences
+                    .iter()
+                    .any(|d: &FieldDifference| d.path == diff.path)
+                {
                     all_differences.push(diff);
                 }
             }
@@ -350,9 +350,7 @@ impl DeterminismChecker {
                 let mut total_similarity = 0.0;
                 let min_len = curr_arr.len().min(ref_arr.len());
 
-                for (i, (curr_item, ref_item)) in
-                    curr_arr.iter().zip(ref_arr.iter()).enumerate()
-                {
+                for (i, (curr_item, ref_item)) in curr_arr.iter().zip(ref_arr.iter()).enumerate() {
                     let item_path = format!("{}[{}]", path, i);
                     let (sim, mut diffs) = self.compare_values(curr_item, ref_item, &item_path);
                     total_similarity += sim;
@@ -374,13 +372,12 @@ impl DeterminismChecker {
                     (1.0, differences)
                 } else {
                     // Check if types match
-                    let diff_type = if std::mem::discriminant(current)
-                        != std::mem::discriminant(reference)
-                    {
-                        DifferenceType::TypeChanged
-                    } else {
-                        DifferenceType::ValueChanged
-                    };
+                    let diff_type =
+                        if std::mem::discriminant(current) != std::mem::discriminant(reference) {
+                            DifferenceType::TypeChanged
+                        } else {
+                            DifferenceType::ValueChanged
+                        };
 
                     differences.push(FieldDifference {
                         path: path.to_string(),

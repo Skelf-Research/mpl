@@ -121,7 +121,9 @@ async fn start_tracked_mcp_server(tracker: Arc<RequestTracker>) -> SocketAddr {
 
 /// Start MPL proxy pointing to upstream
 async fn start_mpl_proxy(upstream_addr: SocketAddr, registry_path: &str) -> SocketAddr {
-    use mpl_proxy::config::{MplConfig, ObservabilityConfig, ProxyConfig, ProxyMode, TransportConfig};
+    use mpl_proxy::config::{
+        MplConfig, ObservabilityConfig, ProxyConfig, ProxyMode, TransportConfig,
+    };
     use mpl_proxy::handlers;
     use mpl_proxy::proxy::ProxyState;
     use std::sync::Arc;
@@ -151,10 +153,7 @@ async fn start_mpl_proxy(upstream_addr: SocketAddr, registry_path: &str) -> Sock
 
     let app = Router::new()
         .route("/health", axum::routing::get(handlers::health))
-        .route(
-            "/capabilities",
-            axum::routing::get(handlers::capabilities),
-        )
+        .route("/capabilities", axum::routing::get(handlers::capabilities))
         .route(
             "/.well-known/ai-alpn",
             axum::routing::post(handlers::ai_alpn_handshake),

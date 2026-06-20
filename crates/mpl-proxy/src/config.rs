@@ -10,7 +10,7 @@ use std::env;
 use std::path::Path;
 
 /// Main proxy configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ProxyConfig {
     pub transport: TransportConfig,
     pub mpl: MplConfig,
@@ -19,18 +19,6 @@ pub struct ProxyConfig {
     pub routing: Vec<RouteConfig>,
     #[serde(default)]
     pub limits: ResourceLimits,
-}
-
-impl Default for ProxyConfig {
-    fn default() -> Self {
-        Self {
-            transport: TransportConfig::default(),
-            mpl: MplConfig::default(),
-            observability: ObservabilityConfig::default(),
-            routing: Vec::new(),
-            limits: ResourceLimits::default(),
-        }
-    }
 }
 
 impl ProxyConfig {

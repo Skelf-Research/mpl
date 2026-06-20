@@ -111,16 +111,13 @@ fn test_envelope_round_trip() {
 /// Test canonical form is deterministic
 #[test]
 fn test_canonical_determinism() {
-    let payloads = vec![
+    let payloads = [
         json!({"z": 1, "a": 2, "m": 3}),
         json!({"a": 2, "z": 1, "m": 3}),
         json!({"m": 3, "z": 1, "a": 2}),
     ];
 
-    let canonical_forms: Vec<String> = payloads
-        .iter()
-        .map(|p| canonicalize(p).unwrap())
-        .collect();
+    let canonical_forms: Vec<String> = payloads.iter().map(|p| canonicalize(p).unwrap()).collect();
 
     // All should be the same
     assert!(canonical_forms.windows(2).all(|w| w[0] == w[1]));
@@ -143,7 +140,10 @@ fn test_strict_qom_profile() {
     let fail_metrics = QomMetrics::schema_valid().with_instruction_compliance(0.5);
     let fail_eval = profile.evaluate(&fail_metrics);
     assert!(!fail_eval.meets_profile);
-    assert!(fail_eval.failures.iter().any(|f| f.metric == "instruction_compliance"));
+    assert!(fail_eval
+        .failures
+        .iter()
+        .any(|f| f.metric == "instruction_compliance"));
 }
 
 /// Test multiple schema registration
@@ -178,12 +178,32 @@ fn test_multiple_schemas() {
     let event = json!({"title": "Meeting"});
     let task = json!({"goal": "Complete project"});
 
-    assert!(validator.validate("org.calendar.Event.v1", &event).unwrap().valid);
-    assert!(validator.validate("org.agent.TaskPlan.v1", &task).unwrap().valid);
+    assert!(
+        validator
+            .validate("org.calendar.Event.v1", &event)
+            .unwrap()
+            .valid
+    );
+    assert!(
+        validator
+            .validate("org.agent.TaskPlan.v1", &task)
+            .unwrap()
+            .valid
+    );
 
     // Cross-validation should fail
-    assert!(!validator.validate("org.calendar.Event.v1", &task).unwrap().valid);
-    assert!(!validator.validate("org.agent.TaskPlan.v1", &event).unwrap().valid);
+    assert!(
+        !validator
+            .validate("org.calendar.Event.v1", &task)
+            .unwrap()
+            .valid
+    );
+    assert!(
+        !validator
+            .validate("org.agent.TaskPlan.v1", &event)
+            .unwrap()
+            .valid
+    );
 }
 
 /// Test SType parsing edge cases

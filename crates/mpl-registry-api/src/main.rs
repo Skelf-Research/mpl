@@ -35,7 +35,11 @@ async fn main() -> Result<()> {
     let args = Args::parse();
 
     // Setup logging
-    let level = if args.verbose { Level::DEBUG } else { Level::INFO };
+    let level = if args.verbose {
+        Level::DEBUG
+    } else {
+        Level::INFO
+    };
     let subscriber = FmtSubscriber::builder()
         .with_max_level(level)
         .json()

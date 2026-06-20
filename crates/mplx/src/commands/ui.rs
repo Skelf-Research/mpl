@@ -57,25 +57,37 @@ fn build_ui_app(data_dir: &str) -> Result<Router> {
         .route("/", get(serve_index))
         // API endpoints
         .route("/api/status", get(api_status))
-        .route("/api/schemas", get({
-            let dd = data_dir.clone();
-            move || api_schemas(dd.clone())
-        }))
-        .route("/api/traffic", get({
-            let dd = data_dir.clone();
-            move || api_traffic(dd.clone())
-        }))
+        .route(
+            "/api/schemas",
+            get({
+                let dd = data_dir.clone();
+                move || api_schemas(dd.clone())
+            }),
+        )
+        .route(
+            "/api/traffic",
+            get({
+                let dd = data_dir.clone();
+                move || api_traffic(dd.clone())
+            }),
+        )
         .route("/api/metrics", get(api_metrics))
         // QoM endpoints
         .route("/api/qom", get(api_qom_metrics))
-        .route("/api/qom/events", get({
-            let dd = data_dir.clone();
-            move |query| api_qom_events(dd.clone(), query)
-        }))
-        .route("/api/qom/history", get({
-            let dd = data_dir.clone();
-            move |query| api_qom_history(dd.clone(), query)
-        }))
+        .route(
+            "/api/qom/events",
+            get({
+                let dd = data_dir.clone();
+                move |query| api_qom_events(dd.clone(), query)
+            }),
+        )
+        .route(
+            "/api/qom/history",
+            get({
+                let dd = data_dir.clone();
+                move |query| api_qom_history(dd.clone(), query)
+            }),
+        )
         .route("/api/toc/pending", get(api_toc_pending))
         // Static assets (for Vue app)
         .route("/assets/*path", get(serve_assets));
@@ -89,9 +101,14 @@ async fn serve_index() -> Html<&'static str> {
 }
 
 /// Serve static assets
-async fn serve_assets(axum::extract::Path(path): axum::extract::Path<String>) -> impl axum::response::IntoResponse {
+async fn serve_assets(
+    axum::extract::Path(path): axum::extract::Path<String>,
+) -> impl axum::response::IntoResponse {
     // For now, return 404 for assets - will be replaced with actual Vue build
-    (axum::http::StatusCode::NOT_FOUND, format!("Asset not found: {}", path))
+    (
+        axum::http::StatusCode::NOT_FOUND,
+        format!("Asset not found: {}", path),
+    )
 }
 
 /// API: Get system status
@@ -113,15 +130,19 @@ async fn api_schemas(data_dir: String) -> axum::Json<serde_json::Value> {
 
     // Try to load inference state
     let schemas = if let Ok(state) = super::schemas::InferenceState::load(&schemas_path) {
-        state.schemas.into_iter().map(|(stype, info)| {
-            serde_json::json!({
-                "stype": stype,
-                "status": info.status,
-                "sample_count": info.sample_count,
-                "created_at": info.created_at,
-                "updated_at": info.updated_at
+        state
+            .schemas
+            .into_iter()
+            .map(|(stype, info)| {
+                serde_json::json!({
+                    "stype": stype,
+                    "status": info.status,
+                    "sample_count": info.sample_count,
+                    "created_at": info.created_at,
+                    "updated_at": info.updated_at
+                })
             })
-        }).collect::<Vec<_>>()
+            .collect::<Vec<_>>()
     } else {
         vec![]
     };
@@ -140,14 +161,12 @@ async fn api_traffic(data_dir: String) -> axum::Json<serde_json::Value> {
 
     if traffic_path.exists() {
         if let Ok(entries) = std::fs::read_dir(&traffic_path) {
-            for entry in entries.take(100) {
-                if let Ok(entry) = entry {
-                    let path = entry.path();
-                    if path.extension().map(|e| e == "json").unwrap_or(false) {
-                        if let Ok(content) = std::fs::read_to_string(&path) {
-                            if let Ok(record) = serde_json::from_str::<serde_json::Value>(&content) {
-                                records.push(record);
-                            }
+            for entry in entries.take(100).flatten() {
+                let path = entry.path();
+                if path.extension().map(|e| e == "json").unwrap_or(false) {
+                    if let Ok(content) = std::fs::read_to_string(&path) {
+                        if let Ok(record) = serde_json::from_str::<serde_json::Value>(&content) {
+                            records.push(record);
                         }
                     }
                 }
@@ -230,7 +249,7 @@ async fn api_qom_events(
                 "scores": { "SF": 1.0, "IC": 0.85 },
                 "failure_reason": "IC score 0.85 below threshold 0.97",
                 "timestamp": (chrono::Utc::now() - chrono::Duration::minutes(5)).to_rfc3339()
-            })
+            }),
         ]
     };
 
@@ -256,11 +275,7 @@ async fn api_qom_history(
 
     let history = if history_path.exists() {
         if let Ok(content) = std::fs::read_to_string(&history_path) {
-            if let Ok(all_history) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
-                all_history
-            } else {
-                vec![]
-            }
+            serde_json::from_str::<Vec<serde_json::Value>>(&content).unwrap_or_default()
         } else {
             vec![]
         }
@@ -277,7 +292,7 @@ async fn api_qom_history(
 
         (0..points)
             .map(|i| {
-                let time = now - (duration - interval * i as i32);
+                let time = now - (duration - interval * i);
                 serde_json::json!({
                     "timestamp": time.to_rfc3339(),
                     "sf": 0.95 + (i as f64 * 0.003).min(0.05),

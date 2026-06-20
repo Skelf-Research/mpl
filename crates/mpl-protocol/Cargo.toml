@@ -39,3 +39,16 @@ async-trait.workspace = true
 
 [dev-dependencies]
 pretty_assertions.workspace = true
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# ---- benchmarks ----
+# Hot paths the proxy hits per request/response. `cargo bench` (or
+# `cargo criterion`) runs these; the CI release workflow could gate on
+# regression once we have a baseline checked in.
+[[bench]]
+name = "semantic_hash"
+harness = false
+
+[[bench]]
+name = "qom_compute"
+harness = false

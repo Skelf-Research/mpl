@@ -29,17 +29,44 @@ impl ConformanceResults {
         println!("\n╔══════════════════════════════════════════╗");
         println!("║         CONFORMANCE TEST RESULTS         ║");
         println!("╠══════════════════════════════════════════╣");
-        println!("║  STypes tested:        {:>6}            ║", self.stypes_tested);
-        println!("║    ✓ Valid schemas:    {:>6}            ║", self.schemas_valid);
-        println!("║    ✗ Invalid schemas:  {:>6}            ║", self.schemas_invalid);
+        println!(
+            "║  STypes tested:        {:>6}            ║",
+            self.stypes_tested
+        );
+        println!(
+            "║    ✓ Valid schemas:    {:>6}            ║",
+            self.schemas_valid
+        );
+        println!(
+            "║    ✗ Invalid schemas:  {:>6}            ║",
+            self.schemas_invalid
+        );
         println!("╠══════════════════════════════════════════╣");
-        println!("║  Positive examples:    {:>6}            ║", self.examples_tested);
-        println!("║    ✓ Passed:           {:>6}            ║", self.examples_passed);
-        println!("║    ✗ Failed:           {:>6}            ║", self.examples_failed);
+        println!(
+            "║  Positive examples:    {:>6}            ║",
+            self.examples_tested
+        );
+        println!(
+            "║    ✓ Passed:           {:>6}            ║",
+            self.examples_passed
+        );
+        println!(
+            "║    ✗ Failed:           {:>6}            ║",
+            self.examples_failed
+        );
         println!("╠══════════════════════════════════════════╣");
-        println!("║  Negative examples:    {:>6}            ║", self.negative_tested);
-        println!("║    ✓ Correctly rejected:{:>5}            ║", self.negative_passed);
-        println!("║    ✗ Incorrectly passed:{:>5}            ║", self.negative_failed);
+        println!(
+            "║  Negative examples:    {:>6}            ║",
+            self.negative_tested
+        );
+        println!(
+            "║    ✓ Correctly rejected:{:>5}            ║",
+            self.negative_passed
+        );
+        println!(
+            "║    ✗ Incorrectly passed:{:>5}            ║",
+            self.negative_failed
+        );
         println!("╚══════════════════════════════════════════╝");
 
         let total_failures = self.schemas_invalid + self.examples_failed + self.negative_failed;
@@ -57,7 +84,10 @@ pub fn run(registry_path: &str, stype_filter: Option<&str>, verbose: bool) -> Re
     let stypes_dir = registry.join("stypes");
 
     if !stypes_dir.exists() {
-        anyhow::bail!("Registry stypes directory not found: {}", stypes_dir.display());
+        anyhow::bail!(
+            "Registry stypes directory not found: {}",
+            stypes_dir.display()
+        );
     }
 
     info!("Running conformance tests on: {}", registry_path);
@@ -65,7 +95,14 @@ pub fn run(registry_path: &str, stype_filter: Option<&str>, verbose: bool) -> Re
     let mut validator = SchemaValidator::new();
 
     // Walk the registry and test each SType
-    walk_stypes(&stypes_dir, Vec::new(), &mut validator, &mut results, stype_filter, verbose)?;
+    walk_stypes(
+        &stypes_dir,
+        Vec::new(),
+        &mut validator,
+        &mut results,
+        stype_filter,
+        verbose,
+    )?;
 
     results.print_summary();
 
@@ -193,7 +230,7 @@ fn test_examples(
         let entry = entry?;
         let path = entry.path();
 
-        if path.extension().map_or(false, |ext| ext == "json") {
+        if path.extension().is_some_and(|ext| ext == "json") {
             let content = fs::read_to_string(&path)?;
             let payload: Value = match serde_json::from_str(&content) {
                 Ok(v) => v,
@@ -204,7 +241,8 @@ fn test_examples(
             };
 
             let validation = validator.validate(stype, &payload);
-            let file_name = path.file_name()
+            let file_name = path
+                .file_name()
                 .map(|f| f.to_string_lossy().to_string())
                 .unwrap_or_else(|| path.display().to_string());
 
@@ -239,7 +277,10 @@ fn test_examples(
                     }
                 } else {
                     results.negative_failed += 1;
-                    error!("  ✗ Negative incorrectly passed: {} (expected invalid)", file_name);
+                    error!(
+                        "  ✗ Negative incorrectly passed: {} (expected invalid)",
+                        file_name
+                    );
                 }
             }
         }

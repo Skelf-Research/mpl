@@ -6,7 +6,11 @@ use std::fs;
 use std::path::Path;
 
 pub fn run(namespace: &str, output: &str) -> Result<()> {
-    println!("{} Initializing namespace: {}", "→".blue(), namespace.green());
+    println!(
+        "{} Initializing namespace: {}",
+        "→".blue(),
+        namespace.green()
+    );
 
     let base_path = Path::new(output);
 
@@ -83,7 +87,10 @@ pub fn run(namespace: &str, output: &str) -> Result<()> {
         namespace.green()
     );
     println!("\nNext steps:");
-    println!("  1. Add STypes: mpl add-stype {}.MyType.v1 schema.json", namespace);
+    println!(
+        "  1. Add STypes: mpl add-stype {}.MyType.v1 schema.json",
+        namespace
+    );
     println!("  2. Lint: mpl lint");
     println!("  3. Commit and push to registry");
 

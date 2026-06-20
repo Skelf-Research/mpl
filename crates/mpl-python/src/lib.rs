@@ -2,8 +2,13 @@
 //!
 //! Exposes the core MPL primitives to Python via PyO3.
 
+// PyO3 wrappers commonly use `.map_err(|e| PyValueError::new_err(...))?` which
+// converts PyErr -> PyErr via From (identity); clippy flags it as useless. The
+// pattern is the standard PyO3 idiom for surfacing Rust errors as Python ones.
+#![allow(clippy::useless_conversion)]
+use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::exceptions::{PyValueError, PyRuntimeError};
+use pyo3::IntoPyObjectExt;
 use std::collections::HashMap;
 
 use mpl_core::{
@@ -14,7 +19,7 @@ use mpl_core::{
 };
 
 /// Semantic Type (SType) - globally unique, versioned identifier
-#[pyclass(name = "SType")]
+#[pyclass(name = "SType", from_py_object)]
 #[derive(Clone)]
 pub struct PySType {
     inner: RustSType,
@@ -118,15 +123,21 @@ impl PySchemaValidator {
         let payload: serde_json::Value = serde_json::from_str(payload_json)
             .map_err(|e| PyValueError::new_err(format!("Invalid JSON: {}", e)))?;
 
-        let result = self.inner.validate(stype, &payload)
+        let result = self
+            .inner
+            .validate(stype, &payload)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
 
         Ok(PyValidationResult {
             valid: result.valid,
-            errors: result.errors.iter().map(|e| PySchemaError {
-                path: e.path.clone(),
-                message: e.message.clone(),
-            }).collect(),
+            errors: result
+                .errors
+                .iter()
+                .map(|e| PySchemaError {
+                    path: e.path.clone(),
+                    message: e.message.clone(),
+                })
+                .collect(),
         })
     }
 
@@ -135,18 +146,23 @@ impl PySchemaValidator {
         let payload: serde_json::Value = serde_json::from_str(payload_json)
             .map_err(|e| PyValueError::new_err(format!("Invalid JSON: {}", e)))?;
 
-        self.inner.validate_or_error(stype, &payload)
+        self.inner
+            .validate_or_error(stype, &payload)
             .map_err(|e| PyValueError::new_err(e.to_string()))
     }
 
     /// Get all registered STypes
     fn registered_stypes(&self) -> Vec<String> {
-        self.inner.registered_stypes().iter().map(|s| s.to_string()).collect()
+        self.inner
+            .registered_stypes()
+            .iter()
+            .map(|s| s.to_string())
+            .collect()
     }
 }
 
 /// Validation result
-#[pyclass(name = "ValidationResult")]
+#[pyclass(name = "ValidationResult", from_py_object)]
 #[derive(Clone)]
 pub struct PyValidationResult {
     #[pyo3(get)]
@@ -165,13 +181,16 @@ impl PyValidationResult {
         if self.valid {
             "ValidationResult(valid=True)".to_string()
         } else {
-            format!("ValidationResult(valid=False, errors={})", self.errors.len())
+            format!(
+                "ValidationResult(valid=False, errors={})",
+                self.errors.len()
+            )
         }
     }
 }
 
 /// Schema validation error
-#[pyclass(name = "SchemaError")]
+#[pyclass(name = "SchemaError", from_py_object)]
 #[derive(Clone)]
 pub struct PySchemaError {
     #[pyo3(get)]
@@ -183,12 +202,15 @@ pub struct PySchemaError {
 #[pymethods]
 impl PySchemaError {
     fn __repr__(&self) -> String {
-        format!("SchemaError(path='{}', message='{}')", self.path, self.message)
+        format!(
+            "SchemaError(path='{}', message='{}')",
+            self.path, self.message
+        )
     }
 }
 
 /// QoM Metrics
-#[pyclass(name = "QomMetrics")]
+#[pyclass(name = "QomMetrics", from_py_object)]
 #[derive(Clone)]
 pub struct PyQomMetrics {
     #[pyo3(get, set)]
@@ -294,7 +316,7 @@ impl From<PyQomMetrics> for RustQomMetrics {
 }
 
 /// QoM Profile
-#[pyclass(name = "QomProfile")]
+#[pyclass(name = "QomProfile", from_py_object)]
 #[derive(Clone)]
 pub struct PyQomProfile {
     inner: RustQomProfile,
@@ -337,11 +359,15 @@ impl PyQomProfile {
         PyQomEvaluation {
             meets_profile: eval.meets_profile,
             profile: eval.profile,
-            failures: eval.failures.iter().map(|f| PyMetricFailure {
-                metric: f.metric.clone(),
-                actual: f.actual,
-                threshold: f.threshold,
-            }).collect(),
+            failures: eval
+                .failures
+                .iter()
+                .map(|f| PyMetricFailure {
+                    metric: f.metric.clone(),
+                    actual: f.actual,
+                    threshold: f.threshold,
+                })
+                .collect(),
         }
     }
 
@@ -351,7 +377,7 @@ impl PyQomProfile {
 }
 
 /// QoM Evaluation result
-#[pyclass(name = "QomEvaluation")]
+#[pyclass(name = "QomEvaluation", from_py_object)]
 #[derive(Clone)]
 pub struct PyQomEvaluation {
     #[pyo3(get)]
@@ -370,15 +396,21 @@ impl PyQomEvaluation {
 
     fn __repr__(&self) -> String {
         if self.meets_profile {
-            format!("QomEvaluation(meets_profile=True, profile='{}')", self.profile)
+            format!(
+                "QomEvaluation(meets_profile=True, profile='{}')",
+                self.profile
+            )
         } else {
-            format!("QomEvaluation(meets_profile=False, failures={})", self.failures.len())
+            format!(
+                "QomEvaluation(meets_profile=False, failures={})",
+                self.failures.len()
+            )
         }
     }
 }
 
 /// Metric failure
-#[pyclass(name = "MetricFailure")]
+#[pyclass(name = "MetricFailure", from_py_object)]
 #[derive(Clone)]
 pub struct PyMetricFailure {
     #[pyo3(get)]
@@ -405,8 +437,7 @@ fn canonicalize(json_str: &str) -> PyResult<String> {
     let value: serde_json::Value = serde_json::from_str(json_str)
         .map_err(|e| PyValueError::new_err(format!("Invalid JSON: {}", e)))?;
 
-    rust_canonicalize(&value)
-        .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    rust_canonicalize(&value).map_err(|e| PyRuntimeError::new_err(e.to_string()))
 }
 
 /// Compute semantic hash of a JSON payload
@@ -415,8 +446,7 @@ fn semantic_hash(json_str: &str) -> PyResult<String> {
     let value: serde_json::Value = serde_json::from_str(json_str)
         .map_err(|e| PyValueError::new_err(format!("Invalid JSON: {}", e)))?;
 
-    rust_semantic_hash(&value)
-        .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    rust_semantic_hash(&value).map_err(|e| PyRuntimeError::new_err(e.to_string()))
 }
 
 /// Verify semantic hash matches payload
@@ -430,7 +460,7 @@ fn verify_hash(json_str: &str, expected_hash: &str) -> PyResult<bool> {
 }
 
 /// MPL Envelope
-#[pyclass(name = "MplEnvelope")]
+#[pyclass(name = "MplEnvelope", from_py_object)]
 #[derive(Clone)]
 pub struct PyMplEnvelope {
     #[pyo3(get)]
@@ -438,7 +468,7 @@ pub struct PyMplEnvelope {
     #[pyo3(get, set)]
     stype: String,
     #[pyo3(get, set)]
-    payload: String,  // JSON string
+    payload: String, // JSON string
     #[pyo3(get, set)]
     args_stype: Option<String>,
     #[pyo3(get, set)]
@@ -490,8 +520,8 @@ impl PyMplEnvelope {
     }
 
     /// Get payload as Python dict
-    fn get_payload(&self) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
+    fn get_payload(&self) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
             let value: serde_json::Value = serde_json::from_str(&self.payload)
                 .map_err(|e| PyValueError::new_err(e.to_string()))?;
             json_to_py(py, &value)
@@ -511,8 +541,7 @@ impl PyMplEnvelope {
             "sem_hash": self.sem_hash,
             "features": self.features,
         });
-        serde_json::to_string_pretty(&envelope)
-            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+        serde_json::to_string_pretty(&envelope).map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
     fn __repr__(&self) -> String {
@@ -520,33 +549,38 @@ impl PyMplEnvelope {
     }
 }
 
-/// Convert serde_json::Value to Python object
-fn json_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<PyObject> {
+/// Convert serde_json::Value to Python object.
+///
+/// Uses pyo3 0.29's `IntoPyObjectExt::into_py_any` — the idiomatic
+/// replacement for the removed `IntoPy::into_py`. PyDict construction uses
+/// the renamed `PyDict::new` (was `PyDict::new_bound` in 0.22).
+fn json_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<PyAny>> {
     match value {
         serde_json::Value::Null => Ok(py.None()),
-        serde_json::Value::Bool(b) => Ok(b.into_py(py)),
+        serde_json::Value::Bool(b) => b.into_py_any(py),
         serde_json::Value::Number(n) => {
             if let Some(i) = n.as_i64() {
-                Ok(i.into_py(py))
+                i.into_py_any(py)
             } else if let Some(f) = n.as_f64() {
-                Ok(f.into_py(py))
+                f.into_py_any(py)
             } else {
                 Ok(py.None())
             }
         }
-        serde_json::Value::String(s) => Ok(s.into_py(py)),
+        serde_json::Value::String(s) => s.into_py_any(py),
         serde_json::Value::Array(arr) => {
-            let list: Vec<PyObject> = arr.iter()
+            let list: Vec<Py<PyAny>> = arr
+                .iter()
                 .map(|v| json_to_py(py, v))
                 .collect::<PyResult<_>>()?;
-            Ok(list.into_py(py))
+            list.into_py_any(py)
         }
         serde_json::Value::Object(map) => {
-            let dict = pyo3::types::PyDict::new_bound(py);
+            let dict = pyo3::types::PyDict::new(py);
             for (k, v) in map {
                 dict.set_item(k, json_to_py(py, v)?)?;
             }
-            Ok(dict.into())
+            Ok(dict.into_any().unbind())
         }
     }
 }

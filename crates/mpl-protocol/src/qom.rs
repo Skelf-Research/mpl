@@ -429,7 +429,11 @@ impl QomReport {
     }
 
     /// Create a failing report
-    pub fn fail(profile: impl Into<String>, metrics: QomMetrics, evaluation: QomEvaluation) -> Self {
+    pub fn fail(
+        profile: impl Into<String>,
+        metrics: QomMetrics,
+        evaluation: QomEvaluation,
+    ) -> Self {
         let hints = evaluation
             .failures
             .iter()

@@ -1,0 +1,21 @@
+# cargo-audit configuration: known-acceptable advisories with rationale.
+# Anything NOT listed here will fail CI. Re-evaluate every quarter.
+#
+# Format reference: https://docs.rs/cargo-audit/
+
+[advisories]
+ignore = [
+    # ---- rustls-webpki 0.101.7: transitive via reqwest 0.12 -> hyper-rustls -> rustls 0.22 ----
+    # Fixed by rustls 0.23 family. Waiting on reqwest/hyper-rustls bumps to land
+    # upstream; can revisit when reqwest 0.13 ships or when we drop the reqwest dep
+    # (it is only used by mpl-proxy for outbound calls). Practical exposure: cert
+    # name-constraint edge cases against attacker-controlled CAs.
+    "RUSTSEC-2026-0098",  # rustls-webpki URI name constraints incorrectly accepted
+    "RUSTSEC-2026-0099",  # rustls-webpki wildcard cert name constraints accepted
+    "RUSTSEC-2026-0104",  # rustls-webpki CRL parsing reachable panic
+
+    # ---- Unmaintained transitive deps (warnings, not exploits) ----
+    "RUSTSEC-2025-0119",  # number_prefix unmaintained (via indicatif via reqwest CLI)
+    "RUSTSEC-2024-0436",  # paste unmaintained (via clap derive macros)
+    "RUSTSEC-2025-0134",  # rustls-pemfile 1.x unmaintained (transitive via rustls 0.22)
+]

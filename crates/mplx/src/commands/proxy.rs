@@ -9,9 +9,7 @@ use std::sync::Arc;
 use tokio::net::TcpListener;
 use tracing::{info, warn};
 
-use mpl_proxy::config::{
-    MplConfig, ObservabilityConfig, ProxyConfig, ProxyMode, TransportConfig,
-};
+use mpl_proxy::config::{MplConfig, ObservabilityConfig, ProxyConfig, ProxyMode, TransportConfig};
 use mpl_proxy::handlers;
 use mpl_proxy::proxy::ProxyState;
 
@@ -93,7 +91,15 @@ pub async fn run(
     let app = build_app(state.clone(), learn, data_dir)?;
 
     // Print startup banner
-    print_banner(&upstream_url, listen, mode, learn, metrics_port, ui_enabled, ui_port);
+    print_banner(
+        &upstream_url,
+        listen,
+        mode,
+        learn,
+        metrics_port,
+        ui_enabled,
+        ui_port,
+    );
 
     // Start metrics server if enabled
     if metrics_port > 0 {
@@ -130,11 +136,7 @@ pub async fn run(
 }
 
 /// Build the main Axum application
-fn build_app(
-    state: Arc<ProxyState>,
-    _learn: bool,
-    _data_dir: &str,
-) -> Result<Router> {
+fn build_app(state: Arc<ProxyState>, _learn: bool, _data_dir: &str) -> Result<Router> {
     let app = Router::new()
         .route("/health", axum::routing::get(handlers::health))
         .route("/capabilities", axum::routing::get(handlers::capabilities))
@@ -172,20 +174,24 @@ async fn start_metrics_server(port: u16, _state: Arc<ProxyState>) -> Result<()> 
 
 /// Start the UI server
 async fn start_ui_server(port: u16, _data_dir: &str) -> Result<()> {
-    use axum::routing::get;
     use axum::response::Html;
+    use axum::routing::get;
 
     // Basic UI placeholder - will be replaced with Vue app
     let app = Router::new()
-        .route("/", get(|| async {
-            Html(include_str!("../ui/index.html"))
-        }))
-        .route("/api/status", get(|| async {
-            axum::Json(serde_json::json!({
-                "status": "running",
-                "version": env!("CARGO_PKG_VERSION")
-            }))
-        }));
+        .route(
+            "/",
+            get(|| async { Html(include_str!("../ui/index.html")) }),
+        )
+        .route(
+            "/api/status",
+            get(|| async {
+                axum::Json(serde_json::json!({
+                    "status": "running",
+                    "version": env!("CARGO_PKG_VERSION")
+                }))
+            }),
+        );
 
     let addr = format!("0.0.0.0:{}", port);
     let listener = TcpListener::bind(&addr).await?;
@@ -225,7 +231,10 @@ fn print_banner(
     println!("  Upstream:   http://{}", upstream);
     println!("  Listen:     {}", listen);
     println!("  Mode:       {:?}", mode);
-    println!("  Learning:   {}", if learn { "enabled" } else { "disabled" });
+    println!(
+        "  Learning:   {}",
+        if learn { "enabled" } else { "disabled" }
+    );
     if metrics_port > 0 {
         println!("  Metrics:    http://0.0.0.0:{}/metrics", metrics_port);
     }

@@ -100,10 +100,13 @@ impl SchemaValidator {
             )));
         }
 
-        let schema = self.schemas.get(stype).ok_or_else(|| MplError::UnknownStype {
-            stype: stype.to_string(),
-            suggestions: self.suggest_similar(stype),
-        })?;
+        let schema = self
+            .schemas
+            .get(stype)
+            .ok_or_else(|| MplError::UnknownStype {
+                stype: stype.to_string(),
+                suggestions: self.suggest_similar(stype),
+            })?;
 
         let result = schema.validate(payload);
 
@@ -158,7 +161,7 @@ impl SchemaValidator {
             .keys()
             .filter(|k| {
                 // Simple similarity: same suffix or prefix
-                k.ends_with(stype.split('.').last().unwrap_or(""))
+                k.ends_with(stype.split('.').next_back().unwrap_or(""))
                     || k.starts_with(stype.split('.').next().unwrap_or(""))
             })
             .take(3)
@@ -253,7 +256,13 @@ impl Default for ValidatorBuilder {
 fn estimate_json_size(value: &Value) -> usize {
     match value {
         Value::Null => 4, // "null"
-        Value::Bool(b) => if *b { 4 } else { 5 }, // "true" or "false"
+        Value::Bool(b) => {
+            if *b {
+                4
+            } else {
+                5
+            }
+        } // "true" or "false"
         Value::Number(n) => n.to_string().len(),
         Value::String(s) => s.len() + 2, // quotes
         Value::Array(arr) => {

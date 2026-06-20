@@ -67,8 +67,8 @@ pub async fn get_schema(
     }
 
     let content = fs::read_to_string(&schema_path).await?;
-    let schema: Value = serde_json::from_str(&content)
-        .map_err(|e| RegistryError::SchemaError(e.to_string()))?;
+    let schema: Value =
+        serde_json::from_str(&content).map_err(|e| RegistryError::SchemaError(e.to_string()))?;
 
     // Cache the schema
     state.cache.insert(stype_id, schema.clone());
@@ -103,7 +103,10 @@ pub async fn get_stype_metadata(
         domain: domain.clone(),
         name: name.clone(),
         version: version_num,
-        schema_url: format!("/stypes/{}/{}/{}/v{}/schema", namespace, domain, name, version_num),
+        schema_url: format!(
+            "/stypes/{}/{}/{}/v{}/schema",
+            namespace, domain, name, version_num
+        ),
         urn: format!("urn:stype:{}", stype_id),
     }))
 }
@@ -165,8 +168,11 @@ pub async fn list_stypes(
                             let type_name = name_entry.file_name().to_string_lossy().to_string();
 
                             if let Ok(mut version_entries) = fs::read_dir(name_entry.path()).await {
-                                while let Ok(Some(version_entry)) = version_entries.next_entry().await {
-                                    let version_str = version_entry.file_name().to_string_lossy().to_string();
+                                while let Ok(Some(version_entry)) =
+                                    version_entries.next_entry().await
+                                {
+                                    let version_str =
+                                        version_entry.file_name().to_string_lossy().to_string();
 
                                     if let Some(version_num) = version_str
                                         .strip_prefix('v')
@@ -270,9 +276,7 @@ pub struct CacheStatsResponse {
 }
 
 /// Get cache stats
-pub async fn cache_stats(
-    State(state): State<Arc<RegistryState>>,
-) -> Json<CacheStatsResponse> {
+pub async fn cache_stats(State(state): State<Arc<RegistryState>>) -> Json<CacheStatsResponse> {
     let stats = state.cache.stats();
     Json(CacheStatsResponse {
         entry_count: stats.entry_count,

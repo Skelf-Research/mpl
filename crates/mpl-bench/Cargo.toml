@@ -1,0 +1,15 @@
+[package]
+name = "mpl-bench"
+version = "0.1.2"
+edition = "2021"
+publish = false
+description = "Benchmark + evaluation harness for QoM (research, not shipped)"
+
+[[bin]]
+name = "qom-eval"
+path = "src/main.rs"
+
+[dependencies]
+mpl-protocol = { path = "../mpl-protocol" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

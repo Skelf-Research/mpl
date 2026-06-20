@@ -171,11 +171,13 @@ impl ProxyState {
 
         let metrics = Arc::new(MetricsState::new());
 
-        // Initialize traffic recorder
-        let data_path = data_dir
-            .map(Path::new)
-            .unwrap_or_else(|| Path::new("~/.mpl"));
-        let traffic_recorder = Arc::new(TrafficRecorder::new(data_path, learning_enabled));
+        // Initialize traffic recorder. Expand `~/` so a literal `~/.mpl/...`
+        // directory isn't created wherever the binary was invoked.
+        let data_path = match data_dir {
+            Some(p) => mpl_core::util::expand_tilde(p),
+            None => mpl_core::util::expand_tilde("~/.mpl"),
+        };
+        let traffic_recorder = Arc::new(TrafficRecorder::new(&data_path, learning_enabled));
 
         if learning_enabled {
             // Load existing samples from disk
@@ -223,7 +225,9 @@ impl ProxyState {
 
     /// Generate a unique TOC callback ID
     pub fn next_toc_callback_id(&self) -> String {
-        let count = self.toc_counter.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let count = self
+            .toc_counter
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         format!("toc-{:016x}", count)
     }
 
@@ -280,10 +284,16 @@ impl ProxyState {
     }
 
     /// Load schemas from local registry directory
-    fn load_schemas_from_registry(validator: &mut SchemaValidator, registry_path: &str) -> Result<()> {
+    fn load_schemas_from_registry(
+        validator: &mut SchemaValidator,
+        registry_path: &str,
+    ) -> Result<()> {
         let stypes_path = Path::new(registry_path).join("stypes");
         if !stypes_path.exists() {
-            debug!("Registry stypes path does not exist: {}", stypes_path.display());
+            debug!(
+                "Registry stypes path does not exist: {}",
+                stypes_path.display()
+            );
             return Ok(());
         }
 
@@ -318,12 +328,7 @@ impl ProxyState {
                     if version.parse::<u32>().is_ok() {
                         let namespace = parts[..parts.len() - 2].join(".");
                         let name = &parts[parts.len() - 2];
-                        let stype = format!(
-                            "{}.{}.{}",
-                            namespace,
-                            name,
-                            version_str
-                        );
+                        let stype = format!("{}.{}.{}", namespace, name, version_str);
 
                         // Read and register schema
                         if let Ok(schema_content) = std::fs::read_to_string(&entry_path) {
@@ -442,7 +447,10 @@ impl ProxyState {
                 if entry_path.is_dir() {
                     let mut new_parts = parts.clone();
                     new_parts.push(name);
-                    result.extend(Self::collect_ontologies_from_registry(&entry_path, new_parts));
+                    result.extend(Self::collect_ontologies_from_registry(
+                        &entry_path,
+                        new_parts,
+                    ));
                 } else if name == "ontology.json" && parts.len() >= 4 {
                     // We have: namespace/domain/Name/vN/ontology.json
                     let version_str = &parts[parts.len() - 1];
@@ -511,20 +519,31 @@ impl ProxyState {
                     if !validation.valid {
                         result.valid = false;
                         for err in validation.errors {
-                            result.errors.push(format!("Schema error at {}: {}", err.path, err.message));
+                            result
+                                .errors
+                                .push(format!("Schema error at {}: {}", err.path, err.message));
                         }
                     }
-                    if validation.valid { 1.0 } else { 0.0 }
+                    if validation.valid {
+                        1.0
+                    } else {
+                        0.0
+                    }
                 }
                 Err(e) => {
                     // Unknown SType - check mode
                     if self.is_strict() {
                         result.valid = false;
                         result.schema_valid = false;
-                        result.errors.push(format!("Unknown SType: {} ({})", envelope.stype, e));
+                        result
+                            .errors
+                            .push(format!("Unknown SType: {} ({})", envelope.stype, e));
                         0.0
                     } else {
-                        warn!("Unknown SType: {}, allowing in transparent mode", envelope.stype);
+                        warn!(
+                            "Unknown SType: {}, allowing in transparent mode",
+                            envelope.stype
+                        );
                         1.0
                     }
                 }
@@ -546,7 +565,9 @@ impl ProxyState {
                 Err(e) => {
                     result.hash_valid = false;
                     result.valid = false;
-                    result.errors.push(format!("Hash verification failed: {}", e));
+                    result
+                        .errors
+                        .push(format!("Hash verification failed: {}", e));
                 }
             }
         }
@@ -568,7 +589,9 @@ impl ProxyState {
                         if !ar.passed {
                             match ar.severity {
                                 mpl_core::assertions::AssertionSeverity::Error => {
-                                    result.errors.push(format!("IC error [{}]: {}", ar.id, ar.message));
+                                    result
+                                        .errors
+                                        .push(format!("IC error [{}]: {}", ar.id, ar.message));
                                 }
                                 mpl_core::assertions::AssertionSeverity::Warning => {
                                     debug!("IC warning [{}]: {}", ar.id, ar.message);
@@ -597,7 +620,10 @@ impl ProxyState {
         };
 
         // Ontology Adherence (OA) - check domain constraints
-        let oa_result = self.qom_recorder.check_ontology(&envelope.stype, &envelope.payload).await;
+        let oa_result = self
+            .qom_recorder
+            .check_ontology(&envelope.stype, &envelope.payload)
+            .await;
         let oa_score = if oa_result.constraints_checked > 0 {
             Some(oa_result.score)
         } else {
@@ -606,7 +632,10 @@ impl ProxyState {
 
         // Determinism Jitter (DJ) - check response stability if response provided
         let dj_score = if let (Some(resp), Some(ref hash)) = (response, &payload_hash) {
-            let dj_result = self.qom_recorder.check_determinism(&envelope.stype, hash, resp).await;
+            let dj_result = self
+                .qom_recorder
+                .check_determinism(&envelope.stype, hash, resp)
+                .await;
             if dj_result.comparison_count > 0 {
                 Some(dj_result.similarity)
             } else {
@@ -642,9 +671,10 @@ impl ProxyState {
             if !evaluation.meets_profile {
                 result.valid = false;
                 for failure in evaluation.failures {
-                    result
-                        .errors
-                        .push(format!("QoM breach: {} < {}", failure.metric, failure.threshold));
+                    result.errors.push(format!(
+                        "QoM breach: {} < {}",
+                        failure.metric, failure.threshold
+                    ));
                 }
             }
 
@@ -722,8 +752,8 @@ impl ProxyState {
         let body_bytes = axum::body::to_bytes(request.into_body(), usize::MAX).await?;
 
         // Parse payload for traffic recording
-        let payload: serde_json::Value = serde_json::from_slice(&body_bytes)
-            .unwrap_or(serde_json::Value::Null);
+        let payload: serde_json::Value =
+            serde_json::from_slice(&body_bytes).unwrap_or(serde_json::Value::Null);
 
         // Try to parse as MPL envelope or create one from headers
         let envelope = if let Ok(env) = serde_json::from_slice::<MplEnvelope>(&body_bytes) {
@@ -779,7 +809,10 @@ impl ProxyState {
                 return Ok(Response::builder()
                     .status(StatusCode::BAD_REQUEST)
                     .header("content-type", "application/json")
-                    .header(HEADER_QOM_RESULT, if result.qom_passed { "pass" } else { "fail" })
+                    .header(
+                        HEADER_QOM_RESULT,
+                        if result.qom_passed { "pass" } else { "fail" },
+                    )
                     .body(Body::from(serde_json::to_string(&error_response)?))?);
             }
 
@@ -836,7 +869,10 @@ impl ProxyState {
 
         // Add MPL headers to response
         if let Some(ref result) = validation_result {
-            response = response.header(HEADER_QOM_RESULT, if result.qom_passed { "pass" } else { "fail" });
+            response = response.header(
+                HEADER_QOM_RESULT,
+                if result.qom_passed { "pass" } else { "fail" },
+            );
         }
 
         Ok(response.body(Body::from(body))?)
@@ -857,7 +893,12 @@ impl ProxyState {
     /// Returns profiles from strictest to most lenient
     pub fn get_degradation_chain(&self, start_profile: &str) -> Vec<&QomProfile> {
         // Profile degradation order: comprehensive -> outcome -> strict-argcheck -> basic
-        let order = ["qom-comprehensive", "qom-outcome", "qom-strict-argcheck", "qom-basic"];
+        let order = [
+            "qom-comprehensive",
+            "qom-outcome",
+            "qom-strict-argcheck",
+            "qom-basic",
+        ];
 
         let start_idx = order.iter().position(|&p| p == start_profile).unwrap_or(0);
 
@@ -869,10 +910,7 @@ impl ProxyState {
 
     /// Validate with automatic profile degradation
     /// Returns (result, final_profile_name, was_degraded)
-    pub async fn validate_with_degradation(
-        &self,
-        envelope: &MplEnvelope,
-    ) -> ValidationResult {
+    pub async fn validate_with_degradation(&self, envelope: &MplEnvelope) -> ValidationResult {
         let original_profile = self.config.mpl.required_profile.clone();
 
         if let Some(ref profile_name) = original_profile {
@@ -917,7 +955,9 @@ impl ProxyState {
                     if !validation.valid {
                         result.valid = false;
                         for err in validation.errors {
-                            result.errors.push(format!("Schema error at {}: {}", err.path, err.message));
+                            result
+                                .errors
+                                .push(format!("Schema error at {}: {}", err.path, err.message));
                         }
                     }
                 }
@@ -925,7 +965,9 @@ impl ProxyState {
                     if self.is_strict() {
                         result.valid = false;
                         result.schema_valid = false;
-                        result.errors.push(format!("Unknown SType: {} ({})", envelope.stype, e));
+                        result
+                            .errors
+                            .push(format!("Unknown SType: {} ({})", envelope.stype, e));
                     }
                 }
             }
@@ -965,8 +1007,10 @@ impl ProxyState {
 
         if !evaluation.meets_profile {
             for failure in evaluation.failures {
-                result.errors.push(format!("QoM breach [{}]: {} < {}",
-                    profile.name, failure.metric, failure.threshold));
+                result.errors.push(format!(
+                    "QoM breach [{}]: {} < {}",
+                    profile.name, failure.metric, failure.threshold
+                ));
             }
         }
 
@@ -1005,7 +1049,12 @@ impl ProxyState {
     /// Handle AI-ALPN handshake
     pub fn handle_handshake(&self, hello: AiAlpnClientHello) -> AiAlpnServerSelect {
         // Find common STypes
-        let server_stypes: Vec<String> = self.validator.registered_stypes().iter().map(|s| s.to_string()).collect();
+        let server_stypes: Vec<String> = self
+            .validator
+            .registered_stypes()
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
         let common_stypes: Vec<String> = hello
             .stypes
             .iter()

@@ -185,11 +185,7 @@ pub struct StypeInferrer;
 
 impl StypeInferrer {
     /// Infer an SType from a JSON payload and request context
-    pub fn infer(
-        path: &str,
-        method: &str,
-        payload: &serde_json::Value,
-    ) -> String {
+    pub fn infer(path: &str, method: &str, payload: &serde_json::Value) -> String {
         // Check for A2A task patterns first
         if let Some(stype) = Self::infer_a2a(path, payload) {
             return stype;
@@ -224,7 +220,7 @@ impl StypeInferrer {
         }
 
         // Fallback: hash-based inference
-        format!("inferred.unknown.payload.v1")
+        "inferred.unknown.payload.v1".to_string()
     }
 
     /// Infer SType for A2A protocol patterns

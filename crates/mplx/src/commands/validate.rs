@@ -34,15 +34,21 @@ fn find_schema_in_registry(stype: &SType, registry_path: &str) -> Result<String>
     if schema_path.exists() {
         Ok(fs::read_to_string(schema_path)?)
     } else {
-        anyhow::bail!(
-            "Schema not found in registry at: {}",
-            schema_path.display()
-        );
+        anyhow::bail!("Schema not found in registry at: {}", schema_path.display());
     }
 }
 
-pub fn run(stype: &str, payload_input: &str, schema_path: Option<&str>, registry_path: &str) -> Result<()> {
-    println!("{} Validating payload against {}", "→".blue(), stype.green());
+pub fn run(
+    stype: &str,
+    payload_input: &str,
+    schema_path: Option<&str>,
+    registry_path: &str,
+) -> Result<()> {
+    println!(
+        "{} Validating payload against {}",
+        "→".blue(),
+        stype.green()
+    );
 
     // Parse SType
     let parsed_stype = SType::parse(stype)?;

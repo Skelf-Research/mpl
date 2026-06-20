@@ -177,7 +177,10 @@ impl Policy {
 
         // Check SType patterns
         if !self.stype_patterns.is_empty() {
-            let matches_stype = self.stype_patterns.iter().any(|p| p.matches(&context.stype));
+            let matches_stype = self
+                .stype_patterns
+                .iter()
+                .any(|p| p.matches(&context.stype));
             if !matches_stype {
                 return false;
             }
@@ -212,10 +215,9 @@ impl Policy {
         // Check constraints
         for constraint in &self.constraints {
             if !constraint.evaluate(context) {
-                decision.warnings.push(format!(
-                    "Constraint '{}' not satisfied",
-                    constraint.name
-                ));
+                decision
+                    .warnings
+                    .push(format!("Constraint '{}' not satisfied", constraint.name));
                 if constraint.required {
                     return PolicyDecision::deny(format!(
                         "Required constraint '{}' not satisfied",
@@ -491,12 +493,12 @@ pub enum ConstraintExpr {
 impl ConstraintExpr {
     pub fn evaluate(&self, context: &PolicyContext) -> bool {
         match self {
-            ConstraintExpr::HasMetadata { key } => {
-                context.metadata.contains_key(key)
-            }
-            ConstraintExpr::MetadataEquals { key, value } => {
-                context.metadata.get(key).map(|v| v == value).unwrap_or(false)
-            }
+            ConstraintExpr::HasMetadata { key } => context.metadata.contains_key(key),
+            ConstraintExpr::MetadataEquals { key, value } => context
+                .metadata
+                .get(key)
+                .map(|v| v == value)
+                .unwrap_or(false),
             ConstraintExpr::MaxPayloadSize { bytes } => {
                 context.payload_size.map(|s| s <= *bytes).unwrap_or(true)
             }
@@ -734,7 +736,10 @@ mod tests {
         let decision = engine.evaluate(&context);
 
         assert!(decision.is_allowed());
-        assert_eq!(decision.required_profile, Some("qom-strict-argcheck".to_string()));
+        assert_eq!(
+            decision.required_profile,
+            Some("qom-strict-argcheck".to_string())
+        );
     }
 
     #[test]
@@ -758,8 +763,7 @@ mod tests {
         assert!(!decision.is_allowed());
 
         // Admin should be allowed
-        let context = PolicyContext::new(test_stype(), Operation::Execute)
-            .with_principal("admin");
+        let context = PolicyContext::new(test_stype(), Operation::Execute).with_principal("admin");
         let decision = engine.evaluate(&context);
         assert!(decision.is_allowed());
     }

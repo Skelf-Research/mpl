@@ -81,10 +81,7 @@ pub fn run(
         format!("{:.2}", metrics.schema_fidelity).green()
     );
     if let Some(ic) = metrics.instruction_compliance {
-        println!(
-            "  Instruction Compliance: {}",
-            format!("{:.2}", ic).green()
-        );
+        println!("  Instruction Compliance: {}", format!("{:.2}", ic).green());
     }
 
     println!("\n{}", "Evaluation:".yellow().bold());

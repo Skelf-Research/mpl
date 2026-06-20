@@ -60,7 +60,10 @@ impl SType {
         if s.len() > Self::MAX_STYPE_LENGTH {
             return Err(MplError::InvalidSType {
                 stype: format!("{}...", &s[..50]),
-                reason: format!("SType exceeds maximum length of {} characters", Self::MAX_STYPE_LENGTH),
+                reason: format!(
+                    "SType exceeds maximum length of {} characters",
+                    Self::MAX_STYPE_LENGTH
+                ),
             });
         }
 
@@ -76,7 +79,10 @@ impl SType {
         if parts.len() > Self::MAX_NAMESPACE_DEPTH + 3 {
             return Err(MplError::InvalidSType {
                 stype: s.to_string(),
-                reason: format!("SType has too many parts (max {} namespace depth)", Self::MAX_NAMESPACE_DEPTH),
+                reason: format!(
+                    "SType has too many parts (max {} namespace depth)",
+                    Self::MAX_NAMESPACE_DEPTH
+                ),
             });
         }
 
@@ -93,16 +99,22 @@ impl SType {
             });
         }
 
-        let major_version: u32 = version_part[1..].parse().map_err(|_| MplError::InvalidSType {
-            stype: s.to_string(),
-            reason: format!("Invalid version number: {}", version_part),
-        })?;
+        let major_version: u32 = version_part[1..]
+            .parse()
+            .map_err(|_| MplError::InvalidSType {
+                stype: s.to_string(),
+                reason: format!("Invalid version number: {}", version_part),
+            })?;
 
         // Version bounds check
         if major_version > Self::MAX_VERSION {
             return Err(MplError::InvalidSType {
                 stype: s.to_string(),
-                reason: format!("Version {} exceeds maximum of {}", major_version, Self::MAX_VERSION),
+                reason: format!(
+                    "Version {} exceeds maximum of {}",
+                    major_version,
+                    Self::MAX_VERSION
+                ),
             });
         }
 
@@ -122,10 +134,13 @@ impl SType {
         }
 
         // Safety: namespace_domain_parts.len() >= 2 checked above, so last() is guaranteed Some
-        let domain = namespace_domain_parts.last().ok_or_else(|| MplError::InvalidSType {
-            stype: s.to_string(),
-            reason: "Internal error: missing domain part".to_string(),
-        })?.to_string();
+        let domain = namespace_domain_parts
+            .last()
+            .ok_or_else(|| MplError::InvalidSType {
+                stype: s.to_string(),
+                reason: "Internal error: missing domain part".to_string(),
+            })?
+            .to_string();
         let namespace = namespace_domain_parts[..namespace_domain_parts.len() - 1].join(".");
 
         Ok(Self {

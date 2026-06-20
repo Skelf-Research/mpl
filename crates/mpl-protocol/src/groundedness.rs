@@ -705,11 +705,8 @@ impl<V: LlmGroundednessVerifier> LlmGroundednessChecker<V> {
                 }
 
                 // Recalculate totals
-                result.grounded_claims = result
-                    .claim_results
-                    .iter()
-                    .filter(|cr| cr.grounded)
-                    .count();
+                result.grounded_claims =
+                    result.claim_results.iter().filter(|cr| cr.grounded).count();
                 result.ungrounded_claims = result
                     .claim_results
                     .iter()

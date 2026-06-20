@@ -11,8 +11,12 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 use tracing::{debug, warn};
 
-use mpl_core::determinism::{DeterminismChecker, DeterminismConfig, DeterminismResult, RequestSignature};
-use mpl_core::groundedness::{GroundednessChecker, GroundednessConfig, GroundednessResult, SourceDocument};
+use mpl_core::determinism::{
+    DeterminismChecker, DeterminismConfig, DeterminismResult, RequestSignature,
+};
+use mpl_core::groundedness::{
+    GroundednessChecker, GroundednessConfig, GroundednessResult, SourceDocument,
+};
 use mpl_core::ontology::{Ontology, OntologyChecker, OntologyResult};
 
 /// A single QoM evaluation event
@@ -191,7 +195,9 @@ impl QomRecorder {
 
     /// Generate a unique event ID
     fn next_event_id(&self) -> String {
-        let count = self.event_counter.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let count = self
+            .event_counter
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         format!("evt_{:016x}", count)
     }
 
@@ -488,7 +494,11 @@ impl QomRecorder {
     }
 
     /// Compute history points from in-memory events
-    async fn compute_history_from_events(&self, duration: Duration, points: usize) -> Vec<QomHistoryPoint> {
+    async fn compute_history_from_events(
+        &self,
+        duration: Duration,
+        points: usize,
+    ) -> Vec<QomHistoryPoint> {
         let now = Utc::now();
         let interval = duration / points as i32;
         let mut history = Vec::with_capacity(points);
@@ -550,12 +560,36 @@ impl QomRecorder {
             history.push(QomHistoryPoint {
                 timestamp: point_start,
                 count: total_count,
-                sf: if sf_count > 0 { sf_sum / sf_count as f64 } else { 1.0 },
-                ic: if ic_count > 0 { ic_sum / ic_count as f64 } else { 0.0 },
-                toc: if toc_count > 0 { toc_sum / toc_count as f64 } else { 0.0 },
-                g: if g_count > 0 { g_sum / g_count as f64 } else { 0.0 },
-                dj: if dj_count > 0 { dj_sum / dj_count as f64 } else { 0.0 },
-                oa: if oa_count > 0 { oa_sum / oa_count as f64 } else { 0.0 },
+                sf: if sf_count > 0 {
+                    sf_sum / sf_count as f64
+                } else {
+                    1.0
+                },
+                ic: if ic_count > 0 {
+                    ic_sum / ic_count as f64
+                } else {
+                    0.0
+                },
+                toc: if toc_count > 0 {
+                    toc_sum / toc_count as f64
+                } else {
+                    0.0
+                },
+                g: if g_count > 0 {
+                    g_sum / g_count as f64
+                } else {
+                    0.0
+                },
+                dj: if dj_count > 0 {
+                    dj_sum / dj_count as f64
+                } else {
+                    0.0
+                },
+                oa: if oa_count > 0 {
+                    oa_sum / oa_count as f64
+                } else {
+                    0.0
+                },
                 pass_rate: if total_count > 0 {
                     pass_count as f64 / total_count as f64
                 } else {
@@ -583,7 +617,9 @@ impl QomRecorder {
 
     /// Persist history to disk (should be called periodically)
     pub async fn persist_history(&self) {
-        let history = self.compute_history_from_events(Duration::days(7), 168).await; // 7 days, hourly
+        let history = self
+            .compute_history_from_events(Duration::days(7), 168)
+            .await; // 7 days, hourly
         let history_file = self.config.data_dir.join("qom_history.json");
 
         if let Ok(content) = serde_json::to_string_pretty(&history) {

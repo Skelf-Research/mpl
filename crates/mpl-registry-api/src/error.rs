@@ -34,11 +34,9 @@ impl IntoResponse for RegistryError {
                 "E-NOT-FOUND",
                 format!("SType not found: {}", stype),
             ),
-            RegistryError::InvalidFormat(msg) => (
-                StatusCode::BAD_REQUEST,
-                "E-INVALID-FORMAT",
-                msg.clone(),
-            ),
+            RegistryError::InvalidFormat(msg) => {
+                (StatusCode::BAD_REQUEST, "E-INVALID-FORMAT", msg.clone())
+            }
             RegistryError::SchemaError(msg) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "E-SCHEMA-ERROR",
@@ -49,11 +47,9 @@ impl IntoResponse for RegistryError {
                 "E-IO-ERROR",
                 e.to_string(),
             ),
-            RegistryError::Internal(msg) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "E-INTERNAL",
-                msg.clone(),
-            ),
+            RegistryError::Internal(msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "E-INTERNAL", msg.clone())
+            }
         };
 
         let body = Json(json!({

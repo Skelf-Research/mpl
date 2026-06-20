@@ -259,10 +259,7 @@ impl OntologyChecker {
                         rule_id: format!("allowed_values:{}", path),
                         violation_type: ViolationType::InvalidValue,
                         path: path.clone(),
-                        message: format!(
-                            "Value '{}' not in allowed set",
-                            value
-                        ),
+                        message: format!("Value '{}' not in allowed set", value),
                         severity: ViolationSeverity::Error,
                         expected: Some(serde_json::Value::Array(allowed.clone())),
                         actual: Some(value.clone()),
@@ -354,65 +351,69 @@ impl OntologyChecker {
                 from_value.is_some() && to_value.is_some()
             }
             RelationType::LessThan => {
-                match (from_value.and_then(|v| v.as_f64()), to_value.and_then(|v| v.as_f64())) {
+                match (
+                    from_value.and_then(|v| v.as_f64()),
+                    to_value.and_then(|v| v.as_f64()),
+                ) {
                     (Some(f), Some(t)) => f >= t,
                     _ => false,
                 }
             }
             RelationType::LessThanOrEqual => {
-                match (from_value.and_then(|v| v.as_f64()), to_value.and_then(|v| v.as_f64())) {
+                match (
+                    from_value.and_then(|v| v.as_f64()),
+                    to_value.and_then(|v| v.as_f64()),
+                ) {
                     (Some(f), Some(t)) => f > t,
                     _ => false,
                 }
             }
             RelationType::GreaterThan => {
-                match (from_value.and_then(|v| v.as_f64()), to_value.and_then(|v| v.as_f64())) {
+                match (
+                    from_value.and_then(|v| v.as_f64()),
+                    to_value.and_then(|v| v.as_f64()),
+                ) {
                     (Some(f), Some(t)) => f <= t,
                     _ => false,
                 }
             }
             RelationType::GreaterThanOrEqual => {
-                match (from_value.and_then(|v| v.as_f64()), to_value.and_then(|v| v.as_f64())) {
+                match (
+                    from_value.and_then(|v| v.as_f64()),
+                    to_value.and_then(|v| v.as_f64()),
+                ) {
                     (Some(f), Some(t)) => f < t,
                     _ => false,
                 }
             }
             RelationType::Equals => from_value != to_value,
             RelationType::NotEquals => from_value == to_value && from_value.is_some(),
-            RelationType::SubsetOf => {
-                match (from_value, to_value) {
-                    (Some(serde_json::Value::Array(from)), Some(serde_json::Value::Array(to))) => {
-                        let to_set: HashSet<_> = to.iter().collect();
-                        !from.iter().all(|v| to_set.contains(v))
-                    }
-                    _ => false,
+            RelationType::SubsetOf => match (from_value, to_value) {
+                (Some(serde_json::Value::Array(from)), Some(serde_json::Value::Array(to))) => {
+                    let to_set: HashSet<_> = to.iter().collect();
+                    !from.iter().all(|v| to_set.contains(v))
                 }
-            }
-            RelationType::Contains => {
-                match (from_value, to_value) {
-                    (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(sub))) => {
-                        !s.contains(sub.as_str())
-                    }
-                    (Some(serde_json::Value::Array(arr)), Some(item)) => !arr.contains(item),
-                    _ => false,
+                _ => false,
+            },
+            RelationType::Contains => match (from_value, to_value) {
+                (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(sub))) => {
+                    !s.contains(sub.as_str())
                 }
-            }
-            RelationType::StartsWith => {
-                match (from_value, to_value) {
-                    (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(prefix))) => {
-                        !s.starts_with(prefix.as_str())
-                    }
-                    _ => false,
+                (Some(serde_json::Value::Array(arr)), Some(item)) => !arr.contains(item),
+                _ => false,
+            },
+            RelationType::StartsWith => match (from_value, to_value) {
+                (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(prefix))) => {
+                    !s.starts_with(prefix.as_str())
                 }
-            }
-            RelationType::EndsWith => {
-                match (from_value, to_value) {
-                    (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(suffix))) => {
-                        !s.ends_with(suffix.as_str())
-                    }
-                    _ => false,
+                _ => false,
+            },
+            RelationType::EndsWith => match (from_value, to_value) {
+                (Some(serde_json::Value::String(s)), Some(serde_json::Value::String(suffix))) => {
+                    !s.ends_with(suffix.as_str())
                 }
-            }
+                _ => false,
+            },
         };
 
         if violated {
@@ -446,34 +447,30 @@ impl OntologyChecker {
     ) -> Option<OntologyViolation> {
         // Check semantic type patterns
         let valid = match constraint.semantic_type.as_str() {
-            "email" => {
-                value.as_str().map(|s| s.contains('@') && s.contains('.')).unwrap_or(false)
-            }
-            "url" => {
-                value.as_str()
-                    .map(|s| s.starts_with("http://") || s.starts_with("https://"))
-                    .unwrap_or(false)
-            }
-            "uuid" => {
-                value.as_str()
-                    .map(|s| s.len() == 36 && s.chars().filter(|c| *c == '-').count() == 4)
-                    .unwrap_or(false)
-            }
-            "phone" => {
-                value.as_str()
-                    .map(|s| s.chars().filter(|c| c.is_ascii_digit()).count() >= 10)
-                    .unwrap_or(false)
-            }
-            "date" => {
-                value.as_str()
-                    .map(|s| s.len() == 10 && s.chars().filter(|c| *c == '-').count() == 2)
-                    .unwrap_or(false)
-            }
-            "datetime" => {
-                value.as_str()
-                    .map(|s| s.contains('T') || s.contains(' '))
-                    .unwrap_or(false)
-            }
+            "email" => value
+                .as_str()
+                .map(|s| s.contains('@') && s.contains('.'))
+                .unwrap_or(false),
+            "url" => value
+                .as_str()
+                .map(|s| s.starts_with("http://") || s.starts_with("https://"))
+                .unwrap_or(false),
+            "uuid" => value
+                .as_str()
+                .map(|s| s.len() == 36 && s.chars().filter(|c| *c == '-').count() == 4)
+                .unwrap_or(false),
+            "phone" => value
+                .as_str()
+                .map(|s| s.chars().filter(|c| c.is_ascii_digit()).count() >= 10)
+                .unwrap_or(false),
+            "date" => value
+                .as_str()
+                .map(|s| s.len() == 10 && s.chars().filter(|c| *c == '-').count() == 2)
+                .unwrap_or(false),
+            "datetime" => value
+                .as_str()
+                .map(|s| s.contains('T') || s.contains(' '))
+                .unwrap_or(false),
             _ => true, // Unknown type, skip
         };
 
@@ -530,7 +527,11 @@ impl OntologyChecker {
                         rule_id: format!("type:{}", path),
                         violation_type: ViolationType::TypeViolation,
                         path: path.to_string(),
-                        message: format!("String length {} is less than minimum {}", s.len(), min_len),
+                        message: format!(
+                            "String length {} is less than minimum {}",
+                            s.len(),
+                            min_len
+                        ),
                         severity: ViolationSeverity::Error,
                         expected: Some(serde_json::json!({"min_length": min_len})),
                         actual: Some(value.clone()),
@@ -543,7 +544,11 @@ impl OntologyChecker {
                         rule_id: format!("type:{}", path),
                         violation_type: ViolationType::TypeViolation,
                         path: path.to_string(),
-                        message: format!("String length {} is greater than maximum {}", s.len(), max_len),
+                        message: format!(
+                            "String length {} is greater than maximum {}",
+                            s.len(),
+                            max_len
+                        ),
                         severity: ViolationSeverity::Error,
                         expected: Some(serde_json::json!({"max_length": max_len})),
                         actual: Some(value.clone()),
@@ -562,10 +567,7 @@ impl OntologyChecker {
         value: &serde_json::Value,
         constraint: &CardinalityConstraint,
     ) -> Option<OntologyViolation> {
-        let arr = match value.as_array() {
-            Some(a) => a,
-            None => return None,
-        };
+        let arr = value.as_array()?;
 
         if arr.len() < constraint.min {
             return Some(OntologyViolation {

@@ -16,7 +16,7 @@ impl SchemaCache {
             schemas: Cache::builder()
                 .max_capacity(1000)
                 .time_to_live(Duration::from_secs(300)) // 5 minute TTL
-                .time_to_idle(Duration::from_secs(60))   // 1 minute idle
+                .time_to_idle(Duration::from_secs(60)) // 1 minute idle
                 .build(),
         }
     }

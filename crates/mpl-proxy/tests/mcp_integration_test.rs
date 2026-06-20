@@ -220,7 +220,7 @@ async fn test_mcp_tool_call() {
 #[tokio::test]
 async fn test_mpl_envelope_with_mcp_payload() {
     use mpl_core::envelope::MplEnvelope;
-    use mpl_core::hash::semantic_hash;
+
     use mpl_core::validation::SchemaValidator;
 
     // Create MCP tool call payload
@@ -231,10 +231,7 @@ async fn test_mpl_envelope_with_mcp_payload() {
     });
 
     // Wrap in MPL envelope
-    let mut envelope = MplEnvelope::new(
-        "org.calendar.Event.v1".to_string(),
-        mcp_payload.clone(),
-    );
+    let mut envelope = MplEnvelope::new("org.calendar.Event.v1".to_string(), mcp_payload.clone());
 
     // Compute semantic hash
     envelope.compute_hash().unwrap();
@@ -257,7 +254,9 @@ async fn test_mpl_envelope_with_mcp_payload() {
         )
         .unwrap();
 
-    let result = validator.validate("org.calendar.Event.v1", &mcp_payload).unwrap();
+    let result = validator
+        .validate("org.calendar.Event.v1", &mcp_payload)
+        .unwrap();
     assert!(result.valid);
 
     // Verify hash integrity
@@ -291,7 +290,9 @@ async fn test_mpl_catches_invalid_mcp_payload() {
         )
         .unwrap();
 
-    let result = validator.validate("org.calendar.Event.v1", &invalid_payload).unwrap();
+    let result = validator
+        .validate("org.calendar.Event.v1", &invalid_payload)
+        .unwrap();
     assert!(!result.valid);
     assert!(!result.errors.is_empty());
 }

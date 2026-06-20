@@ -6,6 +6,7 @@ members = [
     "crates/mplx",
     "crates/mpl-python",
     "crates/mpl-registry-api",
+    "crates/mpl-bench",
 ]
 
 [workspace.package]
@@ -51,7 +52,7 @@ thiserror = "1.0"
 anyhow = "1.0"
 
 # Python bindings
-pyo3 = { version = "0.22", features = ["extension-module"] }
+pyo3 = { version = "0.29", features = ["extension-module"] }
 
 # Testing
 pretty_assertions = "1.4"
@@ -70,7 +71,7 @@ hyper-util = { version = "0.1", features = ["tokio"] }
 config = "0.14"
 
 # Metrics
-prometheus = "0.13"
+prometheus = "0.14"
 
 # UUID
 uuid = { version = "1.10", features = ["v4", "serde"] }

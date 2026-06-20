@@ -5,8 +5,8 @@
 
 use a2a_rs::{
     adapter::{
-        business::DefaultMessageHandler, storage::InMemoryTaskStorage, SimpleAgentInfo,
-        DefaultRequestProcessor,
+        business::DefaultMessageHandler, storage::InMemoryTaskStorage, DefaultRequestProcessor,
+        SimpleAgentInfo,
     },
     domain::{Message, TaskState},
     services::AsyncA2AClient,
@@ -32,7 +32,9 @@ mod tests {
     use super::*;
 
     /// Helper to create a test server
-    fn create_test_server(port: u16) -> HttpServer<
+    fn create_test_server(
+        port: u16,
+    ) -> HttpServer<
         DefaultRequestProcessor<
             DefaultMessageHandler<InMemoryTaskStorage>,
             InMemoryTaskStorage,
@@ -40,10 +42,7 @@ mod tests {
         >,
         SimpleAgentInfo,
     > {
-        let agent_info = SimpleAgentInfo::new(
-            "test-a2a-agent".to_string(),
-            "1.0.0".to_string(),
-        );
+        let agent_info = SimpleAgentInfo::new("test-a2a-agent".to_string(), "1.0.0".to_string());
 
         // InMemoryTaskStorage implements both AsyncTaskManager and AsyncNotificationManager
         let task_storage = InMemoryTaskStorage::new();
@@ -53,17 +52,10 @@ mod tests {
 
         // DefaultRequestProcessor takes: message_handler, task_manager, notification_manager
         // InMemoryTaskStorage can be used for both task_manager and notification_manager
-        let processor = DefaultRequestProcessor::new(
-            message_handler,
-            task_storage.clone(),
-            task_storage,
-        );
+        let processor =
+            DefaultRequestProcessor::new(message_handler, task_storage.clone(), task_storage);
 
-        HttpServer::new(
-            processor,
-            agent_info,
-            format!("127.0.0.1:{}", port),
-        )
+        HttpServer::new(processor, agent_info, format!("127.0.0.1:{}", port))
     }
 
     #[tokio::test]
@@ -323,8 +315,8 @@ mod mpl_integration_tests {
             "priority": "high"
         });
 
-        let envelope = MplEnvelope::new("agent.Task.v1", task_payload.clone())
-            .with_profile("qom-basic");
+        let envelope =
+            MplEnvelope::new("agent.Task.v1", task_payload.clone()).with_profile("qom-basic");
 
         assert_eq!(envelope.stype, "agent.Task.v1");
         assert_eq!(envelope.profile, Some("qom-basic".to_string()));
@@ -356,12 +348,11 @@ mod mpl_integration_tests {
             "symbol": "VOO"
         });
 
-        let metrics = QomMetrics::schema_valid()
-            .with_instruction_compliance(0.98);
+        let metrics = QomMetrics::schema_valid().with_instruction_compliance(0.98);
         let report = QomReport::pass("qom-basic", metrics);
 
-        let envelope = MplEnvelope::new("org.finance.Recommendation.v1", payload)
-            .with_qom_report(report);
+        let envelope =
+            MplEnvelope::new("org.finance.Recommendation.v1", payload).with_qom_report(report);
 
         assert!(envelope.qom_report.is_some());
         let qom = envelope.qom_report.as_ref().unwrap();
@@ -384,8 +375,8 @@ mod mpl_integration_tests {
             .with_inputs(vec!["ctx:user-input#1".to_string()])
             .with_policy("policy.ref#kyc-v1");
 
-        let envelope = MplEnvelope::new("org.workflow.Step.v1", payload)
-            .with_provenance(provenance);
+        let envelope =
+            MplEnvelope::new("org.workflow.Step.v1", payload).with_provenance(provenance);
 
         assert!(envelope.provenance.is_some());
         let prov = envelope.provenance.as_ref().unwrap();
@@ -421,7 +412,7 @@ mod mpl_integration_tests {
     /// Test policy enforcement for A2A messages
     #[test]
     fn test_a2a_policy_enforcement() {
-        use mpl_core::policy::{Policy, Operation, StypePattern};
+        use mpl_core::policy::{Operation, Policy, StypePattern};
         use mpl_core::stype::SType;
 
         let mut engine = PolicyEngine::new();
@@ -436,8 +427,7 @@ mod mpl_integration_tests {
 
         // Test financial message
         let stype = SType::parse("org.finance.Transfer.v1").unwrap();
-        let ctx = PolicyContext::new(stype, Operation::Execute)
-            .with_principal("agent://executor");
+        let ctx = PolicyContext::new(stype, Operation::Execute).with_principal("agent://executor");
 
         let decision = engine.evaluate(&ctx);
         assert!(decision.is_allowed());
@@ -484,15 +474,13 @@ mod mpl_integration_tests {
 
         // Test basic profile with passing metrics
         let basic_profile = QomProfile::basic();
-        let metrics = QomMetrics::schema_valid()
-            .with_instruction_compliance(0.95);
+        let metrics = QomMetrics::schema_valid().with_instruction_compliance(0.95);
         let eval = basic_profile.evaluate(&metrics);
         assert!(eval.meets_profile);
 
         // Test strict profile with threshold breach
         let strict_profile = QomProfile::strict_argcheck();
-        let strict_metrics = QomMetrics::schema_valid()
-            .with_instruction_compliance(0.92);  // Below 0.97 threshold
+        let strict_metrics = QomMetrics::schema_valid().with_instruction_compliance(0.92); // Below 0.97 threshold
         let strict_eval = strict_profile.evaluate(&strict_metrics);
         assert!(!strict_eval.meets_profile);
     }
@@ -529,8 +517,8 @@ mod mpl_integration_tests {
     /// Test envelope serialization for A2A transport
     #[test]
     fn test_envelope_json_serialization() {
-        let mut envelope = MplEnvelope::new("agent.Task.v1", json!({"task_id": "001"}))
-            .with_profile("qom-basic");
+        let mut envelope =
+            MplEnvelope::new("agent.Task.v1", json!({"task_id": "001"})).with_profile("qom-basic");
         envelope.compute_hash().unwrap();
 
         // Serialize to JSON
@@ -593,7 +581,7 @@ mod mpl_integration_tests {
 
         let select = ServerSelect::success()
             .with_protocol("a2a/0.3")
-            .with_profile("qom-basic")  // Downgraded from strict
+            .with_profile("qom-basic") // Downgraded from strict
             .with_downgrade(
                 Downgrade::new(
                     DowngradeCategory::Profile,

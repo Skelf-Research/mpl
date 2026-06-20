@@ -9,8 +9,8 @@ use mpl_core::error::{MplError, MplErrorCode};
 use mpl_core::handshake::{ClientHello, ServerSelect};
 use mpl_core::hash::{canonicalize, semantic_hash, verify_hash};
 use mpl_core::policy::{
-    AccessControlRule, AccessDefault, Constraint, ConstraintExpr, Operation, Policy,
-    PolicyContext, PolicyEngine, StypePattern, VersionConstraint,
+    AccessControlRule, AccessDefault, Constraint, ConstraintExpr, Operation, Policy, PolicyContext,
+    PolicyEngine, StypePattern, VersionConstraint,
 };
 use mpl_core::qom::{QomMetrics, QomProfile, QomReport};
 use mpl_core::stype::SType;
@@ -53,7 +53,9 @@ mod stype_tests {
     fn test_stype_registry_path() {
         let stype = SType::parse("eval.rag.RAGQuery.v1").unwrap();
         // Registry path includes leading slash and schema.json
-        assert!(stype.registry_path().contains("stypes/eval/rag/RAGQuery/v1"));
+        assert!(stype
+            .registry_path()
+            .contains("stypes/eval/rag/RAGQuery/v1"));
     }
 
     #[test]
@@ -123,7 +125,9 @@ mod validation_tests {
             "start": "2024-01-15T10:00:00Z",
             "end": "2024-01-15T11:00:00Z"
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         assert!(result.valid);
         assert!(result.errors.is_empty());
     }
@@ -138,7 +142,9 @@ mod validation_tests {
             "location": "Conference Room A",
             "attendees": ["alice@example.com", "bob@example.com"]
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         assert!(result.valid);
     }
 
@@ -150,9 +156,14 @@ mod validation_tests {
             "start": "2024-01-15T10:00:00Z"
             // Missing "end"
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         assert!(!result.valid);
-        assert!(result.errors.iter().any(|e| e.message.contains("end") || e.path.contains("end")));
+        assert!(result
+            .errors
+            .iter()
+            .any(|e| e.message.contains("end") || e.path.contains("end")));
     }
 
     #[test]
@@ -163,7 +174,9 @@ mod validation_tests {
             "start": "2024-01-15T10:00:00Z",
             "end": "2024-01-15T11:00:00Z"
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         assert!(!result.valid);
     }
 
@@ -175,7 +188,9 @@ mod validation_tests {
             "start": "2024-01-15T10:00:00Z",
             "end": "2024-01-15T11:00:00Z"
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         assert!(!result.valid);
     }
 
@@ -196,7 +211,9 @@ mod validation_tests {
             "end": "2024-01-15T11:00:00Z",
             "customField": "custom value" // Extra property
         });
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         // By default, JSON Schema allows additional properties
         assert!(result.valid);
     }
@@ -232,7 +249,12 @@ mod validation_tests {
                 "tags": ["important", "urgent"]
             }
         });
-        assert!(validator.validate("data.record.Record.v1", &valid_payload).unwrap().valid);
+        assert!(
+            validator
+                .validate("data.record.Record.v1", &valid_payload)
+                .unwrap()
+                .valid
+        );
 
         let invalid_payload = json!({
             "id": "rec-123",
@@ -240,7 +262,12 @@ mod validation_tests {
                 "tags": ["important"] // Missing "created"
             }
         });
-        assert!(!validator.validate("data.record.Record.v1", &invalid_payload).unwrap().valid);
+        assert!(
+            !validator
+                .validate("data.record.Record.v1", &invalid_payload)
+                .unwrap()
+                .valid
+        );
     }
 }
 
@@ -289,7 +316,10 @@ mod qom_tests {
         let eval = profile.evaluate(&metrics);
 
         assert!(!eval.meets_profile);
-        assert!(eval.failures.iter().any(|f| f.metric == "instruction_compliance"));
+        assert!(eval
+            .failures
+            .iter()
+            .any(|f| f.metric == "instruction_compliance"));
     }
 
     #[test]
@@ -308,7 +338,10 @@ mod qom_tests {
         let eval = profile.evaluate(&metrics);
 
         assert!(!eval.meets_profile);
-        assert!(eval.failures.iter().any(|f| f.metric == "tool_outcome_correctness"));
+        assert!(eval
+            .failures
+            .iter()
+            .any(|f| f.metric == "tool_outcome_correctness"));
     }
 
     #[test]
@@ -456,7 +489,10 @@ mod policy_tests {
         let decision = engine.evaluate(&context);
 
         assert!(decision.is_allowed());
-        assert_eq!(decision.required_profile, Some("qom-strict-argcheck".to_string()));
+        assert_eq!(
+            decision.required_profile,
+            Some("qom-strict-argcheck".to_string())
+        );
     }
 
     #[test]
@@ -498,7 +534,9 @@ mod policy_tests {
         let mut policy_with_constraint = policy;
         policy_with_constraint.constraints.push(Constraint {
             name: "tenant-required".to_string(),
-            expression: ConstraintExpr::HasMetadata { key: "tenant_id".to_string() },
+            expression: ConstraintExpr::HasMetadata {
+                key: "tenant_id".to_string(),
+            },
             required: true,
         });
         engine.add_policy(policy_with_constraint);
@@ -534,7 +572,10 @@ mod policy_tests {
         // Eval SType
         let eval_ctx = PolicyContext::new(test_stype(), Operation::Execute);
         let eval_decision = engine.evaluate(&eval_ctx);
-        assert_eq!(eval_decision.required_profile, Some("qom-strict-argcheck".to_string()));
+        assert_eq!(
+            eval_decision.required_profile,
+            Some("qom-strict-argcheck".to_string())
+        );
 
         // Org SType
         let org_ctx = PolicyContext::new(
@@ -615,8 +656,8 @@ mod envelope_tests {
     #[test]
     fn test_envelope_with_provenance() {
         let payload = json!({"title": "Test"});
-        let envelope = MplEnvelope::new("org.test.Type.v1".to_string(), payload)
-            .with_profile("qom-basic");
+        let envelope =
+            MplEnvelope::new("org.test.Type.v1".to_string(), payload).with_profile("qom-basic");
 
         assert_eq!(envelope.profile, Some("qom-basic".to_string()));
     }
@@ -721,7 +762,10 @@ mod handshake_tests {
     #[test]
     fn test_client_hello_creation() {
         let hello = ClientHello::new()
-            .with_stypes(vec!["org.calendar.Event.v1".to_string(), "org.agent.TaskPlan.v1".to_string()])
+            .with_stypes(vec![
+                "org.calendar.Event.v1".to_string(),
+                "org.agent.TaskPlan.v1".to_string(),
+            ])
             .with_profile("qom-basic");
 
         assert_eq!(hello.stypes.len(), 2);
@@ -814,8 +858,14 @@ mod error_tests {
     fn test_error_qom_breach() {
         let error = MplError::QomBreach {
             message: "QoM threshold not met".to_string(),
-            metrics: std::collections::HashMap::from([("instruction_compliance".to_string(), 0.85)]),
-            thresholds: std::collections::HashMap::from([("instruction_compliance".to_string(), 0.97)]),
+            metrics: std::collections::HashMap::from([(
+                "instruction_compliance".to_string(),
+                0.85,
+            )]),
+            thresholds: std::collections::HashMap::from([(
+                "instruction_compliance".to_string(),
+                0.97,
+            )]),
             hints: vec!["Improve instruction compliance".to_string()],
         };
         assert_eq!(error.code(), MplErrorCode::EQomBreach);
@@ -946,7 +996,7 @@ mod integration_tests {
     #[test]
     fn test_handshake_to_validation_pipeline() {
         // 1. Client hello
-        let client_hello = ClientHello::new()
+        let _client_hello = ClientHello::new()
             .with_stypes(vec!["org.calendar.Event.v1".to_string()])
             .with_profile("qom-basic");
 
@@ -956,7 +1006,9 @@ mod integration_tests {
             .with_profile("qom-basic");
 
         // 3. Validate SType is agreed
-        assert!(server_select.stypes.contains(&"org.calendar.Event.v1".to_string()));
+        assert!(server_select
+            .stypes
+            .contains(&"org.calendar.Event.v1".to_string()));
 
         // 4. Setup validation for agreed STypes
         let mut validator = SchemaValidator::new();
@@ -984,7 +1036,9 @@ mod integration_tests {
 
         // 6. Validate payload
         let payload = json!({"title": "Meeting"});
-        let result = validator.validate("org.calendar.Event.v1", &payload).unwrap();
+        let result = validator
+            .validate("org.calendar.Event.v1", &payload)
+            .unwrap();
         let metrics = result.to_qom_metrics();
         let evaluation = profile.evaluate(&metrics);
 
@@ -1008,7 +1062,10 @@ mod integration_tests {
         let financial_stype = SType::parse("org.finance.Transaction.v1").unwrap();
         let financial_ctx = PolicyContext::new(financial_stype, Operation::Execute);
         let financial_decision = engine.evaluate(&financial_ctx);
-        assert_eq!(financial_decision.required_profile, Some("qom-comprehensive".to_string()));
+        assert_eq!(
+            financial_decision.required_profile,
+            Some("qom-comprehensive".to_string())
+        );
 
         // For calendar, add a specific policy
         let mut engine2 = PolicyEngine::new();
@@ -1021,6 +1078,9 @@ mod integration_tests {
         let calendar_stype = SType::parse("org.calendar.Event.v1").unwrap();
         let calendar_ctx = PolicyContext::new(calendar_stype, Operation::Execute);
         let calendar_decision = engine2.evaluate(&calendar_ctx);
-        assert_eq!(calendar_decision.required_profile, Some("qom-basic".to_string()));
+        assert_eq!(
+            calendar_decision.required_profile,
+            Some("qom-basic".to_string())
+        );
     }
 }

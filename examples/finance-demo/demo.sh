@@ -16,9 +16,10 @@ if ! command -v cargo &>/dev/null; then
     exit 1
 fi
 
-if [ -z "${OPENAI_API_KEY:-}" ]; then
-    echo "Error: OPENAI_API_KEY is not set."
-    echo "  export OPENAI_API_KEY=sk-..."
+if [ -z "${OLLAMA_API_KEY:-}" ]; then
+    echo "Error: OLLAMA_API_KEY is not set."
+    echo "  Get one from https://ollama.com/settings/keys, then:"
+    echo "    export OLLAMA_API_KEY=..."
     exit 1
 fi
 

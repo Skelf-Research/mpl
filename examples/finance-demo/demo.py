@@ -9,7 +9,7 @@
 """
 MPL Finance Advisory Demo
 ==========================
-A single-script demo that showcases an OpenAI-powered financial advisory agent
+A single-script demo that showcases a tool-using financial advisory agent
 communicating with a finance MCP server through the MPL proxy.
 
 The proxy validates investment recommendations against the
@@ -17,12 +17,12 @@ org.finance.InvestmentRecommendation.v1 schema and its fiduciary compliance asse
 
 Architecture:
   User (terminal)
-      -> OpenAI Agent (gpt-4o-mini, function calling)
+      -> Agent on Ollama Cloud (gpt-oss:20b, function calling via OpenAI-compatible API)
           -> MPL Proxy (localhost:9443)
               -> Finance MCP Server (localhost:8080)
 
 Usage:
-  export OPENAI_API_KEY=sk-...
+  export OLLAMA_API_KEY=...           # from https://ollama.com/settings/keys
   uv run demo.py
 """
 
@@ -45,7 +45,11 @@ from openai import OpenAI
 PROXY_PORT = 9443
 SERVER_PORT = 8080
 PROXY_URL = f"http://localhost:{PROXY_PORT}"
-MODEL = "gpt-4o-mini"
+# Ollama Cloud exposes an OpenAI-compatible API at https://ollama.com/v1.
+# gpt-oss is OpenAI's open-weight agentic model; the `:cloud` suffix routes
+# the request through Ollama's hosted GPUs rather than a local Ollama daemon.
+OLLAMA_BASE_URL = "https://ollama.com/v1"
+MODEL = "gpt-oss:20b-cloud"
 
 # Path resolution (relative to this script)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -217,7 +221,7 @@ def start_proxy():
     return None
 
 
-# ─── OpenAI Agent ─────────────────────────────────────────────────────────────
+# ─── Agent (Ollama Cloud via OpenAI-compatible API) ───────────────────────────
 
 SYSTEM_PROMPT = """You are a financial advisor assistant. You help clients understand their \
 portfolio and make investment decisions. Be concise and direct.
@@ -401,14 +405,15 @@ def display_mpl_result(tool_name, mpl_info):
 
 
 def run_agent():
-    """Run the interactive OpenAI agent loop."""
-    api_key = os.environ.get("OPENAI_API_KEY")
+    """Run the interactive agent loop against Ollama Cloud's OpenAI-compatible API."""
+    api_key = os.environ.get("OLLAMA_API_KEY")
     if not api_key:
-        print("\nError: OPENAI_API_KEY environment variable not set.")
-        print("  export OPENAI_API_KEY=sk-...")
+        print("\nError: OLLAMA_API_KEY environment variable not set.")
+        print("  Get one from https://ollama.com/settings/keys, then:")
+        print("  export OLLAMA_API_KEY=...")
         sys.exit(1)
 
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=api_key, base_url=OLLAMA_BASE_URL)
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     print("\nType your financial questions below. Type 'quit' or Ctrl+C to exit.\n")

@@ -6,18 +6,21 @@ An interactive financial advisory agent that demonstrates MPL's semantic validat
 
 ```
 User (terminal)
-    -> OpenAI Agent (gpt-4o-mini, function calling)
+    -> Agent on Ollama Cloud (gpt-oss:20b, function calling via OpenAI-compatible API)
         -> MPL Proxy (localhost:9443, strict mode)
             -> Finance MCP Server (localhost:8080)
 ```
 
-The MPL proxy validates investment recommendations against `org.finance.InvestmentRecommendation.v1` schema and its 9 CEL-based fiduciary assertions.
+The agent talks to Ollama Cloud (https://ollama.com/v1) using the OpenAI Python
+SDK with a custom `base_url`. The MPL proxy validates investment recommendations
+against `org.finance.InvestmentRecommendation.v1` schema and its 9 CEL-based
+fiduciary assertions.
 
 ## Setup
 
 ```bash
-# Set your OpenAI API key
-export OPENAI_API_KEY=sk-...
+# Get a key from https://ollama.com/settings/keys, then:
+export OLLAMA_API_KEY=...
 
 # Build the proxy (done automatically on first run)
 cargo build --release -p mpl-proxy

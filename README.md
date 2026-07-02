@@ -1,11 +1,19 @@
-# MPL: Meaning Protocol Layer
+# MPL — Meaning Protocol Layer
+
+> Contracts, quality measurement, and audit trails for AI agent communication.
 
 [![CI](https://github.com/Skelf-Research/mpl/actions/workflows/ci.yaml/badge.svg)](https://github.com/Skelf-Research/mpl/actions/workflows/ci.yaml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://skelf-research.github.io/mpl)
+[![Docs](https://img.shields.io/badge/docs-skelfresearch.com-blue)](https://docs.skelfresearch.com/mpl)
 [![Security audit](https://img.shields.io/badge/security-cargo--audit-blue.svg)](.cargo/audit.toml)
 
-### Contracts, quality measurement, and audit trails for AI agent communication.
+<p align="center">
+  <a href="https://mpl.skelfresearch.com"><b>Website</b></a> •
+  <a href="https://docs.skelfresearch.com/mpl">Documentation</a> •
+  <a href="https://docs.skelfresearch.com/mpl/getting-started/quick-start/">Quick Start</a> •
+  <a href="https://github.com/Skelf-Research/mpl/discussions">Community</a> •
+  <a href="https://skelfresearch.com">Skelf Research</a>
+</p>
 
 MPL sits between your agents and their tools. It makes every interaction **typed**, **measurable**, and **provable** — so you can move from prototype to production without rewriting your stack.
 
@@ -249,17 +257,17 @@ Every message through MPL carries a BLAKE3 hash (tamper detection), provenance m
 
 ## Documentation
 
-Full docs at **[skelf-research.github.io/mpl](https://skelf-research.github.io/mpl)**
+Full docs at **[docs.skelfresearch.com/mpl](https://docs.skelfresearch.com/mpl)**
 
 | I want to... | Start here |
 |--------------|-----------|
-| Get running quickly | [Quick Start](https://skelf-research.github.io/mpl/getting-started/quick-start/) |
-| Understand the architecture | [How It Works](https://skelf-research.github.io/mpl/overview/how-it-works/) |
-| Follow a tutorial end-to-end | [Guides](https://skelf-research.github.io/mpl/guides/) |
-| Create my own contracts | [Custom SType Tutorial](https://skelf-research.github.io/mpl/guides/tutorials/custom-stype/) |
-| Look up SDK methods | [Python](https://skelf-research.github.io/mpl/reference/python/) / [TypeScript](https://skelf-research.github.io/mpl/reference/typescript/) |
-| Deploy to Kubernetes | [Deployment](https://skelf-research.github.io/mpl/deployment/) |
-| Understand the compliance story | [Security & Compliance](https://skelf-research.github.io/mpl/security/) |
+| Get running quickly | [Quick Start](https://docs.skelfresearch.com/mpl/getting-started/quick-start/) |
+| Understand the architecture | [How It Works](https://docs.skelfresearch.com/mpl/overview/how-it-works/) |
+| Follow a tutorial end-to-end | [Guides](https://docs.skelfresearch.com/mpl/guides/) |
+| Create my own contracts | [Custom SType Tutorial](https://docs.skelfresearch.com/mpl/guides/tutorials/custom-stype/) |
+| Look up SDK methods | [Python](https://docs.skelfresearch.com/mpl/reference/python/) / [TypeScript](https://docs.skelfresearch.com/mpl/reference/typescript/) |
+| Deploy to Kubernetes | [Deployment](https://docs.skelfresearch.com/mpl/deployment/) |
+| Understand the compliance story | [Security & Compliance](https://docs.skelfresearch.com/mpl/security/) |
 
 ---
 
@@ -284,13 +292,25 @@ typescript/             TypeScript SDK
 registry/stypes/        Pre-built contract definitions
 helm/mpl-proxy/         Kubernetes Helm chart
 examples/               Tutorials and demos
-documentation/          Documentation site (MkDocs)
+documentation/          Documentation site (MkDocs → docs.skelfresearch.com/mpl)
 ```
 
 ## Contributing
 
-See the [Contributing Guide](https://skelf-research.github.io/mpl/community/contributing/) for development setup and workflow.
+See the [Contributing Guide](https://docs.skelfresearch.com/mpl/community/contributing/) for development setup and workflow.
 
 ## License
 
 MIT — [Open an issue](https://github.com/Skelf-Research/mpl/issues) if you have questions.
+
+---
+
+## Part of Skelf Research
+
+`mpl` is built by **[Skelf Research](https://skelfresearch.com)** — an independent UK AI research lab publishing production-grade open-source projects.
+
+🌐 [Website](https://mpl.skelfresearch.com) · 📚 [Documentation](https://docs.skelfresearch.com/mpl) · 🔬 [All projects](https://skelfresearch.com/projects) · 🤗 [Hugging Face](https://huggingface.co/skelfresearch)
+
+**Related projects:** [savanty](https://savanty.skelfresearch.com) (English → constraint solver) · [compere](https://compere.skelfresearch.com) (pairwise ranking) · [l0l1](https://l0l1.skelfresearch.com) (AI SQL co-pilot)
+
+<sub>Released under MIT / Apache-2.0. © Skelf Research Limited.</sub>

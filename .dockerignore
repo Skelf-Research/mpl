@@ -1,0 +1,52 @@
+# Files/dirs excluded from `docker build` context. Keeps the build fast,
+# the image small, and prevents accidentally baking secrets or IDE state
+# into a layer.
+
+# vcs
+.git/
+.gitignore
+.github/
+
+# rust
+target/
+**/target/
+
+# node
+node_modules/
+**/node_modules/
+*.log
+npm-debug.log
+
+# python
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+**/.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# secrets — never bake these into a layer
+.env
+**/.env
+.cargo/audit.toml.example
+
+# ide / os
+.vscode/
+.idea/
+.DS_Store
+
+# docs / meta not needed at runtime
+docs/
+documentation/
+CHANGELOG.md
+RELEASE.md
+CONTRIBUTING.md
+LICENSE
+README.md
+
+# tests + fixtures aren't needed in the runtime image
+crates/*/tests/
+crates/*/benches/
+examples/

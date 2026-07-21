@@ -1,7 +1,10 @@
 # MPL Proxy Dockerfile
-# Multi-stage build for minimal image size
+# Multi-stage build for minimal image size.
+# Base image is auto-tracked to the latest stable 1.x — rebuilds pick up
+# security patches without manual bumps. Cargo.toml's rust-version = "1.75"
+# remains the MSRV; the builder just uses a newer toolchain.
 
-FROM rust:1.75-bookworm AS builder
+FROM rust:1-bookworm AS builder
 
 WORKDIR /app
 
@@ -15,8 +18,11 @@ RUN cargo build --release --package mpl-proxy --package mplx
 # Runtime image
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y \
+# ca-certificates: TLS for outbound HTTPS.
+# curl: used by the HEALTHCHECK below (missing before, containers were always unhealthy).
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

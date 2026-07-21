@@ -168,3 +168,7 @@ cython_debug/
 # Guard against literal tilde paths (use mpl_core::util::expand_tilde for `~/`)
 /crates/*/~/
 **/literal-tilde-path-this-is-a-bug/
+
+# npm / node
+node_modules/
+npm-debug.log
